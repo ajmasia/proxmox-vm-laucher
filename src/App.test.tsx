@@ -13,8 +13,10 @@ describe('App', () => {
     expect(screen.getByText(/Connect to your Proxmox virtual machines/i)).toBeInTheDocument()
   })
 
-  it('renders the get started button', () => {
+  it('renders the connection form', () => {
     render(<App />)
-    expect(screen.getByRole('button', { name: /get started/i })).toBeInTheDocument()
+    expect(screen.getByLabelText(/connection name/i)).toBeInTheDocument()
+    expect(screen.getByLabelText(/host/i)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /connect/i })).toBeInTheDocument()
   })
 })
