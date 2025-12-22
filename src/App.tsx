@@ -21,10 +21,11 @@ function App() {
     try {
       await invoke('load_server_config')
       setHasConfig(true)
-      loadVMs()
+      setConfigLoaded(true)
+      // Load VMs after config is confirmed
+      await loadVMs()
     } catch (err) {
       setHasConfig(false)
-    } finally {
       setConfigLoaded(true)
     }
   }
@@ -54,7 +55,6 @@ function App() {
       setSuccess(true)
       setHasConfig(true)
       console.log('Configuration saved successfully')
-      loadVMs()
     } catch (err) {
       setError(err as string)
       console.error('Error saving configuration:', err)
@@ -62,6 +62,12 @@ function App() {
       setLoading(false)
     }
   }
+
+  useEffect(() => {
+    if (hasConfig && configLoaded && vms.length === 0 && !loadingVMs) {
+      loadVMs()
+    }
+  }, [hasConfig, configLoaded])
 
   const handleSelectVM = (vm: ProxmoxVM) => {
     console.log('Selected VM:', vm)
@@ -78,7 +84,7 @@ function App() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-900 to-slate-800 p-4">
-      <div className="w-full max-w-md rounded-lg bg-white p-8 shadow-2xl">
+      <div className="w-full max-w-5xl rounded-lg bg-white p-8 shadow-2xl">
         <h1 className="mb-6 text-3xl font-bold text-slate-900">Proxmox VM Launcher</h1>
 
         {error && (

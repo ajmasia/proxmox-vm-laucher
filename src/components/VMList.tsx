@@ -50,57 +50,66 @@ export default function VMList({ vms, onSelectVM, loading }: VMListProps) {
   }
 
   return (
-    <div className="space-y-3">
-      {vms.map((vm) => (
-        <button
-          key={vm.vmid}
-          onClick={() => onSelectVM(vm)}
-          className="w-full rounded-lg border border-slate-200 p-4 text-left transition-all hover:border-blue-500 hover:shadow-md"
-        >
-          <div className="flex items-start justify-between">
-            <div className="flex-1">
-              <div className="flex items-center gap-3">
-                <h3 className="text-lg font-semibold text-slate-900">{vm.name}</h3>
+    <div className="overflow-x-auto rounded-lg border border-slate-200">
+      <table className="min-w-full divide-y divide-slate-200">
+        <thead className="bg-slate-50">
+          <tr>
+            <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-700">
+              Name
+            </th>
+            <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-700">
+              Status
+            </th>
+            <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-700">
+              VM ID
+            </th>
+            <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-700">
+              Node
+            </th>
+            <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-700">
+              CPU
+            </th>
+            <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-700">
+              Memory
+            </th>
+            <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-700">
+              Action
+            </th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-slate-200 bg-white">
+          {vms.map((vm) => (
+            <tr key={vm.vmid} className="hover:bg-slate-50">
+              <td className="whitespace-nowrap px-4 py-3 text-sm font-medium text-slate-900">
+                {vm.name}
+              </td>
+              <td className="whitespace-nowrap px-4 py-3 text-sm">
                 <span
-                  className={`rounded-full px-2 py-1 text-xs font-medium ${getStatusColor(vm.status)}`}
+                  className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${getStatusColor(vm.status)}`}
                 >
                   {vm.status}
                 </span>
-              </div>
-              <p className="mt-1 text-sm text-slate-600">
-                VM ID: {vm.vmid} • Node: {vm.node}
-              </p>
-            </div>
-          </div>
-
-          <div className="mt-3 grid grid-cols-2 gap-3 text-sm">
-            <div>
-              <span className="text-slate-600">CPU:</span>
-              <span className="ml-1 font-medium text-slate-900">{vm.cpus || 0} cores</span>
-            </div>
-            <div>
-              <span className="text-slate-600">Memory:</span>
-              <span className="ml-1 font-medium text-slate-900">
+              </td>
+              <td className="whitespace-nowrap px-4 py-3 text-sm text-slate-600">{vm.vmid}</td>
+              <td className="whitespace-nowrap px-4 py-3 text-sm text-slate-600">{vm.node}</td>
+              <td className="whitespace-nowrap px-4 py-3 text-sm text-slate-600">
+                {vm.cpus || 0} cores
+              </td>
+              <td className="whitespace-nowrap px-4 py-3 text-sm text-slate-600">
                 {formatBytes(vm.mem || 0)} / {formatBytes(vm.maxmem || 0)}
-              </span>
-            </div>
-            <div>
-              <span className="text-slate-600">Disk:</span>
-              <span className="ml-1 font-medium text-slate-900">
-                {formatBytes(vm.disk || 0)} / {formatBytes(vm.maxdisk || 0)}
-              </span>
-            </div>
-            {vm.uptime && vm.uptime > 0 && (
-              <div>
-                <span className="text-slate-600">Uptime:</span>
-                <span className="ml-1 font-medium text-slate-900">
-                  {Math.floor(vm.uptime / 3600)}h {Math.floor((vm.uptime % 3600) / 60)}m
-                </span>
-              </div>
-            )}
-          </div>
-        </button>
-      ))}
+              </td>
+              <td className="whitespace-nowrap px-4 py-3 text-sm">
+                <button
+                  onClick={() => onSelectVM(vm)}
+                  className="rounded bg-blue-600 px-3 py-1 text-white transition-colors hover:bg-blue-700"
+                >
+                  Connect
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   )
 }
