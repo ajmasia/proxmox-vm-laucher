@@ -82,87 +82,79 @@ const VMItem = memo(function VMItem({
 
         {/* Actions */}
         <div className="flex-shrink-0 min-w-[180px] min-h-[40px] flex items-center justify-end">
-          {isStarting ? (
-            <div className="inline-flex items-center gap-2 text-emerald-600">
-              <SpinnerIcon className="h-4 w-4" />
-              <span className="text-sm font-medium">Starting...</span>
-            </div>
-          ) : isResuming ? (
-            <div className="inline-flex items-center gap-2 text-emerald-600">
-              <SpinnerIcon className="h-4 w-4" />
-              <span className="text-sm font-medium">Resuming...</span>
-            </div>
-          ) : isStopping ? (
+          {(isStarting || isResuming || isStopping || isSuspending) ? (
             <div className="inline-flex items-center gap-2 text-slate-600">
               <SpinnerIcon className="h-4 w-4" />
-              <span className="text-sm font-medium">Stopping...</span>
-            </div>
-          ) : isSuspending ? (
-            <div className="inline-flex items-center gap-2 text-amber-600">
-              <SpinnerIcon className="h-4 w-4" />
-              <span className="text-sm font-medium">Pausing...</span>
+              <span className="text-sm font-medium">
+                {isStarting && 'Starting...'}
+                {isResuming && 'Resuming...'}
+                {isStopping && 'Stopping...'}
+                {isSuspending && 'Pausing...'}
+              </span>
             </div>
           ) : (
             <div className="flex items-center gap-1.5">
-              {vm.status === 'stopped' && (
-                <button
-                  onClick={() => onStartVM(vm)}
-                  className="inline-flex items-center justify-center rounded-lg bg-emerald-600 p-2 text-white transition-all hover:bg-emerald-700"
-                  title="Start VM"
-                >
-                  <PlayIcon className="h-4 w-4" />
-                </button>
-              )}
+              {/* Start/Resume button */}
+              <button
+                onClick={() => onStartVM(vm)}
+                disabled={vm.status === 'running'}
+                className={`inline-flex items-center justify-center rounded-lg p-2 transition-all ${
+                  vm.status === 'running'
+                    ? 'text-slate-400 cursor-not-allowed'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                }`}
+                title={vm.status === 'paused' ? 'Resume VM' : 'Start VM'}
+              >
+                {vm.status === 'paused' ? <ResumeIcon className="h-4 w-4" /> : <PlayIcon className="h-4 w-4" />}
+              </button>
 
-              {vm.status === 'running' && (
-                <>
-                  <button
-                    onClick={() => onConnectVM(vm)}
-                    disabled={!vm.spice}
-                    className={`inline-flex items-center justify-center rounded-lg p-2 text-white transition-all ${
-                      vm.spice
-                        ? 'bg-purple-600 hover:bg-purple-700'
-                        : 'bg-slate-400 cursor-not-allowed opacity-50'
-                    }`}
-                    title={vm.spice ? 'Connect via SPICE' : 'SPICE not enabled for this VM'}
-                  >
-                    <MonitorIcon className="h-4 w-4" />
-                  </button>
-                  <button
-                    onClick={() => onSuspendVM(vm)}
-                    className="inline-flex items-center justify-center rounded-lg bg-amber-600 p-2 text-white transition-all hover:bg-amber-700"
-                    title="Pause VM"
-                  >
-                    <PauseIcon className="h-4 w-4" />
-                  </button>
-                  <button
-                    onClick={() => onStopVM(vm)}
-                    className="inline-flex items-center justify-center rounded-lg bg-red-600 p-2 text-white transition-all hover:bg-red-700"
-                    title="Stop VM"
-                  >
-                    <StopIcon className="h-4 w-4" />
-                  </button>
-                </>
-              )}
+              {/* Connect button */}
+              <button
+                onClick={() => onConnectVM(vm)}
+                disabled={vm.status !== 'running' || !vm.spice}
+                className={`inline-flex items-center justify-center rounded-lg p-2 transition-all ${
+                  vm.status !== 'running' || !vm.spice
+                    ? 'text-slate-400 cursor-not-allowed'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                }`}
+                title={
+                  vm.status !== 'running'
+                    ? 'VM must be running'
+                    : !vm.spice
+                    ? 'SPICE not enabled'
+                    : 'Connect via SPICE'
+                }
+              >
+                <MonitorIcon className="h-4 w-4" />
+              </button>
 
-              {vm.status === 'paused' && (
-                <>
-                  <button
-                    onClick={() => onStartVM(vm)}
-                    className="inline-flex items-center justify-center rounded-lg bg-emerald-600 p-2 text-white transition-all hover:bg-emerald-700"
-                    title="Resume VM"
-                  >
-                    <ResumeIcon className="h-4 w-4" />
-                  </button>
-                  <button
-                    onClick={() => onStopVM(vm)}
-                    className="inline-flex items-center justify-center rounded-lg bg-red-600 p-2 text-white transition-all hover:bg-red-700"
-                    title="Stop VM"
-                  >
-                    <StopIcon className="h-4 w-4" />
-                  </button>
-                </>
-              )}
+              {/* Pause button */}
+              <button
+                onClick={() => onSuspendVM(vm)}
+                disabled={vm.status !== 'running'}
+                className={`inline-flex items-center justify-center rounded-lg p-2 transition-all ${
+                  vm.status !== 'running'
+                    ? 'text-slate-400 cursor-not-allowed'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                }`}
+                title={vm.status !== 'running' ? 'VM must be running' : 'Pause VM'}
+              >
+                <PauseIcon className="h-4 w-4" />
+              </button>
+
+              {/* Stop button */}
+              <button
+                onClick={() => onStopVM(vm)}
+                disabled={vm.status === 'stopped'}
+                className={`inline-flex items-center justify-center rounded-lg p-2 transition-all ${
+                  vm.status === 'stopped'
+                    ? 'text-slate-400 cursor-not-allowed'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                }`}
+                title={vm.status === 'stopped' ? 'VM already stopped' : 'Stop VM'}
+              >
+                <StopIcon className="h-4 w-4" />
+              </button>
             </div>
           )}
         </div>
