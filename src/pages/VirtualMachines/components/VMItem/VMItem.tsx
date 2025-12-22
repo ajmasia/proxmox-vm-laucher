@@ -58,7 +58,7 @@ const VMItem = memo(function VMItem({
         </div>
 
         {/* Status */}
-        <div className="flex-shrink-0">
+        <div className="flex-shrink-0 min-w-[90px] flex justify-center">
           <span
             className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium ${getStatusColor(vm.status)}`}
           >
@@ -68,7 +68,7 @@ const VMItem = memo(function VMItem({
         </div>
 
         {/* Resources */}
-        <div className="flex-shrink-0 text-right">
+        <div className="flex-shrink-0 text-right min-w-[140px]">
           <div className="text-sm text-slate-900">{vm.cpus || 0} vCPU</div>
           <div className="text-xs text-slate-500">
             {formatBytes(vm.mem || 0)} / {formatBytes(vm.maxmem || 0)}
