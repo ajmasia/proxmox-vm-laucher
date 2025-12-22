@@ -1,9 +1,19 @@
-// Server configuration (stored securely)
+// Server configuration (stored securely - NO password)
 export interface ProxmoxServerConfig {
+  id: string
+  name: string
   host: string
   port: number
   username: string
-  password: string
+}
+
+// Session data (in memory only)
+export interface ProxmoxSession {
+  ticket: string
+  csrfToken: string
+  username: string
+  server: ProxmoxServerConfig
+  clusterName?: string
 }
 
 // VM information from Proxmox API

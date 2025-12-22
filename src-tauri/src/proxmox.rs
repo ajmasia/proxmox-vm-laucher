@@ -609,3 +609,117 @@ pub fn launch_spice_viewer(spice_config: &str) -> Result<(), String> {
 
     Ok(())
 }
+
+// Get cluster name
+pub async fn get_cluster_name(
+    host: &str,
+    port: u16,
+    username: &str,
+    password: &str,
+) -> Result<String, String> {
+    let client = reqwest::Client::builder()
+        .danger_accept_invalid_certs(true)
+        .build()
+        .map_err(|e| format!("Failed to create HTTP client: {}", e))?;
+
+    // First, authenticate
+    let auth_url = format!("https://{}:{}/api2/json/access/ticket", host, port);
+    let params = [("username", username), ("password", password)];
+
+    let auth_response = client
+        .post(&auth_url)
+        .form(&params)
+        .send()
+        .await
+        .map_err(|e| format!("Authentication failed: {}", e))?;
+
+    if !auth_response.status().is_success() {
+        return Err(format!(
+            "Authentication failed with status: {}",
+            auth_response.status()
+        ));
+    }
+
+    let auth_data: AuthResponse = auth_response
+        .json()
+        .await
+        .map_err(|e| format!("Failed to parse auth response: {}", e))?;
+
+    // Get cluster status
+    let cluster_url = format!("https://{}:{}/api2/json/cluster/status", host, port);
+
+    let response = client
+        .get(&cluster_url)
+        .header(
+            "Cookie",
+            format!("PVEAuthCookie={}", auth_data.data.ticket),
+        )
+        .header("CSRFPreventionToken", &auth_data.data.csrf_token)
+        .send()
+        .await
+        .map_err(|e| format!("Failed to get cluster status: {}", e))?;
+
+    if !response.status().is_success() {
+        // If cluster endpoint fails, try to get node name as fallback
+        return get_node_name(host, port, &auth_data.data.ticket).await;
+    }
+
+    #[derive(Deserialize)]
+    struct ClusterStatusResponse {
+        data: Vec<ClusterNode>,
+    }
+
+    #[derive(Deserialize)]
+    struct ClusterNode {
+        #[serde(default)]
+        name: String,
+        #[serde(rename = "type")]
+        node_type: String,
+    }
+
+    let cluster_status: ClusterStatusResponse = response
+        .json()
+        .await
+        .map_err(|e| format!("Failed to parse cluster status: {}", e))?;
+
+    // Find the cluster name (type "cluster")
+    if let Some(cluster) = cluster_status.data.iter().find(|n| n.node_type == "cluster") {
+        Ok(cluster.name.clone())
+    } else {
+        // Fallback to first node name
+        get_node_name(host, port, &auth_data.data.ticket).await
+    }
+}
+
+async fn get_node_name(host: &str, port: u16, ticket: &str) -> Result<String, String> {
+    let client = reqwest::Client::builder()
+        .danger_accept_invalid_certs(true)
+        .build()
+        .map_err(|e| format!("Failed to create HTTP client: {}", e))?;
+
+    let nodes_url = format!("https://{}:{}/api2/json/nodes", host, port);
+
+    let response = client
+        .get(&nodes_url)
+        .header("Cookie", format!("PVEAuthCookie={}", ticket))
+        .send()
+        .await
+        .map_err(|e| format!("Failed to get nodes: {}", e))?;
+
+    #[derive(Deserialize)]
+    struct NodesResponse {
+        data: Vec<Node>,
+    }
+
+    #[derive(Deserialize)]
+    struct Node {
+        node: String,
+    }
+
+    let nodes: NodesResponse = response
+        .json()
+        .await
+        .map_err(|e| format!("Failed to parse nodes response: {}", e))?;
+
+    Ok(nodes.data.first().map(|n| n.node.clone()).unwrap_or_else(|| host.to_string()))
+}

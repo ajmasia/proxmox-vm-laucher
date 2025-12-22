@@ -7,15 +7,23 @@ mod proxmox;
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
+        .plugin(tauri_plugin_store::Builder::default().build())
         .invoke_handler(tauri::generate_handler![
             save_server_config,
             load_server_config,
             delete_server_config,
+            authenticate,
+            get_cluster_name,
             list_vms,
+            list_vms_with_session,
             start_vm,
+            start_vm_with_session,
             stop_vm,
+            stop_vm_with_session,
             suspend_vm,
+            suspend_vm_with_session,
             resume_vm,
+            resume_vm_with_session,
             connect_to_proxmox
         ])
         .setup(|app| {
@@ -151,4 +159,104 @@ async fn connect_to_proxmox(app: tauri::AppHandle, node: String, vmid: u32) -> R
     proxmox::launch_spice_viewer(&spice_config)?;
 
     Ok(())
+}
+
+// New authentication system commands
+
+#[derive(serde::Deserialize)]
+struct ServerConfig {
+    host: String,
+    port: u16,
+    username: String,
+    password: String,
+}
+
+#[derive(serde::Serialize)]
+struct AuthResult {
+    ticket: String,
+    #[serde(rename = "csrfToken")]
+    csrf_token: String,
+}
+
+#[tauri::command]
+async fn authenticate(config: ServerConfig) -> Result<AuthResult, String> {
+    let connection = proxmox::ProxmoxConnection {
+        name: String::from(""),
+        host: config.host,
+        port: config.port,
+        username: config.username,
+        password: config.password,
+        node: String::from(""),
+        vmid: String::from(""),
+    };
+
+    let tokens = proxmox::authenticate(&connection).await?;
+
+    Ok(AuthResult {
+        ticket: tokens.ticket,
+        csrf_token: tokens.csrf_token,
+    })
+}
+
+#[tauri::command]
+async fn get_cluster_name(config: ServerConfig) -> Result<String, String> {
+    proxmox::get_cluster_name(&config.host, config.port, &config.username, &config.password).await
+}
+
+#[tauri::command]
+async fn list_vms_with_session(
+    host: String,
+    port: u16,
+    username: String,
+    password: String,
+) -> Result<Vec<proxmox::VMInfo>, String> {
+    proxmox::list_vms(&host, port, &username, &password).await
+}
+
+#[tauri::command]
+async fn start_vm_with_session(
+    host: String,
+    port: u16,
+    username: String,
+    password: String,
+    node: String,
+    vmid: u32,
+) -> Result<(), String> {
+    proxmox::start_vm(&host, port, &username, &password, &node, vmid).await
+}
+
+#[tauri::command]
+async fn stop_vm_with_session(
+    host: String,
+    port: u16,
+    username: String,
+    password: String,
+    node: String,
+    vmid: u32,
+) -> Result<(), String> {
+    proxmox::stop_vm(&host, port, &username, &password, &node, vmid).await
+}
+
+#[tauri::command]
+async fn suspend_vm_with_session(
+    host: String,
+    port: u16,
+    username: String,
+    password: String,
+    node: String,
+    vmid: u32,
+) -> Result<(), String> {
+    proxmox::suspend_vm(&host, port, &username, &password, &node, vmid).await
+}
+
+#[tauri::command]
+async fn resume_vm_with_session(
+    host: String,
+    port: u16,
+    username: String,
+    password: String,
+    node: String,
+    vmid: u32,
+) -> Result<(), String> {
+    proxmox::resume_vm(&host, port, &username, &password, &node, vmid).await
 }
