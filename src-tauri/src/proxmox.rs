@@ -36,6 +36,8 @@ pub struct VMInfo {
     pub disk: u64,
     #[serde(default)]
     pub tags: String,
+    #[serde(default)]
+    pub spice: bool,
 }
 
 #[derive(Debug, Deserialize)]
@@ -59,6 +61,17 @@ pub struct AuthTokens {
 #[derive(Debug, Deserialize)]
 struct VMListResponse {
     data: Vec<VMInfo>,
+}
+
+#[derive(Debug, Deserialize)]
+struct VMConfigResponse {
+    data: VMConfig,
+}
+
+#[derive(Debug, Deserialize)]
+struct VMConfig {
+    #[serde(default)]
+    vga: String,
 }
 
 pub async fn authenticate(connection: &ProxmoxConnection) -> Result<AuthTokens, String> {
@@ -231,11 +244,37 @@ pub async fn list_vms(host: &str, port: u16, username: &str, password: &str) -> 
     let total_count = vm_list.data.len();
 
     // Filter only VMs (exclude LXC containers)
-    let vms_only: Vec<VMInfo> = vm_list
+    let mut vms_only: Vec<VMInfo> = vm_list
         .data
         .into_iter()
         .filter(|vm| vm.vm_type == "qemu")
         .collect();
+
+    // Check SPICE configuration for each VM
+    for vm in &mut vms_only {
+        let config_url = format!(
+            "https://{}:{}/api2/json/nodes/{}/qemu/{}/config",
+            host, port, vm.node, vm.vmid
+        );
+
+        match client
+            .get(&config_url)
+            .header("Cookie", format!("PVEAuthCookie={}", ticket))
+            .send()
+            .await
+        {
+            Ok(response) if response.status().is_success() => {
+                if let Ok(config) = response.json::<VMConfigResponse>().await {
+                    // Check if vga contains "qxl" which indicates SPICE support
+                    vm.spice = config.data.vga.to_lowercase().contains("qxl");
+                }
+            }
+            _ => {
+                // If we can't get the config, assume no SPICE
+                vm.spice = false;
+            }
+        }
+    }
 
     println!("Found {} VMs (filtered from {} total)", vms_only.len(), total_count);
 
