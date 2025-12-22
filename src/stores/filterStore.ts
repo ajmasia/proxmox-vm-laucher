@@ -4,11 +4,14 @@ import type { ProxmoxVM } from '../types/proxmox'
 interface FilterStore {
   // State
   statusFilter: string
-  tagFilter: string
+  selectedTags: string[]
+  spiceOnly: boolean
 
   // Actions
   setStatusFilter: (filter: string) => void
-  setTagFilter: (filter: string) => void
+  toggleTag: (tag: string) => void
+  clearTags: () => void
+  setSpiceOnly: (enabled: boolean) => void
   clearFilters: () => void
 
   // Computed helpers
@@ -19,12 +22,19 @@ interface FilterStore {
 export const useFilterStore = create<FilterStore>((set, get) => ({
   // Initial state
   statusFilter: 'all',
-  tagFilter: 'all',
+  selectedTags: [],
+  spiceOnly: true,
 
   // Actions
   setStatusFilter: (filter) => set({ statusFilter: filter }),
-  setTagFilter: (filter) => set({ tagFilter: filter }),
-  clearFilters: () => set({ statusFilter: 'all', tagFilter: 'all' }),
+  toggleTag: (tag) => set((state) => ({
+    selectedTags: state.selectedTags.includes(tag)
+      ? state.selectedTags.filter(t => t !== tag)
+      : [...state.selectedTags, tag]
+  })),
+  clearTags: () => set({ selectedTags: [] }),
+  setSpiceOnly: (enabled) => set({ spiceOnly: enabled }),
+  clearFilters: () => set({ statusFilter: 'all', selectedTags: [], spiceOnly: true }),
 
   // Computed helpers
   getUniqueTags: (vms) => {
@@ -39,18 +49,22 @@ export const useFilterStore = create<FilterStore>((set, get) => ({
   },
 
   getFilteredVMs: (vms) => {
-    const { statusFilter, tagFilter } = get()
+    const { statusFilter, selectedTags, spiceOnly } = get()
 
     return vms.filter((vm) => {
       const statusMatch = statusFilter === 'all' || vm.status === statusFilter
-      const tagMatch =
-        tagFilter === 'all' ||
-        (vm.tags &&
+
+      // If no tags selected, show all
+      const tagMatch = selectedTags.length === 0 ||
+        (vm.tags && selectedTags.some(selectedTag =>
           vm.tags
             .split(';')
             .map((tag) => tag.trim())
-            .includes(tagFilter))
-      return statusMatch && tagMatch
+            .includes(selectedTag)
+        ))
+
+      const spiceMatch = !spiceOnly || vm.spice === true
+      return statusMatch && tagMatch && spiceMatch
     })
   },
 }))

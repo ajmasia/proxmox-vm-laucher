@@ -45,7 +45,7 @@ const VMItem = memo(function VMItem({
                     {vm.tags.split(';').filter(tag => tag.trim()).map((tag, idx) => (
                       <span
                         key={idx}
-                        className="inline-flex items-center rounded-md bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700 ring-1 ring-blue-600/10"
+                        className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700 ring-1 ring-slate-600/10"
                       >
                         {tag.trim()}
                       </span>

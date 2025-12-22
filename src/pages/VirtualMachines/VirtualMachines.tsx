@@ -39,11 +39,14 @@ const VirtualMachines = () => {
   // Filters
   const {
     statusFilter,
-    tagFilter,
+    selectedTags,
+    spiceOnly,
     uniqueTags,
     filteredVMs,
     setStatusFilter,
-    setTagFilter,
+    toggleTag,
+    clearTags,
+    setSpiceOnly,
     clearFilters,
   } = useVMFilters(vms)
 
@@ -89,10 +92,13 @@ const VirtualMachines = () => {
 
           <VMFilter
             statusFilter={statusFilter}
-            tagFilter={tagFilter}
+            selectedTags={selectedTags}
+            spiceOnly={spiceOnly}
             uniqueTags={uniqueTags}
             onStatusFilterChange={setStatusFilter}
-            onTagFilterChange={setTagFilter}
+            onToggleTag={toggleTag}
+            onClearTags={clearTags}
+            onSpiceOnlyChange={setSpiceOnly}
             onClearFilters={clearFilters}
           />
 

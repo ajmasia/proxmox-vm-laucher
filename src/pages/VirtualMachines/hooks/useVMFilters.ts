@@ -5,24 +5,30 @@ import type { ProxmoxVM } from '../../../types/proxmox'
 export const useVMFilters = (vms: ProxmoxVM[]) => {
   const {
     statusFilter,
-    tagFilter,
+    selectedTags,
+    spiceOnly,
     setStatusFilter,
-    setTagFilter,
+    toggleTag,
+    clearTags,
+    setSpiceOnly,
     clearFilters,
     getUniqueTags,
     getFilteredVMs,
   } = useFilterStore()
 
   const uniqueTags = useMemo(() => getUniqueTags(vms), [vms, getUniqueTags])
-  const filteredVMs = useMemo(() => getFilteredVMs(vms), [vms, statusFilter, tagFilter, getFilteredVMs])
+  const filteredVMs = useMemo(() => getFilteredVMs(vms), [vms, statusFilter, selectedTags, spiceOnly, getFilteredVMs])
 
   return {
     statusFilter,
-    tagFilter,
+    selectedTags,
+    spiceOnly,
     uniqueTags,
     filteredVMs,
     setStatusFilter,
-    setTagFilter,
+    toggleTag,
+    clearTags,
+    setSpiceOnly,
     clearFilters,
   }
 }
