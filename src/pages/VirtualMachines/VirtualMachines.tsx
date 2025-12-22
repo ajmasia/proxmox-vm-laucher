@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { invoke } from '@tauri-apps/api/core'
 import ServerConfig from '../../components/ServerConfig/ServerConfig'
 import VMList from './components/VMList/VMList'
@@ -21,7 +21,7 @@ export default function VirtualMachines() {
   const [tagFilter, setTagFilter] = useState<string>('all')
 
   // Convert map to array for rendering
-  const vms = useMemo(() => Array.from(vmMap.values()), [vmMap])
+  const vms = Array.from(vmMap.values())
 
   useEffect(() => {
     checkConfig()
