@@ -76,7 +76,7 @@ const VMItem = memo(function VMItem({
         </div>
 
         {/* Resources */}
-        <div className="flex-shrink-0 text-right min-w-[140px]">
+        <div className="flex-shrink-0 text-right min-w-[110px]">
           <div className="text-sm text-slate-900">{vm.cpus || 0} vCPU</div>
           <div className="text-xs text-slate-500">
             {formatBytes(vm.mem || 0)} / {formatBytes(vm.maxmem || 0)}
