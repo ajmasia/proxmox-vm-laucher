@@ -72,6 +72,18 @@ struct VMConfigResponse {
 struct VMConfig {
     #[serde(default)]
     vga: String,
+    #[serde(default = "default_cores")]
+    cores: u32,
+    #[serde(default = "default_sockets")]
+    sockets: u32,
+}
+
+fn default_cores() -> u32 {
+    1
+}
+
+fn default_sockets() -> u32 {
+    1
 }
 
 pub async fn authenticate(connection: &ProxmoxConnection) -> Result<AuthTokens, String> {
@@ -267,6 +279,11 @@ pub async fn list_vms(host: &str, port: u16, username: &str, password: &str) -> 
                 if let Ok(config) = response.json::<VMConfigResponse>().await {
                     // Check if vga contains "qxl" which indicates SPICE support
                     vm.spice = config.data.vga.to_lowercase().contains("qxl");
+
+                    // Set CPU count from config if not already set (for stopped VMs)
+                    if vm.cpus == 0 {
+                        vm.cpus = config.data.cores * config.data.sockets;
+                    }
                 }
             }
             _ => {
