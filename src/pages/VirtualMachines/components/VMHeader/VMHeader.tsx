@@ -38,7 +38,7 @@ const VMHeader = ({ onRefresh, isLoading }: VMHeaderProps) => {
             disabled={isLoading}
             className="inline-flex items-center gap-2 rounded-lg bg-slate-100 px-4 py-2 text-sm font-medium text-slate-700 transition-all hover:bg-slate-200 disabled:opacity-50"
           >
-            <RefreshIcon className={isLoading ? 'animate-spin' : ''} />
+            <RefreshIcon className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
             Refresh
           </button>
           <button
