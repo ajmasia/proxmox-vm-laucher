@@ -1,22 +1,23 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { invoke } from '@tauri-apps/api/core'
 import ServerConfig from './components/ServerConfig'
 import VMList from './components/VMList'
-import ConfirmDialog from './components/ConfirmDialog'
+import { RefreshIcon } from './components/Icons'
 import type { ProxmoxServerConfig, ProxmoxVM } from './types/proxmox'
 
 function App() {
-  const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
   const [hasConfig, setHasConfig] = useState(false)
   const [configLoaded, setConfigLoaded] = useState(false)
   const [vms, setVms] = useState<ProxmoxVM[]>([])
   const [loadingVMs, setLoadingVMs] = useState(false)
-  const [confirmDialog, setConfirmDialog] = useState<{
-    isOpen: boolean
-    vm: ProxmoxVM | null
-  }>({ isOpen: false, vm: null })
+  const [startingVMs, setStartingVMs] = useState<Set<number>>(new Set())
+  const [stoppingVMs, setStoppingVMs] = useState<Set<number>>(new Set())
+  const [suspendingVMs, setSuspendingVMs] = useState<Set<number>>(new Set())
+  const [resumingVMs, setResumingVMs] = useState<Set<number>>(new Set())
+  const [statusFilter, setStatusFilter] = useState<string>('all')
+  const [tagFilter, setTagFilter] = useState<string>('all')
 
   useEffect(() => {
     checkConfig()
@@ -35,12 +36,13 @@ function App() {
     }
   }
 
-  const loadVMs = async () => {
+  const loadVMs = useCallback(async () => {
     setLoadingVMs(true)
     setError(null)
 
     try {
       const vmList = await invoke<ProxmoxVM[]>('list_vms')
+      console.log('VM list loaded:', vmList)
       setVms(vmList)
     } catch (err) {
       setError(err as string)
@@ -48,10 +50,9 @@ function App() {
     } finally {
       setLoadingVMs(false)
     }
-  }
+  }, [])
 
   const handleSaveConfig = async (config: ProxmoxServerConfig) => {
-    setLoading(true)
     setError(null)
     setSuccess(false)
 
@@ -63,8 +64,6 @@ function App() {
     } catch (err) {
       setError(err as string)
       console.error('Error saving configuration:', err)
-    } finally {
-      setLoading(false)
     }
   }
 
@@ -74,49 +73,159 @@ function App() {
     }
   }, [hasConfig, configLoaded])
 
-  const handleSelectVM = async (vm: ProxmoxVM) => {
-    // Check if VM is stopped
-    if (vm.status === 'stopped') {
-      setConfirmDialog({ isOpen: true, vm })
-    } else if (vm.status === 'running') {
-      // VM is running, connect directly
-      console.log('Connecting to running VM:', vm)
-      // TODO: Implement SPICE connection
-      setError('SPICE connection not yet implemented')
-    } else {
-      setError(`VM is in ${vm.status} state. Cannot connect.`)
-    }
-  }
-
-  const handleConfirmStart = async () => {
-    const vm = confirmDialog.vm
-    if (!vm) return
-
-    setConfirmDialog({ isOpen: false, vm: null })
-    setLoading(true)
+  const handleConnectVM = useCallback(async (vm: ProxmoxVM) => {
     setError(null)
 
     try {
-      await invoke('start_vm', { node: vm.node, vmid: vm.vmid })
-
-      // Wait for VM to start (polling or fixed delay)
+      await invoke('connect_to_proxmox', { node: vm.node, vmid: vm.vmid })
       setSuccess(true)
-      setError('VM is starting... Please wait 30 seconds and try connecting again.')
-
-      // Refresh VM list after a delay
-      setTimeout(() => {
-        loadVMs()
-      }, 30000)
+      console.log('SPICE viewer launched successfully')
     } catch (err) {
-      setError(`Failed to start VM: ${err}`)
-    } finally {
-      setLoading(false)
+      setError(`Failed to connect to VM: ${err}`)
+      console.error('Error connecting to VM:', err)
     }
-  }
+  }, [])
 
-  const handleCancelStart = () => {
-    setConfirmDialog({ isOpen: false, vm: null })
-  }
+  const handleStartVM = useCallback(async (vm: ProxmoxVM) => {
+    setError(null)
+
+    // If VM is paused, use resume instead of start
+    if (vm.status === 'paused') {
+      setResumingVMs((prev) => new Set(prev).add(vm.vmid))
+
+      try {
+        await invoke('resume_vm', { node: vm.node, vmid: vm.vmid })
+        console.log('VM resume command sent')
+
+        // Wait 5 seconds for state to change, then refresh
+        setTimeout(async () => {
+          console.log('Refreshing VM list after resume')
+          await loadVMs()
+          // Clear resuming state after refresh
+          setResumingVMs((prev) => {
+            const newSet = new Set(prev)
+            newSet.delete(vm.vmid)
+            return newSet
+          })
+        }, 5000)
+      } catch (err) {
+        setError(`Failed to resume VM: ${err}`)
+        setResumingVMs((prev) => {
+          const newSet = new Set(prev)
+          newSet.delete(vm.vmid)
+          return newSet
+        })
+      }
+    } else {
+      // Normal start for stopped VMs
+      setStartingVMs((prev) => new Set(prev).add(vm.vmid))
+
+      try {
+        await invoke('start_vm', { node: vm.node, vmid: vm.vmid })
+        console.log('VM start command sent')
+
+        // Wait 30 seconds for VM to start, then refresh
+        setTimeout(async () => {
+          await loadVMs()
+          setStartingVMs((prev) => {
+            const newSet = new Set(prev)
+            newSet.delete(vm.vmid)
+            return newSet
+          })
+        }, 30000)
+      } catch (err) {
+        setError(`Failed to start VM: ${err}`)
+        setStartingVMs((prev) => {
+          const newSet = new Set(prev)
+          newSet.delete(vm.vmid)
+          return newSet
+        })
+      }
+    }
+  }, [loadVMs])
+
+  const handleSuspendVM = useCallback(async (vm: ProxmoxVM) => {
+    setError(null)
+    setSuspendingVMs((prev) => new Set(prev).add(vm.vmid))
+
+    try {
+      await invoke('suspend_vm', { node: vm.node, vmid: vm.vmid })
+      console.log('VM suspended successfully')
+
+      // Wait a moment for the state to change, then refresh
+      setTimeout(async () => {
+        console.log('Refreshing VM list after suspend')
+        await loadVMs()
+        // Clear suspending state after refresh
+        setSuspendingVMs((prev) => {
+          const newSet = new Set(prev)
+          newSet.delete(vm.vmid)
+          return newSet
+        })
+      }, 5000)
+    } catch (err) {
+      setError(`Failed to suspend VM: ${err}`)
+      console.error('Error suspending VM:', err)
+      setSuspendingVMs((prev) => {
+        const newSet = new Set(prev)
+        newSet.delete(vm.vmid)
+        return newSet
+      })
+    }
+  }, [loadVMs])
+
+  // Extract unique tags from all VMs
+  const uniqueTags = Array.from(
+    new Set(
+      vms
+        .filter((vm) => vm.tags && vm.tags.trim())
+        .flatMap((vm) => vm.tags!.split(';').map((tag) => tag.trim()))
+        .filter((tag) => tag)
+    )
+  ).sort()
+
+  // Filter VMs based on status and tag
+  const filteredVMs = vms.filter((vm) => {
+    const statusMatch = statusFilter === 'all' || vm.status === statusFilter
+    const tagMatch =
+      tagFilter === 'all' ||
+      (vm.tags &&
+        vm.tags
+          .split(';')
+          .map((tag) => tag.trim())
+          .includes(tagFilter))
+    return statusMatch && tagMatch
+  })
+
+  const handleStopVM = useCallback(async (vm: ProxmoxVM) => {
+    setError(null)
+    setStoppingVMs((prev) => new Set(prev).add(vm.vmid))
+
+    try {
+      await invoke('stop_vm', { node: vm.node, vmid: vm.vmid })
+      console.log('VM stopped successfully')
+
+      // Wait a moment for the state to change, then refresh
+      setTimeout(async () => {
+        console.log('Refreshing VM list after stop')
+        await loadVMs()
+        // Clear stopping state after refresh
+        setStoppingVMs((prev) => {
+          const newSet = new Set(prev)
+          newSet.delete(vm.vmid)
+          return newSet
+        })
+      }, 5000)
+    } catch (err) {
+      setError(`Failed to stop VM: ${err}`)
+      console.error('Error stopping VM:', err)
+      setStoppingVMs((prev) => {
+        const newSet = new Set(prev)
+        newSet.delete(vm.vmid)
+        return newSet
+      })
+    }
+  }, [loadVMs])
 
   if (!configLoaded) {
     return (
@@ -127,70 +236,135 @@ function App() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-900 to-slate-800 p-4">
-      <div className="w-full max-w-5xl rounded-lg bg-white p-8 shadow-2xl">
-        <h1 className="mb-6 text-3xl font-bold text-slate-900">Proxmox VM Launcher</h1>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-6">
+      <div className="mx-auto w-full max-w-7xl">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold tracking-tight text-slate-900">Proxmox VM Launcher</h1>
+          <p className="mt-1 text-sm text-slate-500">Manage your virtual machines</p>
+        </div>
 
         {error && (
-          <div className="mb-4 rounded-md bg-red-50 p-4 text-sm text-red-800">
-            <strong>Error:</strong> {error}
+          <div className="mb-6 rounded-xl border border-red-200 bg-red-50 p-4 shadow-sm">
+            <div className="flex items-start gap-3">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-medium text-red-800">{error}</p>
+              </div>
+            </div>
           </div>
         )}
 
         {success && (
-          <div className="mb-4 rounded-md bg-green-50 p-4 text-sm text-green-800">
-            <strong>Success!</strong> Configuration saved securely
-          </div>
-        )}
-
-        {loading && (
-          <div className="mb-4 rounded-md bg-blue-50 p-4 text-sm text-blue-800">
-            Saving configuration...
+          <div className="mb-6 rounded-xl border border-emerald-200 bg-emerald-50 p-4 shadow-sm">
+            <div className="flex items-start gap-3">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5 text-emerald-600" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-medium text-emerald-800">Configuration saved successfully</p>
+              </div>
+            </div>
           </div>
         )}
 
         {!hasConfig ? (
           <ServerConfig onSave={handleSaveConfig} />
         ) : (
-          <div>
-            <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-xl font-semibold text-slate-900">Your Virtual Machines</h2>
-              <button
-                onClick={() => setHasConfig(false)}
-                className="text-sm text-slate-600 hover:text-slate-900"
-              >
-                Reconfigure
-              </button>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-slate-900">Virtual Machines</h2>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setHasConfig(false)}
+                  className="text-sm font-medium text-slate-600 transition-colors hover:text-slate-900"
+                >
+                  Reconfigure
+                </button>
+                <button
+                  onClick={loadVMs}
+                  disabled={loadingVMs}
+                  className="inline-flex items-center gap-2 rounded-lg bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm ring-1 ring-black/5 transition-all hover:bg-slate-50 disabled:opacity-50"
+                >
+                  <RefreshIcon className={loadingVMs ? 'animate-spin' : ''} />
+                  Refresh
+                </button>
+              </div>
             </div>
 
-            {loadingVMs && (
-              <div className="mb-4 rounded-md bg-blue-50 p-4 text-sm text-blue-800">
-                Loading virtual machines...
+            {/* Filters */}
+            <div className="flex items-center gap-3 rounded-lg bg-white px-4 py-3 shadow-sm ring-1 ring-black/5">
+              <div className="flex items-center gap-2">
+                <label className="text-sm font-medium text-slate-700">Status:</label>
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-900 shadow-sm transition-colors hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                >
+                  <option value="all">All</option>
+                  <option value="running">Running</option>
+                  <option value="stopped">Stopped</option>
+                  <option value="paused">Paused</option>
+                </select>
+              </div>
+
+              {uniqueTags.length > 0 && (
+                <div className="flex items-center gap-2">
+                  <label className="text-sm font-medium text-slate-700">Tag:</label>
+                  <select
+                    value={tagFilter}
+                    onChange={(e) => setTagFilter(e.target.value)}
+                    className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-900 shadow-sm transition-colors hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  >
+                    <option value="all">All Tags</option>
+                    {uniqueTags.map((tag) => (
+                      <option key={tag} value={tag}>
+                        {tag}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              {(statusFilter !== 'all' || tagFilter !== 'all') && (
+                <button
+                  onClick={() => {
+                    setStatusFilter('all')
+                    setTagFilter('all')
+                  }}
+                  className="ml-auto text-sm font-medium text-slate-600 transition-colors hover:text-slate-900"
+                >
+                  Clear filters
+                </button>
+              )}
+            </div>
+
+            <VMList
+              vms={filteredVMs}
+              onStartVM={handleStartVM}
+              onStopVM={handleStopVM}
+              onSuspendVM={handleSuspendVM}
+              onConnectVM={handleConnectVM}
+              loading={loadingVMs}
+              startingVMs={startingVMs}
+              stoppingVMs={stoppingVMs}
+              suspendingVMs={suspendingVMs}
+              resumingVMs={resumingVMs}
+            />
+
+            {!loadingVMs && filteredVMs.length === 0 && vms.length > 0 && (
+              <div className="rounded-xl bg-white p-8 text-center shadow-sm ring-1 ring-black/5">
+                <p className="text-slate-500">No virtual machines match the current filters</p>
               </div>
             )}
-
-            <VMList vms={vms} onSelectVM={handleSelectVM} loading={loadingVMs} />
-
-            <button
-              onClick={loadVMs}
-              disabled={loadingVMs}
-              className="mt-4 w-full rounded-md bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
-            >
-              Refresh List
-            </button>
           </div>
         )}
       </div>
-
-      <ConfirmDialog
-        isOpen={confirmDialog.isOpen}
-        title="Start Virtual Machine"
-        message={`VM "${confirmDialog.vm?.name}" is currently stopped. Do you want to start it?`}
-        confirmLabel="Start VM"
-        cancelLabel="Cancel"
-        onConfirm={handleConfirmStart}
-        onCancel={handleCancelStart}
-      />
     </div>
   )
 }

@@ -13,6 +13,9 @@ pub fn run() {
             delete_server_config,
             list_vms,
             start_vm,
+            stop_vm,
+            suspend_vm,
+            resume_vm,
             connect_to_proxmox
         ])
         .setup(|app| {
@@ -72,13 +75,80 @@ async fn start_vm(app: tauri::AppHandle, node: String, vmid: u32) -> Result<(), 
 }
 
 #[tauri::command]
-async fn connect_to_proxmox(connection: proxmox::ProxmoxConnection) -> Result<String, String> {
+async fn stop_vm(app: tauri::AppHandle, node: String, vmid: u32) -> Result<(), String> {
+    // Load server config
+    let config = config::load_config(&app)?;
+
+    // Stop the VM
+    proxmox::stop_vm(
+        &config.host,
+        config.port,
+        &config.username,
+        &config.password,
+        &node,
+        vmid,
+    )
+    .await
+}
+
+#[tauri::command]
+async fn suspend_vm(app: tauri::AppHandle, node: String, vmid: u32) -> Result<(), String> {
+    // Load server config
+    let config = config::load_config(&app)?;
+
+    // Suspend the VM
+    proxmox::suspend_vm(
+        &config.host,
+        config.port,
+        &config.username,
+        &config.password,
+        &node,
+        vmid,
+    )
+    .await
+}
+
+#[tauri::command]
+async fn resume_vm(app: tauri::AppHandle, node: String, vmid: u32) -> Result<(), String> {
+    // Load server config
+    let config = config::load_config(&app)?;
+
+    // Resume the VM
+    proxmox::resume_vm(
+        &config.host,
+        config.port,
+        &config.username,
+        &config.password,
+        &node,
+        vmid,
+    )
+    .await
+}
+
+#[tauri::command]
+async fn connect_to_proxmox(app: tauri::AppHandle, node: String, vmid: u32) -> Result<(), String> {
+    // Load server config
+    let config = config::load_config(&app)?;
+
+    // Create ProxmoxConnection from config
+    let connection = proxmox::ProxmoxConnection {
+        name: String::from("default"),
+        host: config.host,
+        port: config.port,
+        username: config.username,
+        password: config.password,
+        node,
+        vmid: vmid.to_string(),
+    };
+
     // Authenticate with Proxmox
     let tokens = proxmox::authenticate(&connection).await?;
 
     // Get SPICE configuration
     let spice_config = proxmox::get_spice_config(&connection, &tokens).await?;
 
-    // TODO: Save SPICE config to file and launch remote-viewer
-    Ok(spice_config)
+    // Save SPICE config to temporary file and launch remote-viewer
+    proxmox::launch_spice_viewer(&spice_config)?;
+
+    Ok(())
 }
