@@ -15,7 +15,7 @@ const PlugIcon = ({ className = 'h-5 w-5' }: IconProps) => {
       <path
         strokeLinecap="round"
         strokeLinejoin="round"
-        d="M5.636 5.636a9 9 0 1 0 12.728 0M12 3v9"
+        d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244"
       />
     </svg>
   )

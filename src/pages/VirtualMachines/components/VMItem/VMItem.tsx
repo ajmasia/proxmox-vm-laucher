@@ -108,26 +108,6 @@ const VMItem = memo(function VMItem({
                 {vm.status === 'paused' ? <ResumeIcon className="h-4 w-4" /> : <PlayIcon className="h-4 w-4" />}
               </button>
 
-              {/* Connect button */}
-              <button
-                onClick={() => onConnectVM(vm)}
-                disabled={vm.status !== 'running' || !vm.spice}
-                className={`inline-flex items-center justify-center rounded-lg p-2 transition-all ${
-                  vm.status !== 'running' || !vm.spice
-                    ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
-                    : 'bg-slate-200 text-slate-700 hover:text-slate-900 hover:bg-slate-300'
-                }`}
-                title={
-                  vm.status !== 'running'
-                    ? 'VM must be running'
-                    : !vm.spice
-                    ? 'SPICE not enabled'
-                    : 'Connect via SPICE'
-                }
-              >
-                <PlugIcon className="h-4 w-4" />
-              </button>
-
               {/* Pause button */}
               <button
                 onClick={() => onSuspendVM(vm)}
@@ -154,6 +134,26 @@ const VMItem = memo(function VMItem({
                 title={vm.status === 'stopped' ? 'VM already stopped' : 'Stop VM'}
               >
                 <StopIcon className="h-4 w-4" />
+              </button>
+
+              {/* Connect button */}
+              <button
+                onClick={() => onConnectVM(vm)}
+                disabled={vm.status !== 'running' || !vm.spice}
+                className={`inline-flex items-center justify-center rounded-lg p-2 transition-all ${
+                  vm.status !== 'running' || !vm.spice
+                    ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                    : 'bg-slate-200 text-slate-700 hover:text-slate-900 hover:bg-slate-300'
+                }`}
+                title={
+                  vm.status !== 'running'
+                    ? 'VM must be running'
+                    : !vm.spice
+                    ? 'SPICE not enabled'
+                    : 'Connect via SPICE'
+                }
+              >
+                <PlugIcon className="h-4 w-4" />
               </button>
             </div>
           )}
