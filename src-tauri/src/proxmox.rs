@@ -79,23 +79,56 @@ pub async fn get_spice_config(
         .build()
         .map_err(|e| format!("Failed to create HTTP client: {}", e))?;
 
+    // First, let's check if VM exists and get its status
+    let status_url = format!(
+        "https://{}:{}/api2/json/nodes/{}/qemu/{}/status/current",
+        connection.host, connection.port, connection.node, connection.vmid
+    );
+
+    println!("Checking VM status at: {}", status_url);
+
+    let status_response = client
+        .get(&status_url)
+        .header("Cookie", format!("PVEAuthCookie={}", tokens.ticket))
+        .send()
+        .await
+        .map_err(|e| format!("Failed to check VM status: {}", e))?;
+
+    if !status_response.status().is_success() {
+        let status = status_response.status();
+        let body = status_response.text().await.unwrap_or_else(|_| "Unknown error".to_string());
+        return Err(format!(
+            "VM not found or error checking status ({}). Make sure node='{}' and vmid='{}' are correct. Response: {}",
+            status, connection.node, connection.vmid, body
+        ));
+    }
+
+    let status_body = status_response.text().await.unwrap_or_default();
+    println!("VM status response: {}", status_body);
+
+    // Now get SPICE config
     let url = format!(
         "https://{}:{}/api2/spiceconfig/nodes/{}/qemu/{}/spiceproxy",
         connection.host, connection.port, connection.node, connection.vmid
     );
 
+    println!("Requesting SPICE config at: {}", url);
+
     let response = client
         .post(&url)
         .header("CSRFPreventionToken", &tokens.csrf_token)
         .header("Cookie", format!("PVEAuthCookie={}", tokens.ticket))
+        .form(&[("proxy", connection.host.as_str())])
         .send()
         .await
         .map_err(|e| format!("SPICE config request failed: {}", e))?;
 
     if !response.status().is_success() {
+        let status = response.status();
+        let body = response.text().await.unwrap_or_else(|_| "Unknown error".to_string());
         return Err(format!(
-            "Failed to get SPICE config with status: {}",
-            response.status()
+            "Failed to get SPICE config with status: {}. Response: {}",
+            status, body
         ));
     }
 
