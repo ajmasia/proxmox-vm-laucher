@@ -24,9 +24,9 @@
       {
         "title": "Proxmox VM Launcher",
         "width": 1200,
-        "height": 800,
+        "height": 860,
         "minWidth": 1200,
-        "minHeight": 800,
+        "minHeight": 860,
         "resizable": true,
         "fullscreen": false
       }

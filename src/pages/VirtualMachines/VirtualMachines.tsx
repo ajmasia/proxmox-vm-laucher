@@ -1,12 +1,14 @@
 import { useEffect } from 'react'
 import Alert from '../../components/Alert/Alert'
-import VMHeader from './components/VMHeader/VMHeader'
 import VMList from './components/VMList/VMList'
 import VMFilter from './components/VMFilter/VMFilter'
 import { useVirtualMachines } from './hooks/useVirtualMachines'
 import { useVMFilters } from './hooks/useVMFilters'
+import { useLayout } from '../../contexts/LayoutContext'
 
 const VirtualMachines = () => {
+  const { setRefreshHandler, setIsLoading } = useLayout()
+
   // Virtual Machines
   const {
     vms,
@@ -37,6 +39,15 @@ const VirtualMachines = () => {
     clearFilters,
   } = useVMFilters(vms)
 
+  // Set refresh handler and loading state
+  useEffect(() => {
+    setRefreshHandler(loadVMs)
+  }, [loadVMs, setRefreshHandler])
+
+  useEffect(() => {
+    setIsLoading(loading)
+  }, [loading, setIsLoading])
+
   // Load VMs on mount
   useEffect(() => {
     loadVMs()
@@ -44,10 +55,8 @@ const VirtualMachines = () => {
   }, [])
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 pb-4">
       {error && <Alert type="error" message={error} />}
-
-      <VMHeader onRefresh={loadVMs} isLoading={loading} />
 
       <VMFilter
         statusFilter={statusFilter}

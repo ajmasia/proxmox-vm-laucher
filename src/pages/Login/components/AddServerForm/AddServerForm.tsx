@@ -128,7 +128,7 @@ const AddServerForm = ({ onCancel, onServerAdded }: AddServerFormProps) => {
         </button>
       </div>
 
-      <p className="text-xs text-slate-500">
+      <p className="text-xs text-slate-500 !mb-0">
         Note: Passwords are never stored. You'll need to enter it each time you connect.
       </p>
     </form>
