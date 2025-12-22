@@ -1,242 +1,74 @@
-import { useState, useEffect, useCallback } from 'react'
-import { invoke } from '@tauri-apps/api/core'
+import { useEffect } from 'react'
 import ServerConfig from '../../components/ServerConfig/ServerConfig'
 import Alert from '../../components/Alert/Alert'
 import VMHeader from './components/VMHeader/VMHeader'
 import VMList from './components/VMList/VMList'
 import VMFilter from './components/VMFilter/VMFilter'
-import type { ProxmoxServerConfig, ProxmoxVM } from '../../types/proxmox'
+import { useVMStore } from '../../stores/vmStore'
+import { useConfigStore } from '../../stores/configStore'
+import { useFilterStore } from '../../stores/filterStore'
 
 const VirtualMachines = () => {
-  const [error, setError] = useState<string | null>(null)
-  const [success, setSuccess] = useState(false)
-  const [hasConfig, setHasConfig] = useState(false)
-  const [configLoaded, setConfigLoaded] = useState(false)
-  const [vmMap, setVmMap] = useState<Map<number, ProxmoxVM>>(new Map())
-  const [loadingVMs, setLoadingVMs] = useState(false)
-  const [startingVMs, setStartingVMs] = useState<Set<number>>(new Set())
-  const [stoppingVMs, setStoppingVMs] = useState<Set<number>>(new Set())
-  const [suspendingVMs, setSuspendingVMs] = useState<Set<number>>(new Set())
-  const [resumingVMs, setResumingVMs] = useState<Set<number>>(new Set())
-  const [statusFilter, setStatusFilter] = useState<string>('all')
-  const [tagFilter, setTagFilter] = useState<string>('all')
+  // VM Store
+  const {
+    vms,
+    loadingVMs,
+    startingVMs,
+    stoppingVMs,
+    suspendingVMs,
+    resumingVMs,
+    error: vmError,
+    loadVMs,
+    startVM,
+    stopVM,
+    suspendVM,
+    connectVM,
+  } = useVMStore()
 
-  // Convert map to array for rendering
-  const vms = Array.from(vmMap.values())
+  // Config Store
+  const {
+    hasConfig,
+    configLoaded,
+    success,
+    error: configError,
+    checkConfig,
+    saveConfig,
+    setHasConfig,
+  } = useConfigStore()
 
+  // Filter Store
+  const {
+    statusFilter,
+    tagFilter,
+    setStatusFilter,
+    setTagFilter,
+    clearFilters,
+    getUniqueTags,
+    getFilteredVMs,
+  } = useFilterStore()
+
+  // Computed values
+  const uniqueTags = getUniqueTags(vms)
+  const filteredVMs = getFilteredVMs(vms)
+  const error = vmError || configError
+
+  // Initialize
   useEffect(() => {
-    checkConfig()
-  }, [])
-
-  const checkConfig = async () => {
-    try {
-      await invoke('load_server_config')
-      setHasConfig(true)
-      setConfigLoaded(true)
-      await loadVMs()
-    } catch (err) {
-      setHasConfig(false)
-      setConfigLoaded(true)
-    }
-  }
-
-  const loadVMs = useCallback(async () => {
-    setLoadingVMs(true)
-    setError(null)
-
-    try {
-      const vmList = await invoke<ProxmoxVM[]>('list_vms')
-      console.log('VM list loaded:', vmList)
-
-      setVmMap(new Map(vmList.map(vm => [vm.vmid, vm])))
-    } catch (err) {
-      setError(err as string)
-      console.error('Error loading VMs:', err)
-    } finally {
-      setLoadingVMs(false)
-    }
-  }, [])
-
-  const refreshSingleVM = useCallback(async (vmid: number) => {
-    try {
-      const vmList = await invoke<ProxmoxVM[]>('list_vms')
-      const updatedVM = vmList.find(vm => vm.vmid === vmid)
-
-      if (updatedVM) {
-        setVmMap(prev => {
-          const newMap = new Map(prev)
-          newMap.set(vmid, updatedVM)
-          return newMap
-        })
+    const init = async () => {
+      await checkConfig()
+      if (hasConfig) {
+        await loadVMs()
       }
-    } catch (err) {
-      console.error('Error refreshing single VM:', err)
     }
+    init()
   }, [])
 
-  const handleSaveConfig = async (config: ProxmoxServerConfig) => {
-    setError(null)
-    setSuccess(false)
-
-    try {
-      await invoke('save_server_config', { config })
-      setSuccess(true)
-      setHasConfig(true)
-      console.log('Configuration saved successfully')
-    } catch (err) {
-      setError(err as string)
-      console.error('Error saving configuration:', err)
-    }
-  }
-
+  // Load VMs when config is available
   useEffect(() => {
-    if (hasConfig && configLoaded && vmMap.size === 0 && !loadingVMs) {
+    if (hasConfig && configLoaded && vms.length === 0 && !loadingVMs) {
       loadVMs()
     }
-  }, [hasConfig, configLoaded, vmMap.size, loadingVMs, loadVMs])
-
-  const handleConnectVM = useCallback(async (vm: ProxmoxVM) => {
-    setError(null)
-
-    try {
-      await invoke('connect_to_proxmox', { node: vm.node, vmid: vm.vmid })
-      setSuccess(true)
-      console.log('SPICE viewer launched successfully')
-    } catch (err) {
-      setError(`Failed to connect to VM: ${err}`)
-      console.error('Error connecting to VM:', err)
-    }
-  }, [])
-
-  const handleStartVM = useCallback(async (vm: ProxmoxVM) => {
-    setError(null)
-
-    if (vm.status === 'paused') {
-      setResumingVMs((prev) => new Set(prev).add(vm.vmid))
-
-      try {
-        await invoke('resume_vm', { node: vm.node, vmid: vm.vmid })
-        console.log('VM resume command sent')
-
-        setTimeout(async () => {
-          console.log('Refreshing VM after resume')
-          await refreshSingleVM(vm.vmid)
-          setResumingVMs((prev) => {
-            const newSet = new Set(prev)
-            newSet.delete(vm.vmid)
-            return newSet
-          })
-        }, 5000)
-      } catch (err) {
-        setError(`Failed to resume VM: ${err}`)
-        setResumingVMs((prev) => {
-          const newSet = new Set(prev)
-          newSet.delete(vm.vmid)
-          return newSet
-        })
-      }
-    } else {
-      setStartingVMs((prev) => new Set(prev).add(vm.vmid))
-
-      try {
-        await invoke('start_vm', { node: vm.node, vmid: vm.vmid })
-        console.log('VM start command sent')
-
-        setTimeout(async () => {
-          await refreshSingleVM(vm.vmid)
-          setStartingVMs((prev) => {
-            const newSet = new Set(prev)
-            newSet.delete(vm.vmid)
-            return newSet
-          })
-        }, 30000)
-      } catch (err) {
-        setError(`Failed to start VM: ${err}`)
-        setStartingVMs((prev) => {
-          const newSet = new Set(prev)
-          newSet.delete(vm.vmid)
-          return newSet
-        })
-      }
-    }
-  }, [refreshSingleVM])
-
-  const handleSuspendVM = useCallback(async (vm: ProxmoxVM) => {
-    setError(null)
-    setSuspendingVMs((prev) => new Set(prev).add(vm.vmid))
-
-    try {
-      await invoke('suspend_vm', { node: vm.node, vmid: vm.vmid })
-      console.log('VM suspended successfully')
-
-      setTimeout(async () => {
-        console.log('Refreshing VM after suspend')
-        await refreshSingleVM(vm.vmid)
-        setSuspendingVMs((prev) => {
-          const newSet = new Set(prev)
-          newSet.delete(vm.vmid)
-          return newSet
-        })
-      }, 5000)
-    } catch (err) {
-      setError(`Failed to suspend VM: ${err}`)
-      console.error('Error suspending VM:', err)
-      setSuspendingVMs((prev) => {
-        const newSet = new Set(prev)
-        newSet.delete(vm.vmid)
-        return newSet
-      })
-    }
-  }, [refreshSingleVM])
-
-  const uniqueTags = Array.from(
-    new Set(
-      vms
-        .filter((vm) => vm.tags && vm.tags.trim())
-        .flatMap((vm) => vm.tags!.split(';').map((tag) => tag.trim()))
-        .filter((tag) => tag)
-    )
-  ).sort()
-
-  const filteredVMs = vms.filter((vm) => {
-    const statusMatch = statusFilter === 'all' || vm.status === statusFilter
-    const tagMatch =
-      tagFilter === 'all' ||
-      (vm.tags &&
-        vm.tags
-          .split(';')
-          .map((tag) => tag.trim())
-          .includes(tagFilter))
-    return statusMatch && tagMatch
-  })
-
-  const handleStopVM = useCallback(async (vm: ProxmoxVM) => {
-    setError(null)
-    setStoppingVMs((prev) => new Set(prev).add(vm.vmid))
-
-    try {
-      await invoke('stop_vm', { node: vm.node, vmid: vm.vmid })
-      console.log('VM stopped successfully')
-
-      setTimeout(async () => {
-        console.log('Refreshing VM after stop')
-        await refreshSingleVM(vm.vmid)
-        setStoppingVMs((prev) => {
-          const newSet = new Set(prev)
-          newSet.delete(vm.vmid)
-          return newSet
-        })
-      }, 5000)
-    } catch (err) {
-      setError(`Failed to stop VM: ${err}`)
-      console.error('Error stopping VM:', err)
-      setStoppingVMs((prev) => {
-        const newSet = new Set(prev)
-        newSet.delete(vm.vmid)
-        return newSet
-      })
-    }
-  }, [refreshSingleVM])
+  }, [hasConfig, configLoaded, vms.length, loadingVMs, loadVMs])
 
   if (!configLoaded) {
     return (
@@ -253,7 +85,7 @@ const VirtualMachines = () => {
       {success && <Alert type="success" message="Configuration saved successfully" />}
 
       {!hasConfig ? (
-        <ServerConfig onSave={handleSaveConfig} />
+        <ServerConfig onSave={saveConfig} />
       ) : (
         <div className="space-y-4">
           <VMHeader
@@ -268,18 +100,15 @@ const VirtualMachines = () => {
             uniqueTags={uniqueTags}
             onStatusFilterChange={setStatusFilter}
             onTagFilterChange={setTagFilter}
-            onClearFilters={() => {
-              setStatusFilter('all')
-              setTagFilter('all')
-            }}
+            onClearFilters={clearFilters}
           />
 
           <VMList
             vms={filteredVMs}
-            onStartVM={handleStartVM}
-            onStopVM={handleStopVM}
-            onSuspendVM={handleSuspendVM}
-            onConnectVM={handleConnectVM}
+            onStartVM={startVM}
+            onStopVM={stopVM}
+            onSuspendVM={suspendVM}
+            onConnectVM={connectVM}
             loading={loadingVMs}
             startingVMs={startingVMs}
             stoppingVMs={stoppingVMs}
