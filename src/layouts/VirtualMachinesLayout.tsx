@@ -5,7 +5,7 @@ import AppHeader from './components/Header/AppHeader'
 import AppFooter from './components/Footer/AppFooter'
 
 const VirtualMachinesLayoutContent = () => {
-  const { onRefresh, isLoading } = useLayout()
+  const { onRefresh, isLoading, filterSlot } = useLayout()
 
   return (
     <div className="flex h-screen flex-col bg-gradient-to-br from-slate-50 to-slate-100">
@@ -13,7 +13,10 @@ const VirtualMachinesLayoutContent = () => {
         {/* Header - Fixed */}
         <AppHeader onRefresh={onRefresh || (() => {})} isLoading={isLoading} />
 
-        {/* Main Content - Scrollable (filters + VM list) */}
+        {/* Filter - Fixed */}
+        {filterSlot}
+
+        {/* Main Content - Scrollable (VM list only) */}
         <div className="flex-1 overflow-y-auto">
           <Outlet />
         </div>
