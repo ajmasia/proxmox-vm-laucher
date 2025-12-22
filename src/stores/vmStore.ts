@@ -33,7 +33,6 @@ export const useVMStore = create<VMStore>((set, get) => ({
   resumingVMs: new Set(),
   error: null,
 
-
   // Actions
   setError: (error) => set({ error }),
 
@@ -52,7 +51,7 @@ export const useVMStore = create<VMStore>((set, get) => ({
         username: session.username,
         password: session.ticket, // Using ticket as password for authenticated calls
       })
-      set({ vmMap: new Map(vmList.map(vm => [vm.vmid, vm])) })
+      set({ vmMap: new Map(vmList.map((vm) => [vm.vmid, vm])) })
     } catch (err) {
       set({ error: err as string })
       console.error('Error loading VMs:', err)
@@ -74,7 +73,7 @@ export const useVMStore = create<VMStore>((set, get) => ({
         username: session.username,
         password: session.ticket,
       })
-      const updatedVM = vmList.find(vm => vm.vmid === vmid)
+      const updatedVM = vmList.find((vm) => vm.vmid === vmid)
 
       if (updatedVM) {
         set((state) => {
@@ -100,7 +99,7 @@ export const useVMStore = create<VMStore>((set, get) => ({
     // If VM is paused, use resume instead of start
     if (vm.status === 'paused') {
       set((state) => ({
-        resumingVMs: new Set(state.resumingVMs).add(vm.vmid)
+        resumingVMs: new Set(state.resumingVMs).add(vm.vmid),
       }))
 
       try {
@@ -131,7 +130,7 @@ export const useVMStore = create<VMStore>((set, get) => ({
       }
     } else {
       set((state) => ({
-        startingVMs: new Set(state.startingVMs).add(vm.vmid)
+        startingVMs: new Set(state.startingVMs).add(vm.vmid),
       }))
 
       try {
@@ -173,7 +172,7 @@ export const useVMStore = create<VMStore>((set, get) => ({
     }
 
     set((state) => ({
-      stoppingVMs: new Set(state.stoppingVMs).add(vm.vmid)
+      stoppingVMs: new Set(state.stoppingVMs).add(vm.vmid),
     }))
 
     try {
@@ -215,7 +214,7 @@ export const useVMStore = create<VMStore>((set, get) => ({
     }
 
     set((state) => ({
-      suspendingVMs: new Set(state.suspendingVMs).add(vm.vmid)
+      suspendingVMs: new Set(state.suspendingVMs).add(vm.vmid),
     }))
 
     try {

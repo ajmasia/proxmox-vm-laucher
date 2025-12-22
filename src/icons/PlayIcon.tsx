@@ -1,4 +1,4 @@
-export const PlayIcon = ({ className = "w-4 h-4" }: { className?: string }) => (
+export const PlayIcon = ({ className = 'w-4 h-4' }: { className?: string }) => (
   <svg
     className={className}
     fill="currentColor"

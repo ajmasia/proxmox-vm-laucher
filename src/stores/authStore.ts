@@ -68,7 +68,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       set({
         session: null,
         isAuthenticating: false,
-        error: error instanceof Error ? error.message : 'Authentication failed'
+        error: error instanceof Error ? error.message : 'Authentication failed',
       })
       throw error
     }

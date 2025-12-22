@@ -1,4 +1,4 @@
-export const RefreshIcon = ({ className = "w-4 h-4" }: { className?: string }) => (
+export const RefreshIcon = ({ className = 'w-4 h-4' }: { className?: string }) => (
   <svg
     className={className}
     fill="none"
