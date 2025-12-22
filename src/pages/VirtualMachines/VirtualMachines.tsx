@@ -7,7 +7,7 @@ import { useVMFilters } from './hooks/useVMFilters'
 import { useLayout } from '../../contexts/LayoutContext'
 
 const VirtualMachines = () => {
-  const { setRefreshHandler, setIsLoading } = useLayout()
+  const { setRefreshHandler, setIsLoading, setFilterSlot } = useLayout()
 
   // Virtual Machines
   const {
@@ -48,16 +48,9 @@ const VirtualMachines = () => {
     setIsLoading(loading)
   }, [loading, setIsLoading])
 
-  // Load VMs on mount
+  // Set filter slot
   useEffect(() => {
-    loadVMs()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
-  return (
-    <div className="space-y-4 pb-4">
-      {error && <Alert type="error" message={error} />}
-
+    setFilterSlot(
       <VMFilter
         statusFilter={statusFilter}
         selectedTags={selectedTags}
@@ -69,6 +62,29 @@ const VirtualMachines = () => {
         onSpiceOnlyChange={setSpiceOnly}
         onClearFilters={clearFilters}
       />
+    )
+  }, [
+    statusFilter,
+    selectedTags,
+    spiceOnly,
+    uniqueTags,
+    setStatusFilter,
+    toggleTag,
+    clearTags,
+    setSpiceOnly,
+    clearFilters,
+    setFilterSlot,
+  ])
+
+  // Load VMs on mount
+  useEffect(() => {
+    loadVMs()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  return (
+    <div className="space-y-4 pb-4">
+      {error && <Alert type="error" message={error} />}
 
       <VMList
         vms={filteredVMs}
