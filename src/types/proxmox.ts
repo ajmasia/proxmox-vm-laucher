@@ -1,3 +1,26 @@
+// Server configuration (stored securely)
+export interface ProxmoxServerConfig {
+  host: string
+  port: number
+  username: string
+  password: string
+}
+
+// VM information from Proxmox API
+export interface ProxmoxVM {
+  vmid: number
+  name: string
+  status: 'running' | 'stopped' | 'paused'
+  node: string
+  uptime?: number
+  cpus?: number
+  maxmem?: number
+  mem?: number
+  maxdisk?: number
+  disk?: number
+}
+
+// Legacy - for backward compatibility
 export interface ProxmoxConnection {
   id?: string
   name: string
