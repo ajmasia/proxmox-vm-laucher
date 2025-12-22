@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
 import { invoke } from '@tauri-apps/api/core'
 import ServerConfig from './components/ServerConfig'
-import type { ProxmoxServerConfig } from './types/proxmox'
+import VMList from './components/VMList'
+import type { ProxmoxServerConfig, ProxmoxVM } from './types/proxmox'
 
 function App() {
   const [loading, setLoading] = useState(false)
@@ -9,6 +10,8 @@ function App() {
   const [success, setSuccess] = useState(false)
   const [hasConfig, setHasConfig] = useState(false)
   const [configLoaded, setConfigLoaded] = useState(false)
+  const [vms, setVms] = useState<ProxmoxVM[]>([])
+  const [loadingVMs, setLoadingVMs] = useState(false)
 
   useEffect(() => {
     checkConfig()
@@ -18,10 +21,26 @@ function App() {
     try {
       await invoke('load_server_config')
       setHasConfig(true)
+      loadVMs()
     } catch (err) {
       setHasConfig(false)
     } finally {
       setConfigLoaded(true)
+    }
+  }
+
+  const loadVMs = async () => {
+    setLoadingVMs(true)
+    setError(null)
+
+    try {
+      const vmList = await invoke<ProxmoxVM[]>('list_vms')
+      setVms(vmList)
+    } catch (err) {
+      setError(err as string)
+      console.error('Error loading VMs:', err)
+    } finally {
+      setLoadingVMs(false)
     }
   }
 
@@ -35,12 +54,18 @@ function App() {
       setSuccess(true)
       setHasConfig(true)
       console.log('Configuration saved successfully')
+      loadVMs()
     } catch (err) {
       setError(err as string)
       console.error('Error saving configuration:', err)
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleSelectVM = (vm: ProxmoxVM) => {
+    console.log('Selected VM:', vm)
+    // TODO: Connect to VM
   }
 
   if (!configLoaded) {
@@ -78,12 +103,30 @@ function App() {
           <ServerConfig onSave={handleSaveConfig} />
         ) : (
           <div>
-            <p className="text-slate-600">Configuration loaded successfully!</p>
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-xl font-semibold text-slate-900">Your Virtual Machines</h2>
+              <button
+                onClick={() => setHasConfig(false)}
+                className="text-sm text-slate-600 hover:text-slate-900"
+              >
+                Reconfigure
+              </button>
+            </div>
+
+            {loadingVMs && (
+              <div className="mb-4 rounded-md bg-blue-50 p-4 text-sm text-blue-800">
+                Loading virtual machines...
+              </div>
+            )}
+
+            <VMList vms={vms} onSelectVM={handleSelectVM} loading={loadingVMs} />
+
             <button
-              onClick={() => setHasConfig(false)}
-              className="mt-4 w-full rounded-md bg-slate-600 px-4 py-2 text-white transition-colors hover:bg-slate-700"
+              onClick={loadVMs}
+              disabled={loadingVMs}
+              className="mt-4 w-full rounded-md bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
             >
-              Reconfigure Server
+              Refresh List
             </button>
           </div>
         )}
