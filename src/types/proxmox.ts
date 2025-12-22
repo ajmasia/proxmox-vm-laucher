@@ -19,6 +19,7 @@ export interface ProxmoxVM {
   maxdisk?: number
   disk?: number
   tags?: string
+  spice?: boolean
 }
 
 // Legacy - for backward compatibility

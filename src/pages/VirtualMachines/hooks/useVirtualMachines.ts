@@ -1,4 +1,3 @@
-import { useMemo } from 'react'
 import { useVMStore } from '../../../stores/vmStore'
 
 export const useVirtualMachines = () => {
@@ -17,7 +16,7 @@ export const useVirtualMachines = () => {
     connectVM,
   } = useVMStore()
 
-  const vms = useMemo(() => Array.from(vmMap.values()), [vmMap])
+  const vms = Array.from(vmMap.values())
 
   return {
     vms,

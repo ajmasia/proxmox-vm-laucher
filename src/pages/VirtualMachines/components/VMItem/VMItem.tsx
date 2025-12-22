@@ -118,8 +118,13 @@ const VMItem = memo(function VMItem({
                 <>
                   <button
                     onClick={() => onConnectVM(vm)}
-                    className="inline-flex items-center justify-center rounded-lg bg-purple-600 p-2 text-white transition-all hover:bg-purple-700"
-                    title="Connect via SPICE"
+                    disabled={!vm.spice}
+                    className={`inline-flex items-center justify-center rounded-lg p-2 text-white transition-all ${
+                      vm.spice
+                        ? 'bg-purple-600 hover:bg-purple-700'
+                        : 'bg-slate-400 cursor-not-allowed opacity-50'
+                    }`}
+                    title={vm.spice ? 'Connect via SPICE' : 'SPICE not enabled for this VM'}
                   >
                     <MonitorIcon className="h-4 w-4" />
                   </button>
@@ -170,6 +175,7 @@ const VMItem = memo(function VMItem({
     prevProps.vm.vmid === nextProps.vm.vmid &&
     prevProps.vm.name === nextProps.vm.name &&
     prevProps.vm.status === nextProps.vm.status &&
+    prevProps.vm.spice === nextProps.vm.spice &&
     prevProps.vm.cpus === nextProps.vm.cpus &&
     prevProps.vm.mem === nextProps.vm.mem &&
     prevProps.vm.maxmem === nextProps.vm.maxmem &&
