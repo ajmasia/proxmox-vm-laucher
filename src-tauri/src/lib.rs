@@ -11,6 +11,7 @@ pub fn run() {
             save_server_config,
             load_server_config,
             delete_server_config,
+            list_vms,
             connect_to_proxmox
         ])
         .setup(|app| {
@@ -38,6 +39,15 @@ async fn load_server_config() -> Result<config::ServerConfigWithPassword, String
 #[tauri::command]
 async fn delete_server_config() -> Result<(), String> {
     config::delete_config()
+}
+
+#[tauri::command]
+async fn list_vms() -> Result<Vec<proxmox::VMInfo>, String> {
+    // Load server config
+    let config = config::load_config()?;
+
+    // Fetch VM list
+    proxmox::list_vms(&config.host, config.port, &config.username, &config.password).await
 }
 
 #[tauri::command]

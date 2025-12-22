@@ -11,6 +11,26 @@ pub struct ProxmoxConnection {
     pub vmid: String,
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct VMInfo {
+    pub vmid: u32,
+    pub name: String,
+    pub status: String,
+    pub node: String,
+    #[serde(default)]
+    pub uptime: u64,
+    #[serde(default)]
+    pub cpus: u32,
+    #[serde(default)]
+    pub maxmem: u64,
+    #[serde(default)]
+    pub mem: u64,
+    #[serde(default)]
+    pub maxdisk: u64,
+    #[serde(default)]
+    pub disk: u64,
+}
+
 #[derive(Debug, Deserialize)]
 struct AuthResponse {
     data: AuthData,
@@ -27,6 +47,11 @@ struct AuthData {
 pub struct AuthTokens {
     pub ticket: String,
     pub csrf_token: String,
+}
+
+#[derive(Debug, Deserialize)]
+struct VMListResponse {
+    data: Vec<VMInfo>,
 }
 
 pub async fn authenticate(connection: &ProxmoxConnection) -> Result<AuthTokens, String> {
@@ -136,4 +161,67 @@ pub async fn get_spice_config(
         .text()
         .await
         .map_err(|e| format!("Failed to read SPICE config: {}", e))
+}
+
+pub async fn list_vms(host: &str, port: u16, username: &str, password: &str) -> Result<Vec<VMInfo>, String> {
+    let client = reqwest::Client::builder()
+        .danger_accept_invalid_certs(true)
+        .build()
+        .map_err(|e| format!("Failed to create HTTP client: {}", e))?;
+
+    // First, authenticate
+    let auth_url = format!("https://{}:{}/api2/json/access/ticket", host, port);
+
+    let params = [("username", username), ("password", password)];
+
+    let response = client
+        .post(&auth_url)
+        .form(&params)
+        .send()
+        .await
+        .map_err(|e| format!("Authentication request failed: {}", e))?;
+
+    if !response.status().is_success() {
+        return Err(format!(
+            "Authentication failed with status: {}",
+            response.status()
+        ));
+    }
+
+    let auth_response: AuthResponse = response
+        .json()
+        .await
+        .map_err(|e| format!("Failed to parse authentication response: {}", e))?;
+
+    let ticket = auth_response.data.ticket;
+
+    // Get list of resources (VMs across all nodes)
+    let resources_url = format!("https://{}:{}/api2/json/cluster/resources?type=vm", host, port);
+
+    println!("Fetching VM list from: {}", resources_url);
+
+    let vm_response = client
+        .get(&resources_url)
+        .header("Cookie", format!("PVEAuthCookie={}", ticket))
+        .send()
+        .await
+        .map_err(|e| format!("Failed to fetch VM list: {}", e))?;
+
+    if !vm_response.status().is_success() {
+        let status = vm_response.status();
+        let body = vm_response.text().await.unwrap_or_else(|_| "Unknown error".to_string());
+        return Err(format!(
+            "Failed to fetch VM list with status: {}. Response: {}",
+            status, body
+        ));
+    }
+
+    let vm_list: VMListResponse = vm_response
+        .json()
+        .await
+        .map_err(|e| format!("Failed to parse VM list: {}", e))?;
+
+    println!("Found {} VMs", vm_list.data.len());
+
+    Ok(vm_list.data)
 }
