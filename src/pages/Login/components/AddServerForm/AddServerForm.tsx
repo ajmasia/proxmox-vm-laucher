@@ -7,7 +7,7 @@ interface AddServerFormProps {
   onServerAdded: (server: ProxmoxServerConfig) => void
 }
 
-export default function AddServerForm({ onCancel, onServerAdded }: AddServerFormProps) {
+const AddServerForm = ({ onCancel, onServerAdded }: AddServerFormProps) => {
   const { addServer } = useServerStore()
   const [formData, setFormData] = useState({
     name: '',
@@ -134,3 +134,5 @@ export default function AddServerForm({ onCancel, onServerAdded }: AddServerForm
     </form>
   )
 }
+
+export default AddServerForm

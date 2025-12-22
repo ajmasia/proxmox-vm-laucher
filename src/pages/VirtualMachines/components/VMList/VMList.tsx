@@ -14,7 +14,7 @@ interface VMListProps {
   resumingVMs: Set<number>
 }
 
-export default function VMList({
+const VMList = ({
   vms,
   onStartVM,
   onStopVM,
@@ -25,7 +25,7 @@ export default function VMList({
   stoppingVMs,
   suspendingVMs,
   resumingVMs,
-}: VMListProps) {
+}: VMListProps) => {
   if (loading) {
     return (
       <div className="space-y-2">
@@ -69,3 +69,5 @@ export default function VMList({
     </div>
   )
 }
+
+export default VMList

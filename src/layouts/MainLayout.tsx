@@ -1,6 +1,6 @@
 import { Outlet } from 'react-router-dom'
 
-export default function MainLayout() {
+const MainLayout = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-6">
       <div className="mx-auto w-full max-w-7xl space-y-6">
@@ -9,3 +9,5 @@ export default function MainLayout() {
     </div>
   )
 }
+
+export default MainLayout

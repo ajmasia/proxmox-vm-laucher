@@ -5,7 +5,7 @@ interface ConnectionFormProps {
   onSubmit: (connection: ProxmoxConnection) => void
 }
 
-export default function ConnectionForm({ onSubmit }: ConnectionFormProps) {
+const ConnectionForm = ({ onSubmit }: ConnectionFormProps) => {
   const [formData, setFormData] = useState<ProxmoxConnection>({
     name: '',
     host: '',
@@ -154,3 +154,5 @@ export default function ConnectionForm({ onSubmit }: ConnectionFormProps) {
     </form>
   )
 }
+
+export default ConnectionForm
