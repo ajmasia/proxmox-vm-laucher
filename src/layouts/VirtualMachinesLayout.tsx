@@ -9,10 +9,10 @@ const VirtualMachinesLayoutContent = () => {
 
   return (
     <div className="flex h-screen flex-col bg-gradient-to-br from-slate-50 to-slate-100">
-      <div className="mx-auto flex h-full w-full max-w-7xl flex-col gap-4 overflow-hidden p-6">
-        {/* Header - Fixed */}
-        <AppHeader onRefresh={onRefresh || (() => {})} isLoading={isLoading} />
+      {/* Header - Fixed, full width */}
+      <AppHeader onRefresh={onRefresh || (() => {})} isLoading={isLoading} />
 
+      <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-4 overflow-hidden p-6">
         {/* Filter - Fixed */}
         {filterSlot}
 
@@ -20,10 +20,10 @@ const VirtualMachinesLayoutContent = () => {
         <div className="flex-1 overflow-y-auto">
           <Outlet />
         </div>
-
-        {/* Footer - Fixed */}
-        <AppFooter />
       </div>
+
+      {/* Footer - Fixed, full width */}
+      <AppFooter />
     </div>
   )
 }
