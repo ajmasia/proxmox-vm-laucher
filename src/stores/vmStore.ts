@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { invoke } from '@tauri-apps/api/core'
 import type { ProxmoxVM } from '../types/proxmox'
+import { useAuthStore } from './authStore'
 
 interface VMStore {
   // State
@@ -40,7 +41,17 @@ export const useVMStore = create<VMStore>((set, get) => ({
     set({ loadingVMs: true, error: null })
 
     try {
-      const vmList = await invoke<ProxmoxVM[]>('list_vms')
+      const session = useAuthStore.getState().session
+      if (!session) {
+        throw new Error('No active session')
+      }
+
+      const vmList = await invoke<ProxmoxVM[]>('list_vms_with_session', {
+        host: session.server.host,
+        port: session.server.port,
+        username: session.username,
+        password: session.ticket, // Using ticket as password for authenticated calls
+      })
       set({ vmMap: new Map(vmList.map(vm => [vm.vmid, vm])) })
     } catch (err) {
       set({ error: err as string })
@@ -52,7 +63,17 @@ export const useVMStore = create<VMStore>((set, get) => ({
 
   refreshSingleVM: async (vmid) => {
     try {
-      const vmList = await invoke<ProxmoxVM[]>('list_vms')
+      const session = useAuthStore.getState().session
+      if (!session) {
+        throw new Error('No active session')
+      }
+
+      const vmList = await invoke<ProxmoxVM[]>('list_vms_with_session', {
+        host: session.server.host,
+        port: session.server.port,
+        username: session.username,
+        password: session.ticket,
+      })
       const updatedVM = vmList.find(vm => vm.vmid === vmid)
 
       if (updatedVM) {
@@ -70,6 +91,12 @@ export const useVMStore = create<VMStore>((set, get) => ({
   startVM: async (vm) => {
     set({ error: null })
 
+    const session = useAuthStore.getState().session
+    if (!session) {
+      set({ error: 'No active session' })
+      return
+    }
+
     // If VM is paused, use resume instead of start
     if (vm.status === 'paused') {
       set((state) => ({
@@ -77,7 +104,14 @@ export const useVMStore = create<VMStore>((set, get) => ({
       }))
 
       try {
-        await invoke('resume_vm', { node: vm.node, vmid: vm.vmid })
+        await invoke('resume_vm_with_session', {
+          host: session.server.host,
+          port: session.server.port,
+          username: session.username,
+          password: session.ticket,
+          node: vm.node,
+          vmid: vm.vmid,
+        })
 
         setTimeout(async () => {
           await get().refreshSingleVM(vm.vmid)
@@ -101,7 +135,14 @@ export const useVMStore = create<VMStore>((set, get) => ({
       }))
 
       try {
-        await invoke('start_vm', { node: vm.node, vmid: vm.vmid })
+        await invoke('start_vm_with_session', {
+          host: session.server.host,
+          port: session.server.port,
+          username: session.username,
+          password: session.ticket,
+          node: vm.node,
+          vmid: vm.vmid,
+        })
 
         setTimeout(async () => {
           await get().refreshSingleVM(vm.vmid)
@@ -124,12 +165,26 @@ export const useVMStore = create<VMStore>((set, get) => ({
 
   stopVM: async (vm) => {
     set({ error: null })
+
+    const session = useAuthStore.getState().session
+    if (!session) {
+      set({ error: 'No active session' })
+      return
+    }
+
     set((state) => ({
       stoppingVMs: new Set(state.stoppingVMs).add(vm.vmid)
     }))
 
     try {
-      await invoke('stop_vm', { node: vm.node, vmid: vm.vmid })
+      await invoke('stop_vm_with_session', {
+        host: session.server.host,
+        port: session.server.port,
+        username: session.username,
+        password: session.ticket,
+        node: vm.node,
+        vmid: vm.vmid,
+      })
 
       setTimeout(async () => {
         await get().refreshSingleVM(vm.vmid)
@@ -152,12 +207,26 @@ export const useVMStore = create<VMStore>((set, get) => ({
 
   suspendVM: async (vm) => {
     set({ error: null })
+
+    const session = useAuthStore.getState().session
+    if (!session) {
+      set({ error: 'No active session' })
+      return
+    }
+
     set((state) => ({
       suspendingVMs: new Set(state.suspendingVMs).add(vm.vmid)
     }))
 
     try {
-      await invoke('suspend_vm', { node: vm.node, vmid: vm.vmid })
+      await invoke('suspend_vm_with_session', {
+        host: session.server.host,
+        port: session.server.port,
+        username: session.username,
+        password: session.ticket,
+        node: vm.node,
+        vmid: vm.vmid,
+      })
 
       setTimeout(async () => {
         await get().refreshSingleVM(vm.vmid)
