@@ -38,6 +38,8 @@ const VMItem = memo(function VMItem({
             <div className="font-medium text-slate-900 truncate">{vm.name}</div>
             <div className="flex items-center gap-2 flex-wrap">
               <div className="text-sm text-slate-500">ID: {vm.vmid}</div>
+              <span className="text-slate-300">•</span>
+              <div className="text-sm text-slate-500">Node: {vm.node}</div>
               {vm.tags && vm.tags.trim() && (
                 <>
                   <span className="text-slate-300">•</span>
@@ -73,11 +75,6 @@ const VMItem = memo(function VMItem({
           <div className="text-xs text-slate-500">
             {formatBytes(vm.mem || 0)} / {formatBytes(vm.maxmem || 0)}
           </div>
-        </div>
-
-        {/* Node */}
-        <div className="flex-shrink-0 text-sm text-slate-600 min-w-[80px]">
-          {vm.node}
         </div>
 
         {/* Actions */}
