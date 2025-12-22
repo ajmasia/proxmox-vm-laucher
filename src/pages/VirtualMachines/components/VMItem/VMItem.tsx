@@ -28,7 +28,7 @@ const VMItem = memo(function VMItem({
 }: VMItemProps) {
   return (
     <div className="group overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-black/5 transition-all hover:shadow-md">
-      <div className="flex items-center gap-3 p-4">
+      <div className="flex items-center gap-2 p-4">
         {/* VM Icon and Name */}
         <div className="flex items-center gap-3 flex-1 min-w-0">
           <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-600">
