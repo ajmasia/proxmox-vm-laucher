@@ -8,7 +8,7 @@ const MainLayoutContent = () => {
   const { onRefresh, isLoading } = useLayout()
 
   return (
-    <div className="flex h-screen flex-col bg-gradient-to-br from-slate-50 to-slate-100 p-6">
+    <div className="flex h-screen flex-col bg-gradient-to-br from-slate-50 to-slate-100">
       <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-4 overflow-hidden">
         {/* Header */}
         <AppHeader onRefresh={onRefresh || (() => {})} isLoading={isLoading} />

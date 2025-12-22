@@ -17,18 +17,32 @@ const AppHeader = ({ onRefresh, isLoading }: AppHeaderProps) => {
   }
 
   return (
-    <div className="rounded-xl bg-white p-4 shadow-sm ring-1 ring-black/5">
-      <div className="flex items-center justify-between">
-        {/* Left: Title and Server Info */}
-        <div>
-          <h2 className="text-lg font-semibold text-slate-900">Virtual Machines</h2>
-          {session && (
-            <div className="mt-1 flex items-center gap-2 text-sm text-slate-600">
-              <span>{session.clusterName || session.server.host}</span>
-              <span className="text-slate-300">•</span>
-              <span>{session.username}</span>
-            </div>
-          )}
+    <div className="bg-white py-4">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-6">
+        {/* Left: Logo + Title */}
+        <div className="flex items-center gap-3">
+          {/* Logo */}
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-700">
+            <svg
+              className="h-6 w-6 text-white"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"
+              />
+            </svg>
+          </div>
+          {/* Title */}
+          <div className="flex items-center gap-2">
+            <h2 className="text-lg font-semibold text-slate-900">Proxmox</h2>
+            <span className="text-slate-400">•</span>
+            <h2 className="text-lg font-medium text-slate-600">Virtual Machines</h2>
+          </div>
         </div>
 
         {/* Right: Actions */}
