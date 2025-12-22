@@ -69,9 +69,45 @@ function App() {
     }
   }, [hasConfig, configLoaded])
 
-  const handleSelectVM = (vm: ProxmoxVM) => {
-    console.log('Selected VM:', vm)
-    // TODO: Connect to VM
+  const handleSelectVM = async (vm: ProxmoxVM) => {
+    // Check if VM is stopped
+    if (vm.status === 'stopped') {
+      const confirmStart = window.confirm(
+        `VM "${vm.name}" is currently stopped. Do you want to start it?`
+      )
+
+      if (!confirmStart) {
+        return
+      }
+
+      // Start the VM
+      setLoading(true)
+      setError(null)
+
+      try {
+        await invoke('start_vm', { node: vm.node, vmid: vm.vmid })
+
+        // Wait for VM to start (polling or fixed delay)
+        setSuccess(true)
+        setError('VM is starting... Please wait 30 seconds and try connecting again.')
+
+        // Refresh VM list after a delay
+        setTimeout(() => {
+          loadVMs()
+        }, 30000)
+      } catch (err) {
+        setError(`Failed to start VM: ${err}`)
+      } finally {
+        setLoading(false)
+      }
+    } else if (vm.status === 'running') {
+      // VM is running, connect directly
+      console.log('Connecting to running VM:', vm)
+      // TODO: Implement SPICE connection
+      setError('SPICE connection not yet implemented')
+    } else {
+      setError(`VM is in ${vm.status} state. Cannot connect.`)
+    }
   }
 
   if (!configLoaded) {
