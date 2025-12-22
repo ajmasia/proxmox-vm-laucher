@@ -1,10 +1,12 @@
 use tauri::Manager;
 
+mod proxmox;
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
-        .invoke_handler(tauri::generate_handler![greet])
+        .invoke_handler(tauri::generate_handler![connect_to_proxmox])
         .setup(|app| {
             #[cfg(debug_assertions)]
             {
@@ -18,6 +20,13 @@ pub fn run() {
 }
 
 #[tauri::command]
-fn greet(name: &str) -> String {
-    format!("Hello, {}! You've been greeted from Rust!", name)
+async fn connect_to_proxmox(connection: proxmox::ProxmoxConnection) -> Result<String, String> {
+    // Authenticate with Proxmox
+    let tokens = proxmox::authenticate(&connection).await?;
+
+    // Get SPICE configuration
+    let spice_config = proxmox::get_spice_config(&connection, &tokens).await?;
+
+    // TODO: Save SPICE config to file and launch remote-viewer
+    Ok(spice_config)
 }
