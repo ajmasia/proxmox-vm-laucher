@@ -37,9 +37,7 @@ const VMItem = memo(function VMItem({
           <div className="min-w-0 flex-1">
             <div className="font-medium text-slate-900 truncate">{vm.name}</div>
             <div className="flex items-center gap-2 flex-wrap">
-              <div className="text-sm text-slate-500">PVE{vm.vmid}</div>
-              <span className="text-slate-300">•</span>
-              <div className="text-sm text-slate-500">{vm.node}</div>
+              <div className="text-sm text-slate-500">{vm.node}-{vm.vmid}</div>
               {vm.tags && vm.tags.trim() && (
                 <>
                   <span className="text-slate-300">•</span>
