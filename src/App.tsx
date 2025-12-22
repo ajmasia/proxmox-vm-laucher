@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { invoke } from '@tauri-apps/api/core'
 import ServerConfig from './components/ServerConfig'
 import VMList from './components/VMList'
@@ -10,7 +10,7 @@ function App() {
   const [success, setSuccess] = useState(false)
   const [hasConfig, setHasConfig] = useState(false)
   const [configLoaded, setConfigLoaded] = useState(false)
-  const [vms, setVms] = useState<ProxmoxVM[]>([])
+  const [vmMap, setVmMap] = useState<Map<number, ProxmoxVM>>(new Map())
   const [loadingVMs, setLoadingVMs] = useState(false)
   const [startingVMs, setStartingVMs] = useState<Set<number>>(new Set())
   const [stoppingVMs, setStoppingVMs] = useState<Set<number>>(new Set())
@@ -18,6 +18,9 @@ function App() {
   const [resumingVMs, setResumingVMs] = useState<Set<number>>(new Set())
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [tagFilter, setTagFilter] = useState<string>('all')
+
+  // Convert map to array for rendering
+  const vms = useMemo(() => Array.from(vmMap.values()), [vmMap])
 
   useEffect(() => {
     checkConfig()
@@ -44,41 +47,32 @@ function App() {
       const vmList = await invoke<ProxmoxVM[]>('list_vms')
       console.log('VM list loaded:', vmList)
 
-      // Update state while preserving object references for unchanged VMs
-      setVms((prevVMs) => {
-        // If no previous VMs, just return the new list
-        if (prevVMs.length === 0) {
-          return vmList
-        }
-
-        // Create a map of previous VMs by vmid for quick lookup
-        const prevVMMap = new Map(prevVMs.map(vm => [vm.vmid, vm]))
-
-        // For each new VM, check if it's unchanged from the previous version
-        return vmList.map(newVM => {
-          const prevVM = prevVMMap.get(newVM.vmid)
-
-          // If VM didn't exist before, or if any property changed, use the new VM
-          if (!prevVM ||
-              prevVM.status !== newVM.status ||
-              prevVM.name !== newVM.name ||
-              prevVM.cpus !== newVM.cpus ||
-              prevVM.mem !== newVM.mem ||
-              prevVM.maxmem !== newVM.maxmem ||
-              prevVM.node !== newVM.node ||
-              prevVM.tags !== newVM.tags) {
-            return newVM
-          }
-
-          // VM hasn't changed, keep the previous reference
-          return prevVM
-        })
-      })
+      // Update map with new VMs
+      setVmMap(new Map(vmList.map(vm => [vm.vmid, vm])))
     } catch (err) {
       setError(err as string)
       console.error('Error loading VMs:', err)
     } finally {
       setLoadingVMs(false)
+    }
+  }, [])
+
+  // Refresh a single VM from the server
+  const refreshSingleVM = useCallback(async (vmid: number) => {
+    try {
+      // Get all VMs to find the updated one
+      const vmList = await invoke<ProxmoxVM[]>('list_vms')
+      const updatedVM = vmList.find(vm => vm.vmid === vmid)
+
+      if (updatedVM) {
+        setVmMap(prev => {
+          const newMap = new Map(prev)
+          newMap.set(vmid, updatedVM)
+          return newMap
+        })
+      }
+    } catch (err) {
+      console.error('Error refreshing single VM:', err)
     }
   }, [])
 
@@ -98,10 +92,10 @@ function App() {
   }
 
   useEffect(() => {
-    if (hasConfig && configLoaded && vms.length === 0 && !loadingVMs) {
+    if (hasConfig && configLoaded && vmMap.size === 0 && !loadingVMs) {
       loadVMs()
     }
-  }, [hasConfig, configLoaded])
+  }, [hasConfig, configLoaded, vmMap.size, loadingVMs, loadVMs])
 
   const handleConnectVM = useCallback(async (vm: ProxmoxVM) => {
     setError(null)
@@ -127,10 +121,10 @@ function App() {
         await invoke('resume_vm', { node: vm.node, vmid: vm.vmid })
         console.log('VM resume command sent')
 
-        // Wait 5 seconds for state to change, then refresh
+        // Wait 5 seconds for state to change, then refresh only this VM
         setTimeout(async () => {
-          console.log('Refreshing VM list after resume')
-          await loadVMs()
+          console.log('Refreshing VM after resume')
+          await refreshSingleVM(vm.vmid)
           // Clear resuming state after refresh
           setResumingVMs((prev) => {
             const newSet = new Set(prev)
@@ -154,9 +148,9 @@ function App() {
         await invoke('start_vm', { node: vm.node, vmid: vm.vmid })
         console.log('VM start command sent')
 
-        // Wait 30 seconds for VM to start, then refresh
+        // Wait 30 seconds for VM to start, then refresh only this VM
         setTimeout(async () => {
-          await loadVMs()
+          await refreshSingleVM(vm.vmid)
           setStartingVMs((prev) => {
             const newSet = new Set(prev)
             newSet.delete(vm.vmid)
@@ -172,7 +166,7 @@ function App() {
         })
       }
     }
-  }, [loadVMs])
+  }, [refreshSingleVM])
 
   const handleSuspendVM = useCallback(async (vm: ProxmoxVM) => {
     setError(null)
@@ -182,10 +176,10 @@ function App() {
       await invoke('suspend_vm', { node: vm.node, vmid: vm.vmid })
       console.log('VM suspended successfully')
 
-      // Wait a moment for the state to change, then refresh
+      // Wait a moment for the state to change, then refresh only this VM
       setTimeout(async () => {
-        console.log('Refreshing VM list after suspend')
-        await loadVMs()
+        console.log('Refreshing VM after suspend')
+        await refreshSingleVM(vm.vmid)
         // Clear suspending state after refresh
         setSuspendingVMs((prev) => {
           const newSet = new Set(prev)
@@ -202,7 +196,7 @@ function App() {
         return newSet
       })
     }
-  }, [loadVMs])
+  }, [refreshSingleVM])
 
   // Extract unique tags from all VMs
   const uniqueTags = Array.from(
@@ -235,10 +229,10 @@ function App() {
       await invoke('stop_vm', { node: vm.node, vmid: vm.vmid })
       console.log('VM stopped successfully')
 
-      // Wait a moment for the state to change, then refresh
+      // Wait a moment for the state to change, then refresh only this VM
       setTimeout(async () => {
-        console.log('Refreshing VM list after stop')
-        await loadVMs()
+        console.log('Refreshing VM after stop')
+        await refreshSingleVM(vm.vmid)
         // Clear stopping state after refresh
         setStoppingVMs((prev) => {
           const newSet = new Set(prev)
@@ -255,7 +249,7 @@ function App() {
         return newSet
       })
     }
-  }, [loadVMs])
+  }, [refreshSingleVM])
 
   if (!configLoaded) {
     return (
