@@ -1,4 +1,4 @@
-export default function Header() {
+const Header = () => {
   return (
     <div className="mb-8">
       <h1 className="text-3xl font-bold tracking-tight text-slate-900">Proxmox VM Launcher</h1>
@@ -6,3 +6,5 @@ export default function Header() {
     </div>
   )
 }
+
+export default Header

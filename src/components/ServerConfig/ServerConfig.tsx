@@ -6,7 +6,7 @@ interface ServerConfigProps {
   initialConfig?: ProxmoxServerConfig
 }
 
-export default function ServerConfig({ onSave, initialConfig }: ServerConfigProps) {
+const ServerConfig = ({ onSave, initialConfig }: ServerConfigProps) => {
   const [config, setConfig] = useState<ProxmoxServerConfig>(
     initialConfig || {
       host: '',
@@ -109,3 +109,5 @@ export default function ServerConfig({ onSave, initialConfig }: ServerConfigProp
     </form>
   )
 }
+
+export default ServerConfig

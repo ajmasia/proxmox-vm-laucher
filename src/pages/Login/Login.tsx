@@ -7,10 +7,11 @@ import ServerSelector from './components/ServerSelector/ServerSelector'
 import PasswordForm from './components/PasswordForm/PasswordForm'
 import AddServerForm from './components/AddServerForm/AddServerForm'
 
-export default function Login() {
+const Login = () => {
   const navigate = useNavigate()
   const { login, isAuthenticating, error: authError, clearError } = useAuthStore()
-  const { servers, loadServers, getLastUsedServer, setLastUsedServer } = useServerStore()
+  const { servers, loadServers, getLastUsedServer, setLastUsedServer, deleteServer } =
+    useServerStore()
 
   const [selectedServer, setSelectedServer] = useState<ProxmoxServerConfig | null>(null)
   const [showAddServer, setShowAddServer] = useState(false)
@@ -52,6 +53,14 @@ export default function Login() {
   const handleServerAdded = (server: ProxmoxServerConfig) => {
     setShowAddServer(false)
     setSelectedServer(server)
+  }
+
+  const handleDeleteServer = async (serverId: string) => {
+    await deleteServer(serverId)
+    // If deleted server was selected, clear selection
+    if (selectedServer?.id === serverId) {
+      setSelectedServer(servers.length > 1 ? servers[0] : null)
+    }
   }
 
   return (
@@ -97,6 +106,7 @@ export default function Login() {
                 selectedServer={selectedServer}
                 onSelectServer={handleServerSelect}
                 onAddServer={handleAddServer}
+                onDeleteServer={handleDeleteServer}
               />
 
               {selectedServer && (
@@ -119,3 +129,5 @@ export default function Login() {
     </div>
   )
 }
+
+export default Login

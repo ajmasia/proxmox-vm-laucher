@@ -8,7 +8,7 @@ interface PasswordFormProps {
   onSubmit: (password: string) => void
 }
 
-export default function PasswordForm({ server, isLoading, error, onSubmit }: PasswordFormProps) {
+const PasswordForm = ({ server, isLoading, error, onSubmit }: PasswordFormProps) => {
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
 
@@ -120,3 +120,5 @@ export default function PasswordForm({ server, isLoading, error, onSubmit }: Pas
     </form>
   )
 }
+
+export default PasswordForm

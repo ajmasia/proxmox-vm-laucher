@@ -12,7 +12,7 @@ interface VMFilterProps {
   onClearFilters: () => void
 }
 
-export default function VMFilter({
+const VMFilter = ({
   statusFilter,
   selectedTags,
   spiceOnly,
@@ -22,7 +22,7 @@ export default function VMFilter({
   onClearTags,
   onSpiceOnlyChange,
   onClearFilters,
-}: VMFilterProps) {
+}: VMFilterProps) => {
   const statusOptions = ['all', 'running', 'stopped', 'paused'] as const
   const hasActiveFilters = statusFilter !== 'all' || selectedTags.length > 0 || spiceOnly
 
@@ -102,3 +102,5 @@ export default function VMFilter({
     </div>
   )
 }
+
+export default VMFilter

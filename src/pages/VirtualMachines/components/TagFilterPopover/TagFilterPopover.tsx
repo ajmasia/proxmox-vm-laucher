@@ -7,12 +7,12 @@ interface TagFilterPopoverProps {
   onClearTags: () => void
 }
 
-export default function TagFilterPopover({
+const TagFilterPopover = ({
   selectedTags,
   uniqueTags,
   onToggleTag,
   onClearTags,
-}: TagFilterPopoverProps) {
+}: TagFilterPopoverProps) => {
   const [isOpen, setIsOpen] = useState(false)
   const popoverRef = useRef<HTMLDivElement>(null)
 
@@ -113,3 +113,5 @@ export default function TagFilterPopover({
     </div>
   )
 }
+
+export default TagFilterPopover
