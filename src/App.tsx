@@ -43,7 +43,37 @@ function App() {
     try {
       const vmList = await invoke<ProxmoxVM[]>('list_vms')
       console.log('VM list loaded:', vmList)
-      setVms(vmList)
+
+      // Update state while preserving object references for unchanged VMs
+      setVms((prevVMs) => {
+        // If no previous VMs, just return the new list
+        if (prevVMs.length === 0) {
+          return vmList
+        }
+
+        // Create a map of previous VMs by vmid for quick lookup
+        const prevVMMap = new Map(prevVMs.map(vm => [vm.vmid, vm]))
+
+        // For each new VM, check if it's unchanged from the previous version
+        return vmList.map(newVM => {
+          const prevVM = prevVMMap.get(newVM.vmid)
+
+          // If VM didn't exist before, or if any property changed, use the new VM
+          if (!prevVM ||
+              prevVM.status !== newVM.status ||
+              prevVM.name !== newVM.name ||
+              prevVM.cpus !== newVM.cpus ||
+              prevVM.mem !== newVM.mem ||
+              prevVM.maxmem !== newVM.maxmem ||
+              prevVM.node !== newVM.node ||
+              prevVM.tags !== newVM.tags) {
+            return newVM
+          }
+
+          // VM hasn't changed, keep the previous reference
+          return prevVM
+        })
+      })
     } catch (err) {
       setError(err as string)
       console.error('Error loading VMs:', err)
