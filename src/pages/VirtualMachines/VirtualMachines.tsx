@@ -6,7 +6,7 @@ import VMFilter from './components/VMFilter/VMFilter'
 import { RefreshIcon } from '../../icons'
 import type { ProxmoxServerConfig, ProxmoxVM } from '../../types/proxmox'
 
-export default function VirtualMachines() {
+const VirtualMachines = () => {
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
   const [hasConfig, setHasConfig] = useState(false)
@@ -336,3 +336,5 @@ export default function VirtualMachines() {
     </>
   )
 }
+
+export default VirtualMachines
