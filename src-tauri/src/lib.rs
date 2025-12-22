@@ -12,6 +12,7 @@ pub fn run() {
             load_server_config,
             delete_server_config,
             list_vms,
+            start_vm,
             connect_to_proxmox
         ])
         .setup(|app| {
@@ -51,6 +52,23 @@ async fn list_vms(app: tauri::AppHandle) -> Result<Vec<proxmox::VMInfo>, String>
 
     // Fetch VM list
     proxmox::list_vms(&config.host, config.port, &config.username, &config.password).await
+}
+
+#[tauri::command]
+async fn start_vm(app: tauri::AppHandle, node: String, vmid: u32) -> Result<(), String> {
+    // Load server config
+    let config = config::load_config(&app)?;
+
+    // Start the VM
+    proxmox::start_vm(
+        &config.host,
+        config.port,
+        &config.username,
+        &config.password,
+        &node,
+        vmid,
+    )
+    .await
 }
 
 #[tauri::command]

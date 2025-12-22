@@ -237,3 +237,75 @@ pub async fn list_vms(host: &str, port: u16, username: &str, password: &str) -> 
 
     Ok(vms_only)
 }
+
+pub async fn start_vm(
+    host: &str,
+    port: u16,
+    username: &str,
+    password: &str,
+    node: &str,
+    vmid: u32,
+) -> Result<(), String> {
+    let client = reqwest::Client::builder()
+        .danger_accept_invalid_certs(true)
+        .build()
+        .map_err(|e| format!("Failed to create HTTP client: {}", e))?;
+
+    // Authenticate
+    let auth_url = format!("https://{}:{}/api2/json/access/ticket", host, port);
+    let params = [("username", username), ("password", password)];
+
+    let response = client
+        .post(&auth_url)
+        .form(&params)
+        .send()
+        .await
+        .map_err(|e| format!("Authentication request failed: {}", e))?;
+
+    if !response.status().is_success() {
+        return Err(format!(
+            "Authentication failed with status: {}",
+            response.status()
+        ));
+    }
+
+    let auth_response: AuthResponse = response
+        .json()
+        .await
+        .map_err(|e| format!("Failed to parse authentication response: {}", e))?;
+
+    let ticket = auth_response.data.ticket;
+    let csrf_token = auth_response.data.csrf_token;
+
+    // Start the VM
+    let start_url = format!(
+        "https://{}:{}/api2/json/nodes/{}/qemu/{}/status/start",
+        host, port, node, vmid
+    );
+
+    println!("Starting VM {} on node {}...", vmid, node);
+
+    let start_response = client
+        .post(&start_url)
+        .header("CSRFPreventionToken", &csrf_token)
+        .header("Cookie", format!("PVEAuthCookie={}", ticket))
+        .send()
+        .await
+        .map_err(|e| format!("Failed to start VM: {}", e))?;
+
+    if !start_response.status().is_success() {
+        let status = start_response.status();
+        let body = start_response
+            .text()
+            .await
+            .unwrap_or_else(|_| "Unknown error".to_string());
+        return Err(format!(
+            "Failed to start VM with status: {}. Response: {}",
+            status, body
+        ));
+    }
+
+    println!("VM start command sent successfully");
+
+    Ok(())
+}
