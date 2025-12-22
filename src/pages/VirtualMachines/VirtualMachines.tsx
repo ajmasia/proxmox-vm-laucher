@@ -4,15 +4,26 @@ import Alert from '../../components/Alert/Alert'
 import VMHeader from './components/VMHeader/VMHeader'
 import VMList from './components/VMList/VMList'
 import VMFilter from './components/VMFilter/VMFilter'
-import { useVMStore } from '../../stores/vmStore'
-import { useConfigStore } from '../../stores/configStore'
-import { useFilterStore } from '../../stores/filterStore'
+import { useVirtualMachines } from './hooks/useVirtualMachines'
+import { useServerConfig } from './hooks/useServerConfig'
+import { useVMFilters } from './hooks/useVMFilters'
 
 const VirtualMachines = () => {
-  // VM Store
+  // Config
   const {
-    vmMap,
-    loadingVMs,
+    hasConfig,
+    configLoaded,
+    success,
+    error: configError,
+    checkConfig,
+    saveConfig,
+    reconfigure,
+  } = useServerConfig()
+
+  // Virtual Machines
+  const {
+    vms,
+    loading,
     startingVMs,
     stoppingVMs,
     suspendingVMs,
@@ -23,35 +34,19 @@ const VirtualMachines = () => {
     stopVM,
     suspendVM,
     connectVM,
-  } = useVMStore()
+  } = useVirtualMachines()
 
-  const vms = Array.from(vmMap.values())
-
-  // Config Store
-  const {
-    hasConfig,
-    configLoaded,
-    success,
-    error: configError,
-    checkConfig,
-    saveConfig,
-    setHasConfig,
-  } = useConfigStore()
-
-  // Filter Store
+  // Filters
   const {
     statusFilter,
     tagFilter,
+    uniqueTags,
+    filteredVMs,
     setStatusFilter,
     setTagFilter,
     clearFilters,
-    getUniqueTags,
-    getFilteredVMs,
-  } = useFilterStore()
+  } = useVMFilters(vms)
 
-  // Computed values
-  const uniqueTags = getUniqueTags(vms)
-  const filteredVMs = getFilteredVMs(vms)
   const error = vmError || configError
 
   // Initialize
@@ -62,7 +57,7 @@ const VirtualMachines = () => {
 
   // Load VMs when config is available
   useEffect(() => {
-    if (hasConfig && configLoaded && vms.length === 0 && !loadingVMs) {
+    if (hasConfig && configLoaded && vms.length === 0 && !loading) {
       loadVMs()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -87,9 +82,9 @@ const VirtualMachines = () => {
       ) : (
         <div className="space-y-4">
           <VMHeader
-            onReconfigure={() => setHasConfig(false)}
+            onReconfigure={reconfigure}
             onRefresh={loadVMs}
-            isLoading={loadingVMs}
+            isLoading={loading}
           />
 
           <VMFilter
@@ -107,14 +102,14 @@ const VirtualMachines = () => {
             onStopVM={stopVM}
             onSuspendVM={suspendVM}
             onConnectVM={connectVM}
-            loading={loadingVMs}
+            loading={loading}
             startingVMs={startingVMs}
             stoppingVMs={stoppingVMs}
             suspendingVMs={suspendingVMs}
             resumingVMs={resumingVMs}
           />
 
-          {!loadingVMs && filteredVMs.length === 0 && vms.length > 0 && (
+          {!loading && filteredVMs.length === 0 && vms.length > 0 && (
             <div className="rounded-xl bg-white p-8 text-center shadow-sm ring-1 ring-black/5">
               <p className="text-slate-500">No virtual machines match the current filters</p>
             </div>

@@ -78,10 +78,8 @@ export const useVMStore = create<VMStore>((set, get) => ({
 
       try {
         await invoke('resume_vm', { node: vm.node, vmid: vm.vmid })
-        console.log('VM resume command sent')
 
         setTimeout(async () => {
-          console.log('Refreshing VM after resume')
           await get().refreshSingleVM(vm.vmid)
           set((state) => {
             const newSet = new Set(state.resumingVMs)
@@ -104,7 +102,6 @@ export const useVMStore = create<VMStore>((set, get) => ({
 
       try {
         await invoke('start_vm', { node: vm.node, vmid: vm.vmid })
-        console.log('VM start command sent')
 
         setTimeout(async () => {
           await get().refreshSingleVM(vm.vmid)
@@ -133,10 +130,8 @@ export const useVMStore = create<VMStore>((set, get) => ({
 
     try {
       await invoke('stop_vm', { node: vm.node, vmid: vm.vmid })
-      console.log('VM stopped successfully')
 
       setTimeout(async () => {
-        console.log('Refreshing VM after stop')
         await get().refreshSingleVM(vm.vmid)
         set((state) => {
           const newSet = new Set(state.stoppingVMs)
@@ -163,10 +158,8 @@ export const useVMStore = create<VMStore>((set, get) => ({
 
     try {
       await invoke('suspend_vm', { node: vm.node, vmid: vm.vmid })
-      console.log('VM suspended successfully')
 
       setTimeout(async () => {
-        console.log('Refreshing VM after suspend')
         await get().refreshSingleVM(vm.vmid)
         set((state) => {
           const newSet = new Set(state.suspendingVMs)
