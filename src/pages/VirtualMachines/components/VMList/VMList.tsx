@@ -1,4 +1,4 @@
-import type { ProxmoxVM } from '../../types/proxmox'
+import type { ProxmoxVM } from '../../../../types/proxmox'
 import VMItem from '../VMItem/VMItem'
 
 interface VMListProps {

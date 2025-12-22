@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { invoke } from '@tauri-apps/api/core'
 import ServerConfig from '../../components/ServerConfig/ServerConfig'
-import VMList from '../../components/VMList/VMList'
-import VMFilter from '../../components/VMFilter/VMFilter'
+import VMList from './components/VMList/VMList'
+import VMFilter from './components/VMFilter/VMFilter'
 import { RefreshIcon } from '../../icons'
 import type { ProxmoxServerConfig, ProxmoxVM } from '../../types/proxmox'
 

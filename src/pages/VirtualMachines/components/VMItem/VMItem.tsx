@@ -1,6 +1,6 @@
 import { memo } from 'react'
-import type { ProxmoxVM } from '../../types/proxmox'
-import { PlayIcon, StopIcon, PauseIcon, ResumeIcon, MonitorIcon, SpinnerIcon } from '../../icons'
+import type { ProxmoxVM } from '../../../../types/proxmox'
+import { PlayIcon, StopIcon, PauseIcon, ResumeIcon, MonitorIcon, SpinnerIcon } from '../../../../icons'
 import { formatBytes, getStatusColor, getStatusDot } from './utils'
 
 interface VMItemProps {
