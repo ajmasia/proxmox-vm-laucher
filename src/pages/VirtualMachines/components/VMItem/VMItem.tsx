@@ -39,7 +39,7 @@ const VMItem = memo(function VMItem({
             <div className="mt-1 flex flex-wrap items-center gap-1.5">
               {/* Node Badge */}
               <span className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700 ring-1 ring-slate-600/10">
-                {vm.node}
+                {vm.node.toUpperCase()}
               </span>
 
               {/* VM ID Badge */}
