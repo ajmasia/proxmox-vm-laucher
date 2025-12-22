@@ -50,6 +50,7 @@ const VMItem = memo(function VMItem({
               {/* Tags */}
               {vm.tags && vm.tags.trim() && (
                 <>
+                  <span className="text-slate-300">•</span>
                   {vm.tags.split(';').filter(tag => tag.trim()).map((tag, idx) => (
                     <span
                       key={idx}
