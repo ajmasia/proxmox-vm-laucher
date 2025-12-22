@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { invoke } from '@tauri-apps/api/core'
 import ServerConfig from './components/ServerConfig'
 import VMList from './components/VMList'
+import ConfirmDialog from './components/ConfirmDialog'
 import type { ProxmoxServerConfig, ProxmoxVM } from './types/proxmox'
 
 function App() {
@@ -12,6 +13,10 @@ function App() {
   const [configLoaded, setConfigLoaded] = useState(false)
   const [vms, setVms] = useState<ProxmoxVM[]>([])
   const [loadingVMs, setLoadingVMs] = useState(false)
+  const [confirmDialog, setConfirmDialog] = useState<{
+    isOpen: boolean
+    vm: ProxmoxVM | null
+  }>({ isOpen: false, vm: null })
 
   useEffect(() => {
     checkConfig()
@@ -72,34 +77,7 @@ function App() {
   const handleSelectVM = async (vm: ProxmoxVM) => {
     // Check if VM is stopped
     if (vm.status === 'stopped') {
-      const confirmStart = window.confirm(
-        `VM "${vm.name}" is currently stopped. Do you want to start it?`
-      )
-
-      if (!confirmStart) {
-        return
-      }
-
-      // Start the VM
-      setLoading(true)
-      setError(null)
-
-      try {
-        await invoke('start_vm', { node: vm.node, vmid: vm.vmid })
-
-        // Wait for VM to start (polling or fixed delay)
-        setSuccess(true)
-        setError('VM is starting... Please wait 30 seconds and try connecting again.')
-
-        // Refresh VM list after a delay
-        setTimeout(() => {
-          loadVMs()
-        }, 30000)
-      } catch (err) {
-        setError(`Failed to start VM: ${err}`)
-      } finally {
-        setLoading(false)
-      }
+      setConfirmDialog({ isOpen: true, vm })
     } else if (vm.status === 'running') {
       // VM is running, connect directly
       console.log('Connecting to running VM:', vm)
@@ -108,6 +86,36 @@ function App() {
     } else {
       setError(`VM is in ${vm.status} state. Cannot connect.`)
     }
+  }
+
+  const handleConfirmStart = async () => {
+    const vm = confirmDialog.vm
+    if (!vm) return
+
+    setConfirmDialog({ isOpen: false, vm: null })
+    setLoading(true)
+    setError(null)
+
+    try {
+      await invoke('start_vm', { node: vm.node, vmid: vm.vmid })
+
+      // Wait for VM to start (polling or fixed delay)
+      setSuccess(true)
+      setError('VM is starting... Please wait 30 seconds and try connecting again.')
+
+      // Refresh VM list after a delay
+      setTimeout(() => {
+        loadVMs()
+      }, 30000)
+    } catch (err) {
+      setError(`Failed to start VM: ${err}`)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleCancelStart = () => {
+    setConfirmDialog({ isOpen: false, vm: null })
   }
 
   if (!configLoaded) {
@@ -173,6 +181,16 @@ function App() {
           </div>
         )}
       </div>
+
+      <ConfirmDialog
+        isOpen={confirmDialog.isOpen}
+        title="Start Virtual Machine"
+        message={`VM "${confirmDialog.vm?.name}" is currently stopped. Do you want to start it?`}
+        confirmLabel="Start VM"
+        cancelLabel="Cancel"
+        onConfirm={handleConfirmStart}
+        onCancel={handleCancelStart}
+      />
     </div>
   )
 }
