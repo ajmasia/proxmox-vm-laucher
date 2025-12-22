@@ -1,6 +1,6 @@
 import { memo } from 'react'
 import type { ProxmoxVM } from '../../../../types/proxmox'
-import { PlayIcon, StopIcon, PauseIcon, ResumeIcon, MonitorIcon, SpinnerIcon } from '../../../../icons'
+import { PlayIcon, StopIcon, PauseIcon, ResumeIcon, MonitorIcon, PlugIcon, SpinnerIcon } from '../../../../icons'
 import { formatBytes, getStatusColor, getStatusDot } from './utils'
 
 interface VMItemProps {
@@ -100,8 +100,8 @@ const VMItem = memo(function VMItem({
                 disabled={vm.status === 'running'}
                 className={`inline-flex items-center justify-center rounded-lg p-2 transition-all ${
                   vm.status === 'running'
-                    ? 'text-slate-400 cursor-not-allowed'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                    ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                    : 'bg-slate-100 text-slate-600 hover:text-slate-900 hover:bg-slate-200'
                 }`}
                 title={vm.status === 'paused' ? 'Resume VM' : 'Start VM'}
               >
@@ -114,8 +114,8 @@ const VMItem = memo(function VMItem({
                 disabled={vm.status !== 'running' || !vm.spice}
                 className={`inline-flex items-center justify-center rounded-lg p-2 transition-all ${
                   vm.status !== 'running' || !vm.spice
-                    ? 'text-slate-400 cursor-not-allowed'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                    ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                    : 'bg-slate-100 text-slate-600 hover:text-slate-900 hover:bg-slate-200'
                 }`}
                 title={
                   vm.status !== 'running'
@@ -125,7 +125,7 @@ const VMItem = memo(function VMItem({
                     : 'Connect via SPICE'
                 }
               >
-                <MonitorIcon className="h-4 w-4" />
+                <PlugIcon className="h-4 w-4" />
               </button>
 
               {/* Pause button */}
@@ -134,8 +134,8 @@ const VMItem = memo(function VMItem({
                 disabled={vm.status !== 'running'}
                 className={`inline-flex items-center justify-center rounded-lg p-2 transition-all ${
                   vm.status !== 'running'
-                    ? 'text-slate-400 cursor-not-allowed'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                    ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                    : 'bg-slate-100 text-slate-600 hover:text-slate-900 hover:bg-slate-200'
                 }`}
                 title={vm.status !== 'running' ? 'VM must be running' : 'Pause VM'}
               >
@@ -148,8 +148,8 @@ const VMItem = memo(function VMItem({
                 disabled={vm.status === 'stopped'}
                 className={`inline-flex items-center justify-center rounded-lg p-2 transition-all ${
                   vm.status === 'stopped'
-                    ? 'text-slate-400 cursor-not-allowed'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                    ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                    : 'bg-slate-100 text-slate-600 hover:text-slate-900 hover:bg-slate-200'
                 }`}
                 title={vm.status === 'stopped' ? 'VM already stopped' : 'Stop VM'}
               >
