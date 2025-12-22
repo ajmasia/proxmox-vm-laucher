@@ -28,11 +28,16 @@ export const useFilterStore = create<FilterStore>((set, get) => ({
   // Actions
   setStatusFilter: (filter) => set({ statusFilter: filter }),
   toggleTag: (tag) =>
-    set((state) => ({
-      selectedTags: state.selectedTags.includes(tag)
+    set((state) => {
+      const newSelectedTags = state.selectedTags.includes(tag)
         ? state.selectedTags.filter((t) => t !== tag)
-        : [...state.selectedTags, tag],
-    })),
+        : [...state.selectedTags, tag]
+
+      return {
+        selectedTags: newSelectedTags,
+        spiceOnly: newSelectedTags.length > 0 ? false : state.spiceOnly,
+      }
+    }),
   clearTags: () => set({ selectedTags: [] }),
   setSpiceOnly: (enabled) => set({ spiceOnly: enabled }),
   clearFilters: () => set({ statusFilter: 'all', selectedTags: [], spiceOnly: true }),
