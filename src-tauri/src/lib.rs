@@ -26,12 +26,14 @@ pub fn run() {
             resume_vm_with_session,
             connect_to_proxmox
         ])
-        .setup(|app| {
-            #[cfg(debug_assertions)]
-            {
-                let window = app.get_webview_window("main").unwrap();
-                window.open_devtools();
-            }
+        .setup(|_app| {
+            // DevTools disabled by default
+            // Uncomment the following lines to enable devtools in development
+            // #[cfg(debug_assertions)]
+            // {
+            //     let window = app.get_webview_window("main").unwrap();
+            //     window.open_devtools();
+            // }
             Ok(())
         })
         .run(tauri::generate_context!())
