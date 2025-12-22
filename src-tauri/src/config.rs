@@ -1,8 +1,6 @@
-use keyring::Entry;
 use serde::{Deserialize, Serialize};
-
-const SERVICE_NAME: &str = "com.proxmox.vmlauncher";
-const CONFIG_KEY: &str = "server_config";
+use std::path::PathBuf;
+use tauri::{AppHandle, Manager};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ServerConfig {
@@ -19,83 +17,97 @@ pub struct ServerConfigWithPassword {
     pub password: String,
 }
 
-pub fn save_config(config: &ServerConfigWithPassword) -> Result<(), String> {
-    // Save non-sensitive data as JSON
+#[derive(Debug, Serialize, Deserialize)]
+struct StoredConfig {
+    config: ServerConfig,
+    password_encoded: String,
+}
+
+fn get_config_path(app: &AppHandle) -> Result<PathBuf, String> {
+    let app_dir = app
+        .path()
+        .app_data_dir()
+        .map_err(|e| format!("Failed to get app data dir: {}", e))?;
+
+    std::fs::create_dir_all(&app_dir)
+        .map_err(|e| format!("Failed to create app data dir: {}", e))?;
+
+    Ok(app_dir.join("config.json"))
+}
+
+pub fn save_config(app: &AppHandle, config: &ServerConfigWithPassword) -> Result<(), String> {
+    println!("Saving config for host: {}", config.host);
+
     let server_config = ServerConfig {
         host: config.host.clone(),
         port: config.port,
         username: config.username.clone(),
     };
 
-    let config_json =
-        serde_json::to_string(&server_config).map_err(|e| format!("Failed to serialize config: {}", e))?;
+    // Simple base64 encoding (not encryption, just obfuscation)
+    let password_encoded = base64::Engine::encode(
+        &base64::engine::general_purpose::STANDARD,
+        config.password.as_bytes(),
+    );
 
-    // Save to keyring (config)
-    let entry = Entry::new(SERVICE_NAME, CONFIG_KEY)
-        .map_err(|e| format!("Failed to create keyring entry: {}", e))?;
+    let stored = StoredConfig {
+        config: server_config,
+        password_encoded,
+    };
 
-    entry
-        .set_password(&config_json)
-        .map_err(|e| format!("Failed to save config: {}", e))?;
+    let config_path = get_config_path(app)?;
+    let json = serde_json::to_string_pretty(&stored)
+        .map_err(|e| format!("Failed to serialize config: {}", e))?;
 
-    // Save password separately
-    let password_key = format!("{}_password", config.host);
-    let password_entry = Entry::new(SERVICE_NAME, &password_key)
-        .map_err(|e| format!("Failed to create password entry: {}", e))?;
+    std::fs::write(&config_path, json)
+        .map_err(|e| format!("Failed to write config file: {}", e))?;
 
-    password_entry
-        .set_password(&config.password)
-        .map_err(|e| format!("Failed to save password: {}", e))?;
+    println!("Config saved to: {:?}", config_path);
 
     Ok(())
 }
 
-pub fn load_config() -> Result<ServerConfigWithPassword, String> {
-    // Load config from keyring
-    let entry = Entry::new(SERVICE_NAME, CONFIG_KEY)
-        .map_err(|e| format!("Failed to create keyring entry: {}", e))?;
+pub fn load_config(app: &AppHandle) -> Result<ServerConfigWithPassword, String> {
+    println!("Loading config...");
 
-    let config_json = entry
-        .get_password()
-        .map_err(|e| format!("No configuration found: {}", e))?;
+    let config_path = get_config_path(app)?;
 
-    let server_config: ServerConfig = serde_json::from_str(&config_json)
+    if !config_path.exists() {
+        return Err("No configuration found".to_string());
+    }
+
+    let json = std::fs::read_to_string(&config_path)
+        .map_err(|e| format!("Failed to read config file: {}", e))?;
+
+    let stored: StoredConfig = serde_json::from_str(&json)
         .map_err(|e| format!("Failed to parse config: {}", e))?;
 
-    // Load password
-    let password_key = format!("{}_password", server_config.host);
-    let password_entry = Entry::new(SERVICE_NAME, &password_key)
-        .map_err(|e| format!("Failed to create password entry: {}", e))?;
+    let password_bytes = base64::Engine::decode(
+        &base64::engine::general_purpose::STANDARD,
+        &stored.password_encoded,
+    )
+    .map_err(|e| format!("Failed to decode password: {}", e))?;
 
-    let password = password_entry
-        .get_password()
-        .map_err(|e| format!("Failed to load password: {}", e))?;
+    let password = String::from_utf8(password_bytes)
+        .map_err(|e| format!("Failed to convert password: {}", e))?;
+
+    println!("Config loaded successfully");
 
     Ok(ServerConfigWithPassword {
-        host: server_config.host,
-        port: server_config.port,
-        username: server_config.username,
+        host: stored.config.host,
+        port: stored.config.port,
+        username: stored.config.username,
         password,
     })
 }
 
-pub fn delete_config() -> Result<(), String> {
-    // Try to load config first to get the host for password key
-    if let Ok(config) = load_config() {
-        let password_key = format!("{}_password", config.host);
-        let password_entry = Entry::new(SERVICE_NAME, &password_key)
-            .map_err(|e| format!("Failed to create password entry: {}", e))?;
+pub fn delete_config(app: &AppHandle) -> Result<(), String> {
+    let config_path = get_config_path(app)?;
 
-        let _ = password_entry.delete_credential();
+    if config_path.exists() {
+        std::fs::remove_file(&config_path)
+            .map_err(|e| format!("Failed to delete config: {}", e))?;
     }
-
-    // Delete main config
-    let entry = Entry::new(SERVICE_NAME, CONFIG_KEY)
-        .map_err(|e| format!("Failed to create keyring entry: {}", e))?;
-
-    entry
-        .delete_credential()
-        .map_err(|e| format!("Failed to delete config: {}", e))?;
 
     Ok(())
 }

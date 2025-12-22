@@ -17,6 +17,9 @@ pub struct VMInfo {
     pub name: String,
     pub status: String,
     pub node: String,
+    #[serde(rename = "type")]
+    #[serde(default)]
+    pub vm_type: String,
     #[serde(default)]
     pub uptime: u64,
     #[serde(default)]
@@ -221,7 +224,16 @@ pub async fn list_vms(host: &str, port: u16, username: &str, password: &str) -> 
         .await
         .map_err(|e| format!("Failed to parse VM list: {}", e))?;
 
-    println!("Found {} VMs", vm_list.data.len());
+    let total_count = vm_list.data.len();
 
-    Ok(vm_list.data)
+    // Filter only VMs (exclude LXC containers)
+    let vms_only: Vec<VMInfo> = vm_list
+        .data
+        .into_iter()
+        .filter(|vm| vm.vm_type == "qemu")
+        .collect();
+
+    println!("Found {} VMs (filtered from {} total)", vms_only.len(), total_count);
+
+    Ok(vms_only)
 }

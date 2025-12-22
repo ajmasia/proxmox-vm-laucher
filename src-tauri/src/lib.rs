@@ -27,24 +27,27 @@ pub fn run() {
 }
 
 #[tauri::command]
-async fn save_server_config(config: config::ServerConfigWithPassword) -> Result<(), String> {
-    config::save_config(&config)
+async fn save_server_config(
+    app: tauri::AppHandle,
+    config: config::ServerConfigWithPassword,
+) -> Result<(), String> {
+    config::save_config(&app, &config)
 }
 
 #[tauri::command]
-async fn load_server_config() -> Result<config::ServerConfigWithPassword, String> {
-    config::load_config()
+async fn load_server_config(app: tauri::AppHandle) -> Result<config::ServerConfigWithPassword, String> {
+    config::load_config(&app)
 }
 
 #[tauri::command]
-async fn delete_server_config() -> Result<(), String> {
-    config::delete_config()
+async fn delete_server_config(app: tauri::AppHandle) -> Result<(), String> {
+    config::delete_config(&app)
 }
 
 #[tauri::command]
-async fn list_vms() -> Result<Vec<proxmox::VMInfo>, String> {
+async fn list_vms(app: tauri::AppHandle) -> Result<Vec<proxmox::VMInfo>, String> {
     // Load server config
-    let config = config::load_config()?;
+    let config = config::load_config(&app)?;
 
     // Fetch VM list
     proxmox::list_vms(&config.host, config.port, &config.username, &config.password).await
