@@ -1,19 +1,7 @@
 import { memo } from 'react'
-import type { ProxmoxVM } from '../types/proxmox'
-import { PlayIcon, StopIcon, PauseIcon, ResumeIcon, MonitorIcon, SpinnerIcon } from './Icons'
-
-interface VMListProps {
-  vms: ProxmoxVM[]
-  onStartVM: (vm: ProxmoxVM) => void
-  onStopVM: (vm: ProxmoxVM) => void
-  onSuspendVM: (vm: ProxmoxVM) => void
-  onConnectVM: (vm: ProxmoxVM) => void
-  loading?: boolean
-  startingVMs: Set<number>
-  stoppingVMs: Set<number>
-  suspendingVMs: Set<number>
-  resumingVMs: Set<number>
-}
+import type { ProxmoxVM } from '../../types/proxmox'
+import { PlayIcon, StopIcon, PauseIcon, ResumeIcon, MonitorIcon, SpinnerIcon } from '../../icons'
+import { formatBytes, getStatusColor, getStatusDot } from './utils'
 
 interface VMItemProps {
   vm: ProxmoxVM
@@ -25,40 +13,6 @@ interface VMItemProps {
   isStopping: boolean
   isSuspending: boolean
   isResuming: boolean
-}
-
-const formatBytes = (bytes: number) => {
-  if (bytes === 0) return '0 B'
-  const k = 1024
-  const sizes = ['B', 'KB', 'MB', 'GB', 'TB']
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
-  return `${Math.round((bytes / Math.pow(k, i)) * 100) / 100} ${sizes[i]}`
-}
-
-const getStatusColor = (status: string) => {
-  switch (status) {
-    case 'running':
-      return 'bg-emerald-500/10 text-emerald-700 border-emerald-500/20'
-    case 'stopped':
-      return 'bg-slate-500/10 text-slate-700 border-slate-500/20'
-    case 'paused':
-      return 'bg-amber-500/10 text-amber-700 border-amber-500/20'
-    default:
-      return 'bg-slate-500/10 text-slate-700 border-slate-500/20'
-  }
-}
-
-const getStatusDot = (status: string) => {
-  switch (status) {
-    case 'running':
-      return 'bg-emerald-500'
-    case 'stopped':
-      return 'bg-slate-400'
-    case 'paused':
-      return 'bg-amber-500'
-    default:
-      return 'bg-slate-400'
-  }
 }
 
 const VMItem = memo(function VMItem({
@@ -228,55 +182,4 @@ const VMItem = memo(function VMItem({
   )
 })
 
-export default function VMList({
-  vms,
-  onStartVM,
-  onStopVM,
-  onSuspendVM,
-  onConnectVM,
-  loading,
-  startingVMs,
-  stoppingVMs,
-  suspendingVMs,
-  resumingVMs
-}: VMListProps) {
-  if (loading) {
-    return (
-      <div className="space-y-2">
-        {[1, 2, 3].map((i) => (
-          <div key={i} className="animate-pulse rounded-xl bg-white p-6 shadow-sm ring-1 ring-black/5">
-            <div className="h-5 w-1/3 rounded bg-slate-200"></div>
-            <div className="mt-3 h-4 w-1/2 rounded bg-slate-200"></div>
-          </div>
-        ))}
-      </div>
-    )
-  }
-
-  if (vms.length === 0) {
-    return (
-      <div className="rounded-xl bg-white p-12 text-center shadow-sm ring-1 ring-black/5">
-        <p className="text-slate-500">No virtual machines found</p>
-      </div>
-    )
-  }
-
-  return (
-    <div className="space-y-3">
-      {vms.map((vm) => (
-        <VMItem
-          key={vm.vmid}
-          vm={vm}
-          onStartVM={onStartVM}
-          onStopVM={onStopVM}
-          onSuspendVM={onSuspendVM}
-          onConnectVM={onConnectVM}
-          isStarting={startingVMs.has(vm.vmid)}
-          isStopping={stoppingVMs.has(vm.vmid)}
-          isSuspending={suspendingVMs.has(vm.vmid)}
-          isResuming={resumingVMs.has(vm.vmid)}
-        />
-      ))}
-    </div>
-  )
-}
+export default VMItem

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { ProxmoxServerConfig } from '../types/proxmox'
+import type { ProxmoxServerConfig } from '../../types/proxmox'
 
 interface ServerConfigProps {
   onSave: (config: ProxmoxServerConfig) => void
