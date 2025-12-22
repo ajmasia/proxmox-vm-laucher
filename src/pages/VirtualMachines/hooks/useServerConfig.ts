@@ -1,15 +1,8 @@
 import { useConfigStore } from '../../../stores/configStore'
 
 export const useServerConfig = () => {
-  const {
-    hasConfig,
-    configLoaded,
-    success,
-    error,
-    checkConfig,
-    saveConfig,
-    setHasConfig,
-  } = useConfigStore()
+  const { hasConfig, configLoaded, success, error, checkConfig, saveConfig, setHasConfig } =
+    useConfigStore()
 
   return {
     hasConfig,

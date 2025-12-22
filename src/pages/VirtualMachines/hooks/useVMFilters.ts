@@ -17,7 +17,7 @@ export const useVMFilters = (vms: ProxmoxVM[]) => {
   } = useFilterStore()
 
   const uniqueTags = useMemo(() => getUniqueTags(vms), [vms, getUniqueTags])
-  const filteredVMs = useMemo(() => getFilteredVMs(vms), [vms, statusFilter, selectedTags, spiceOnly, getFilteredVMs])
+  const filteredVMs = useMemo(() => getFilteredVMs(vms), [vms, getFilteredVMs])
 
   return {
     statusFilter,

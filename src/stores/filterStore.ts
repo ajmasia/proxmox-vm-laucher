@@ -27,11 +27,12 @@ export const useFilterStore = create<FilterStore>((set, get) => ({
 
   // Actions
   setStatusFilter: (filter) => set({ statusFilter: filter }),
-  toggleTag: (tag) => set((state) => ({
-    selectedTags: state.selectedTags.includes(tag)
-      ? state.selectedTags.filter(t => t !== tag)
-      : [...state.selectedTags, tag]
-  })),
+  toggleTag: (tag) =>
+    set((state) => ({
+      selectedTags: state.selectedTags.includes(tag)
+        ? state.selectedTags.filter((t) => t !== tag)
+        : [...state.selectedTags, tag],
+    })),
   clearTags: () => set({ selectedTags: [] }),
   setSpiceOnly: (enabled) => set({ spiceOnly: enabled }),
   clearFilters: () => set({ statusFilter: 'all', selectedTags: [], spiceOnly: true }),
@@ -55,13 +56,15 @@ export const useFilterStore = create<FilterStore>((set, get) => ({
       const statusMatch = statusFilter === 'all' || vm.status === statusFilter
 
       // If no tags selected, show all
-      const tagMatch = selectedTags.length === 0 ||
-        (vm.tags && selectedTags.some(selectedTag =>
-          vm.tags
-            .split(';')
-            .map((tag) => tag.trim())
-            .includes(selectedTag)
-        ))
+      const tagMatch =
+        selectedTags.length === 0 ||
+        (vm.tags &&
+          selectedTags.some((selectedTag) =>
+            vm.tags
+              .split(';')
+              .map((tag) => tag.trim())
+              .includes(selectedTag)
+          ))
 
       const spiceMatch = !spiceOnly || vm.spice === true
       return statusMatch && tagMatch && spiceMatch

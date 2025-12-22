@@ -68,9 +68,7 @@ export const useServerStore = create<ServerStore>((set, get) => ({
 
   // Update existing server
   updateServer: async (id, updates) => {
-    const servers = get().servers.map((s) =>
-      s.id === id ? { ...s, ...updates } : s
-    )
+    const servers = get().servers.map((s) => (s.id === id ? { ...s, ...updates } : s))
     set({ servers })
 
     // Save to Tauri Store

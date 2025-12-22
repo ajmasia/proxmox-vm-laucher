@@ -24,13 +24,16 @@ export default function VMList({
   startingVMs,
   stoppingVMs,
   suspendingVMs,
-  resumingVMs
+  resumingVMs,
 }: VMListProps) {
   if (loading) {
     return (
       <div className="space-y-2">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="animate-pulse rounded-xl bg-white p-6 shadow-sm ring-1 ring-black/5">
+          <div
+            key={i}
+            className="animate-pulse rounded-xl bg-white p-6 shadow-sm ring-1 ring-black/5"
+          >
             <div className="h-5 w-1/3 rounded bg-slate-200"></div>
             <div className="mt-3 h-4 w-1/2 rounded bg-slate-200"></div>
           </div>

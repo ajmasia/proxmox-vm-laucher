@@ -32,9 +32,7 @@ export default function ServerConfig({ onSave, initialConfig }: ServerConfigProp
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <h2 className="mb-4 text-xl font-semibold text-slate-900">
-          Proxmox Server Configuration
-        </h2>
+        <h2 className="mb-4 text-xl font-semibold text-slate-900">Proxmox Server Configuration</h2>
         <p className="mb-6 text-sm text-slate-600">
           Enter your Proxmox server credentials. This information will be stored securely.
         </p>

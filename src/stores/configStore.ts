@@ -29,7 +29,7 @@ export const useConfigStore = create<ConfigStore>((set) => ({
     try {
       await invoke('load_server_config')
       set({ hasConfig: true, configLoaded: true })
-    } catch (err) {
+    } catch {
       set({ hasConfig: false, configLoaded: true })
     }
   },
