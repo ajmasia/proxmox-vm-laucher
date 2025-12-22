@@ -210,6 +210,22 @@ const VMItem = memo(function VMItem({
       </div>
     </div>
   )
+}, (prevProps, nextProps) => {
+  // Only re-render if relevant props actually changed
+  return (
+    prevProps.vm.vmid === nextProps.vm.vmid &&
+    prevProps.vm.name === nextProps.vm.name &&
+    prevProps.vm.status === nextProps.vm.status &&
+    prevProps.vm.cpus === nextProps.vm.cpus &&
+    prevProps.vm.mem === nextProps.vm.mem &&
+    prevProps.vm.maxmem === nextProps.vm.maxmem &&
+    prevProps.vm.node === nextProps.vm.node &&
+    prevProps.vm.tags === nextProps.vm.tags &&
+    prevProps.isStarting === nextProps.isStarting &&
+    prevProps.isStopping === nextProps.isStopping &&
+    prevProps.isSuspending === nextProps.isSuspending &&
+    prevProps.isResuming === nextProps.isResuming
+  )
 })
 
 export default function VMList({
