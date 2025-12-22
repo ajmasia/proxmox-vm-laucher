@@ -100,8 +100,8 @@ const VMItem = memo(function VMItem({
                 disabled={vm.status === 'running'}
                 className={`inline-flex items-center justify-center rounded-lg p-2 transition-all ${
                   vm.status === 'running'
-                    ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
-                    : 'bg-slate-100 text-slate-600 hover:text-slate-900 hover:bg-slate-200'
+                    ? 'bg-slate-50 text-slate-300 cursor-not-allowed opacity-40'
+                    : 'bg-slate-200 text-slate-700 hover:text-slate-900 hover:bg-slate-300'
                 }`}
                 title={vm.status === 'paused' ? 'Resume VM' : 'Start VM'}
               >
@@ -114,8 +114,8 @@ const VMItem = memo(function VMItem({
                 disabled={vm.status !== 'running' || !vm.spice}
                 className={`inline-flex items-center justify-center rounded-lg p-2 transition-all ${
                   vm.status !== 'running' || !vm.spice
-                    ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
-                    : 'bg-slate-100 text-slate-600 hover:text-slate-900 hover:bg-slate-200'
+                    ? 'bg-slate-50 text-slate-300 cursor-not-allowed opacity-40'
+                    : 'bg-slate-200 text-slate-700 hover:text-slate-900 hover:bg-slate-300'
                 }`}
                 title={
                   vm.status !== 'running'
@@ -134,8 +134,8 @@ const VMItem = memo(function VMItem({
                 disabled={vm.status !== 'running'}
                 className={`inline-flex items-center justify-center rounded-lg p-2 transition-all ${
                   vm.status !== 'running'
-                    ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
-                    : 'bg-slate-100 text-slate-600 hover:text-slate-900 hover:bg-slate-200'
+                    ? 'bg-slate-50 text-slate-300 cursor-not-allowed opacity-40'
+                    : 'bg-slate-200 text-slate-700 hover:text-slate-900 hover:bg-slate-300'
                 }`}
                 title={vm.status !== 'running' ? 'VM must be running' : 'Pause VM'}
               >
@@ -148,8 +148,8 @@ const VMItem = memo(function VMItem({
                 disabled={vm.status === 'stopped'}
                 className={`inline-flex items-center justify-center rounded-lg p-2 transition-all ${
                   vm.status === 'stopped'
-                    ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
-                    : 'bg-slate-100 text-slate-600 hover:text-slate-900 hover:bg-slate-200'
+                    ? 'bg-slate-50 text-slate-300 cursor-not-allowed opacity-40'
+                    : 'bg-slate-200 text-slate-700 hover:text-slate-900 hover:bg-slate-300'
                 }`}
                 title={vm.status === 'stopped' ? 'VM already stopped' : 'Stop VM'}
               >
