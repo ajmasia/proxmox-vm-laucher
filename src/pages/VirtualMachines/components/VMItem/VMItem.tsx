@@ -36,23 +36,28 @@ const VMItem = memo(function VMItem({
           </div>
           <div className="min-w-0 flex-1">
             <div className="font-medium text-slate-900 truncate">{vm.name}</div>
-            <div className="flex items-center gap-2 flex-wrap">
-              <div className="text-sm text-slate-500">Node: {vm.node}</div>
-              <span className="text-slate-300">•</span>
-              <div className="text-sm text-slate-500">ID: {vm.vmid}</div>
+            <div className="mt-1 flex flex-wrap items-center gap-1.5">
+              {/* Node Badge */}
+              <span className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700 ring-1 ring-slate-600/10">
+                {vm.node}
+              </span>
+
+              {/* VM ID Badge */}
+              <span className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700 ring-1 ring-slate-600/10">
+                {vm.vmid}
+              </span>
+
+              {/* Tags */}
               {vm.tags && vm.tags.trim() && (
                 <>
-                  <span className="text-slate-300">•</span>
-                  <div className="flex flex-wrap gap-1">
-                    {vm.tags.split(';').filter(tag => tag.trim()).map((tag, idx) => (
-                      <span
-                        key={idx}
-                        className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700 ring-1 ring-slate-600/10"
-                      >
-                        {tag.trim()}
-                      </span>
-                    ))}
-                  </div>
+                  {vm.tags.split(';').filter(tag => tag.trim()).map((tag, idx) => (
+                    <span
+                      key={idx}
+                      className="inline-flex items-center rounded-md bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700 ring-1 ring-blue-600/10"
+                    >
+                      {tag.trim()}
+                    </span>
+                  ))}
                 </>
               )}
             </div>
