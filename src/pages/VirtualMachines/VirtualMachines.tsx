@@ -11,7 +11,7 @@ import { useFilterStore } from '../../stores/filterStore'
 const VirtualMachines = () => {
   // VM Store
   const {
-    vms,
+    vmMap,
     loadingVMs,
     startingVMs,
     stoppingVMs,
@@ -24,6 +24,8 @@ const VirtualMachines = () => {
     suspendVM,
     connectVM,
   } = useVMStore()
+
+  const vms = Array.from(vmMap.values())
 
   // Config Store
   const {
@@ -54,13 +56,8 @@ const VirtualMachines = () => {
 
   // Initialize
   useEffect(() => {
-    const init = async () => {
-      await checkConfig()
-      if (hasConfig) {
-        await loadVMs()
-      }
-    }
-    init()
+    checkConfig()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // Load VMs when config is available
@@ -68,7 +65,8 @@ const VirtualMachines = () => {
     if (hasConfig && configLoaded && vms.length === 0 && !loadingVMs) {
       loadVMs()
     }
-  }, [hasConfig, configLoaded, vms.length, loadingVMs, loadVMs])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasConfig, configLoaded])
 
   if (!configLoaded) {
     return (

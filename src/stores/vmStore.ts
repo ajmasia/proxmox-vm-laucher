@@ -12,9 +12,6 @@ interface VMStore {
   resumingVMs: Set<number>
   error: string | null
 
-  // Computed
-  vms: ProxmoxVM[]
-
   // Actions
   setError: (error: string | null) => void
   loadVMs: () => Promise<void>
@@ -35,10 +32,6 @@ export const useVMStore = create<VMStore>((set, get) => ({
   resumingVMs: new Set(),
   error: null,
 
-  // Computed
-  get vms() {
-    return Array.from(get().vmMap.values())
-  },
 
   // Actions
   setError: (error) => set({ error }),
@@ -48,8 +41,6 @@ export const useVMStore = create<VMStore>((set, get) => ({
 
     try {
       const vmList = await invoke<ProxmoxVM[]>('list_vms')
-      console.log('VM list loaded:', vmList)
-
       set({ vmMap: new Map(vmList.map(vm => [vm.vmid, vm])) })
     } catch (err) {
       set({ error: err as string })
