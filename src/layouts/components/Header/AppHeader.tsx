@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { MonitorIcon, RefreshIcon } from '../../../icons'
 import ThemeToggle from '../../../components/ThemeToggle/ThemeToggle'
+import UpdateBadge from '../../../components/UpdateBadge/UpdateBadge'
 import { useAuthStore } from '../../../stores/authStore'
 
 interface AppHeaderProps {
@@ -44,6 +45,7 @@ const AppHeader = ({ onRefresh, isLoading }: AppHeaderProps) => {
             <RefreshIcon className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
             Refresh
           </button>
+          <UpdateBadge />
           <ThemeToggle />
           <button
             onClick={handleLogout}
