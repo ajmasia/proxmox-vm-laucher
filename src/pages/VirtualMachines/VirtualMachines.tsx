@@ -1,4 +1,4 @@
-import { useEffect, useCallback, useMemo } from 'react'
+import { useEffect, useRef } from 'react'
 import Alert from '../../components/Alert/Alert'
 import VMList from './components/VMList/VMList'
 import VMFilter from './components/VMFilter/VMFilter'
@@ -8,6 +8,7 @@ import { useLayout } from '../../contexts/LayoutContext'
 
 const VirtualMachines = () => {
   const { setRefreshHandler, setIsLoading, setFilterSlot } = useLayout()
+  const isInitialized = useRef(false)
 
   // Virtual Machines
   const {
@@ -39,61 +40,51 @@ const VirtualMachines = () => {
     clearFilters,
   } = useVMFilters(vms)
 
-  // Memoize callbacks to prevent unnecessary re-renders
-  const handleStatusFilterChange = useCallback(setStatusFilter, [setStatusFilter])
-  const handleToggleTag = useCallback(toggleTag, [toggleTag])
-  const handleClearTags = useCallback(clearTags, [clearTags])
-  const handleSpiceOnlyChange = useCallback(setSpiceOnly, [setSpiceOnly])
-  const handleClearFilters = useCallback(clearFilters, [clearFilters])
-
-  // Set refresh handler - only once on mount
+  // Initialize once on mount
   useEffect(() => {
+    if (isInitialized.current) return
+    isInitialized.current = true
+
     setRefreshHandler(loadVMs)
+    loadVMs()
   }, [loadVMs, setRefreshHandler])
 
-  // Update loading state
+  // Update loading state only when it changes
+  const prevLoadingRef = useRef(loading)
   useEffect(() => {
-    setIsLoading(loading)
+    if (prevLoadingRef.current !== loading) {
+      prevLoadingRef.current = loading
+      setIsLoading(loading)
+    }
   }, [loading, setIsLoading])
 
-  // Memoize filter component to prevent unnecessary re-renders
-  const filterComponent = useMemo(
-    () => (
+  // Set filter slot once on mount, update only when filter values change
+  useEffect(() => {
+    setFilterSlot(
       <VMFilter
         statusFilter={statusFilter}
         selectedTags={selectedTags}
         spiceOnly={spiceOnly}
         uniqueTags={uniqueTags}
-        onStatusFilterChange={handleStatusFilterChange}
-        onToggleTag={handleToggleTag}
-        onClearTags={handleClearTags}
-        onSpiceOnlyChange={handleSpiceOnlyChange}
-        onClearFilters={handleClearFilters}
+        onStatusFilterChange={setStatusFilter}
+        onToggleTag={toggleTag}
+        onClearTags={clearTags}
+        onSpiceOnlyChange={setSpiceOnly}
+        onClearFilters={clearFilters}
       />
-    ),
-    [
-      statusFilter,
-      selectedTags,
-      spiceOnly,
-      uniqueTags,
-      handleStatusFilterChange,
-      handleToggleTag,
-      handleClearTags,
-      handleSpiceOnlyChange,
-      handleClearFilters,
-    ]
-  )
-
-  // Set filter slot
-  useEffect(() => {
-    setFilterSlot(filterComponent)
-  }, [filterComponent, setFilterSlot])
-
-  // Load VMs on mount
-  useEffect(() => {
-    loadVMs()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+    )
+  }, [
+    statusFilter,
+    selectedTags,
+    spiceOnly,
+    uniqueTags,
+    setStatusFilter,
+    toggleTag,
+    clearTags,
+    setSpiceOnly,
+    clearFilters,
+    setFilterSlot,
+  ])
 
   return (
     <div className="space-y-4 pb-4">
