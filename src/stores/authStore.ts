@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { toast } from 'sonner'
 import type { ProxmoxSession, ProxmoxServerConfig } from '../types/proxmox'
 import { invoke } from '@tauri-apps/api/core'
 
@@ -64,12 +65,17 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       }
 
       set({ session, isAuthenticating: false, error: null })
+
+      const serverInfo = clusterName || server.host
+      toast.success(`Connected to ${serverInfo}`)
     } catch (error) {
+      const message = error instanceof Error ? error.message : 'Authentication failed'
       set({
         session: null,
         isAuthenticating: false,
-        error: error instanceof Error ? error.message : 'Authentication failed',
+        error: message,
       })
+      toast.error(message)
       throw error
     }
   },
