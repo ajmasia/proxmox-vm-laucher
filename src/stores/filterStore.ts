@@ -1,25 +1,59 @@
 import { create } from 'zustand'
 import type { ProxmoxVM } from '../types/proxmox'
 
-interface FilterStore {
-  // State
+interface FilterState {
   statusFilter: string
   selectedTags: string[]
   spiceOnly: boolean
+}
 
+interface FilterStore extends FilterState {
   // Actions
   setStatusFilter: (filter: string) => void
   toggleTag: (tag: string) => void
   clearTags: () => void
   setSpiceOnly: (enabled: boolean) => void
   clearFilters: () => void
-
-  // Computed helpers
-  getUniqueTags: (vms: ProxmoxVM[]) => string[]
-  getFilteredVMs: (vms: ProxmoxVM[]) => ProxmoxVM[]
 }
 
-export const useFilterStore = create<FilterStore>((set, get) => ({
+// Pure functions outside the store for stable references
+export const getUniqueTags = (vms: ProxmoxVM[]): string[] => {
+  return Array.from(
+    new Set(
+      vms
+        .filter((vm) => vm.tags && vm.tags.trim())
+        .flatMap((vm) => vm.tags!.split(';').map((tag) => tag.trim()))
+        .filter((tag) => tag)
+    )
+  ).sort()
+}
+
+export const getFilteredVMs = (
+  vms: ProxmoxVM[],
+  statusFilter: string,
+  selectedTags: string[],
+  spiceOnly: boolean
+): ProxmoxVM[] => {
+  return vms.filter((vm) => {
+    const statusMatch = statusFilter === 'all' || vm.status === statusFilter
+
+    // If no tags selected, show all
+    const tagMatch =
+      selectedTags.length === 0 ||
+      (vm.tags &&
+        selectedTags.some((selectedTag) =>
+          vm.tags!
+            .split(';')
+            .map((tag) => tag.trim())
+            .includes(selectedTag)
+        ))
+
+    const spiceMatch = !spiceOnly || vm.spice === true
+    return statusMatch && tagMatch && spiceMatch
+  })
+}
+
+export const useFilterStore = create<FilterStore>((set) => ({
   // Initial state
   statusFilter: 'all',
   selectedTags: [],
@@ -45,38 +79,4 @@ export const useFilterStore = create<FilterStore>((set, get) => ({
       selectedTags: enabled ? [] : state.selectedTags,
     })),
   clearFilters: () => set({ statusFilter: 'all', selectedTags: [], spiceOnly: true }),
-
-  // Computed helpers
-  getUniqueTags: (vms) => {
-    return Array.from(
-      new Set(
-        vms
-          .filter((vm) => vm.tags && vm.tags.trim())
-          .flatMap((vm) => vm.tags!.split(';').map((tag) => tag.trim()))
-          .filter((tag) => tag)
-      )
-    ).sort()
-  },
-
-  getFilteredVMs: (vms) => {
-    const { statusFilter, selectedTags, spiceOnly } = get()
-
-    return vms.filter((vm) => {
-      const statusMatch = statusFilter === 'all' || vm.status === statusFilter
-
-      // If no tags selected, show all
-      const tagMatch =
-        selectedTags.length === 0 ||
-        (vm.tags &&
-          selectedTags.some((selectedTag) =>
-            vm.tags!
-              .split(';')
-              .map((tag) => tag.trim())
-              .includes(selectedTag)
-          ))
-
-      const spiceMatch = !spiceOnly || vm.spice === true
-      return statusMatch && tagMatch && spiceMatch
-    })
-  },
 }))
