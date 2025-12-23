@@ -21,10 +21,10 @@ const LoadingSkeleton = memo(function LoadingSkeleton() {
       {[1, 2, 3].map((i) => (
         <div
           key={i}
-          className="animate-pulse rounded-xl bg-white p-6 shadow-sm ring-1 ring-black/5"
+          className="animate-pulse rounded-xl bg-white p-6 shadow-sm ring-1 ring-black/5 dark:bg-slate-800 dark:ring-white/10"
         >
-          <div className="h-5 w-1/3 rounded bg-slate-200"></div>
-          <div className="mt-3 h-4 w-1/2 rounded bg-slate-200"></div>
+          <div className="h-5 w-1/3 rounded bg-slate-200 dark:bg-slate-700"></div>
+          <div className="mt-3 h-4 w-1/2 rounded bg-slate-200 dark:bg-slate-700"></div>
         </div>
       ))}
     </div>
@@ -33,8 +33,8 @@ const LoadingSkeleton = memo(function LoadingSkeleton() {
 
 const EmptyState = memo(function EmptyState() {
   return (
-    <div className="rounded-xl bg-white p-12 text-center shadow-sm ring-1 ring-black/5">
-      <p className="text-slate-500">No virtual machines found</p>
+    <div className="rounded-xl bg-white p-12 text-center shadow-sm ring-1 ring-black/5 dark:bg-slate-800 dark:ring-white/10">
+      <p className="text-slate-500 dark:text-slate-400">No virtual machines found</p>
     </div>
   )
 })
