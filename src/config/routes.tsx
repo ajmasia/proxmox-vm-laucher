@@ -2,7 +2,8 @@ import { RouteObject } from 'react-router-dom'
 import Login from '../pages/Login/Login'
 import VirtualMachines from '../pages/VirtualMachines/VirtualMachines'
 import ProtectedRoute from '../components/ProtectedRoute/ProtectedRoute'
-import VirtualMachinesLayout from '../layouts/VirtualMachinesLayout'
+import MainLayout from '../layouts/MainLayout'
+import VirtualMachinesLayout from '../routes/VirtualMachinesLayout'
 
 export const routes: RouteObject[] = [
   {
@@ -10,15 +11,20 @@ export const routes: RouteObject[] = [
     element: <Login />,
   },
   {
-    element: <VirtualMachinesLayout />,
+    element: <MainLayout />,
     children: [
       {
-        path: '/virtual-machines',
-        element: (
-          <ProtectedRoute>
-            <VirtualMachines />
-          </ProtectedRoute>
-        ),
+        element: <VirtualMachinesLayout />,
+        children: [
+          {
+            path: '/virtual-machines',
+            element: (
+              <ProtectedRoute>
+                <VirtualMachines />
+              </ProtectedRoute>
+            ),
+          },
+        ],
       },
     ],
   },
