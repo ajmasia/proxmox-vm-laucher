@@ -23,7 +23,7 @@ const PasswordForm = ({ server, isLoading, error, onSubmit }: PasswordFormProps)
     <form onSubmit={handleSubmit} className="space-y-4">
       {/* Password Input */}
       <div>
-        <label htmlFor="password" className="mb-2 block text-sm font-medium text-slate-700">
+        <label htmlFor="password" className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">
           Password for {server.name}
         </label>
         <div className="relative">
@@ -35,13 +35,13 @@ const PasswordForm = ({ server, isLoading, error, onSubmit }: PasswordFormProps)
             disabled={isLoading}
             required
             autoFocus
-            className="block w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 pr-10 text-slate-900 shadow-sm transition-colors placeholder:text-slate-400 hover:border-slate-400 focus:border-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-700 focus:ring-offset-0 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-500"
+            className="block w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 pr-10 text-slate-900 shadow-sm transition-colors placeholder:text-slate-400 hover:border-slate-400 focus:border-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-700 focus:ring-offset-0 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-500 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 dark:placeholder:text-slate-500 dark:hover:border-slate-500 dark:focus:border-slate-500 dark:focus:ring-slate-500 dark:disabled:bg-slate-800 dark:disabled:text-slate-500"
             placeholder="Enter your password"
           />
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-slate-400 transition-colors hover:text-slate-600 focus:outline-none"
+            className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-slate-400 transition-colors hover:text-slate-600 focus:outline-none dark:hover:text-slate-300"
           >
             {showPassword ? (
               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -74,7 +74,7 @@ const PasswordForm = ({ server, isLoading, error, onSubmit }: PasswordFormProps)
 
       {/* Error Message */}
       {error && (
-        <div className="rounded-lg bg-red-50 p-3 text-sm text-red-800">
+        <div className="rounded-lg bg-red-50 p-3 text-sm text-red-800 dark:bg-red-900/30 dark:text-red-300">
           <div className="flex items-start gap-2">
             <svg className="mt-0.5 h-4 w-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
               <path
@@ -92,7 +92,7 @@ const PasswordForm = ({ server, isLoading, error, onSubmit }: PasswordFormProps)
       <button
         type="submit"
         disabled={isLoading || !password.trim()}
-        className="w-full rounded-lg bg-slate-700 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-all hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-slate-400"
+        className="w-full rounded-lg bg-slate-700 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-all hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-slate-400 dark:focus:ring-offset-slate-800 dark:disabled:bg-slate-600"
       >
         {isLoading ? (
           <span className="flex items-center justify-center gap-2">
