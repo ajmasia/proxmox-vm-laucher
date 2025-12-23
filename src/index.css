@@ -6,26 +6,33 @@
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-  color-scheme: light;
 }
 
-* {
-  color-scheme: light;
-}
-
+/* Light mode select styling */
 select {
-  background-color: white !important;
-  color: rgb(15 23 42) !important;
+  background-color: white;
+  color: rgb(15 23 42);
 }
 
 select:focus {
-  outline: none !important;
-  box-shadow: 0 0 0 2px rgb(59 130 246) !important;
+  outline: none;
+  box-shadow: 0 0 0 2px rgb(59 130 246);
 }
 
 select option {
-  background-color: white !important;
-  color: rgb(15 23 42) !important;
+  background-color: white;
+  color: rgb(15 23 42);
+}
+
+/* Dark mode select styling */
+.dark select {
+  background-color: rgb(51 65 85);
+  color: rgb(241 245 249);
+}
+
+.dark select option {
+  background-color: rgb(51 65 85);
+  color: rgb(241 245 249);
 }
 
 body {
@@ -34,7 +41,6 @@ body {
   place-items: center;
   min-width: 320px;
   min-height: 100vh;
-  background-color: white;
 }
 
 #root {
