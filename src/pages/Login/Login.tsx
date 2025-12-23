@@ -66,7 +66,7 @@ const Login = () => {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 p-4 dark:from-slate-900 dark:to-slate-800">
-      <div className="w-full max-w-md">
+      <div className="w-full max-w-md animate-scale-in">
         {/* Card */}
         <div className="rounded-2xl bg-white p-8 shadow-lg ring-1 ring-black/5 dark:bg-slate-800 dark:ring-white/10">
           {/* Header */}

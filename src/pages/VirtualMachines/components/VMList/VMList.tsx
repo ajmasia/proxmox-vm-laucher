@@ -17,14 +17,14 @@ interface VMListProps {
 
 const LoadingSkeleton = memo(function LoadingSkeleton() {
   return (
-    <div className="space-y-2">
-      {[1, 2, 3].map((i) => (
+    <div className="space-y-3 animate-fade-in">
+      {[0, 1, 2].map((i) => (
         <div
           key={i}
-          className="animate-pulse rounded-xl bg-white p-6 shadow-sm ring-1 ring-black/5 dark:bg-slate-800 dark:ring-white/10"
+          className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-black/5 dark:bg-slate-800 dark:ring-white/10"
         >
-          <div className="h-5 w-1/3 rounded bg-slate-200 dark:bg-slate-700"></div>
-          <div className="mt-3 h-4 w-1/2 rounded bg-slate-200 dark:bg-slate-700"></div>
+          <div className="h-5 w-1/3 rounded shimmer"></div>
+          <div className="mt-3 h-4 w-1/2 rounded shimmer"></div>
         </div>
       ))}
     </div>
@@ -33,7 +33,7 @@ const LoadingSkeleton = memo(function LoadingSkeleton() {
 
 const EmptyState = memo(function EmptyState() {
   return (
-    <div className="rounded-xl bg-white p-12 text-center shadow-sm ring-1 ring-black/5 dark:bg-slate-800 dark:ring-white/10">
+    <div className="animate-fade-in-up rounded-xl bg-white p-12 text-center shadow-sm ring-1 ring-black/5 dark:bg-slate-800 dark:ring-white/10">
       <p className="text-slate-500 dark:text-slate-400">No virtual machines found</p>
     </div>
   )
@@ -61,19 +61,24 @@ const VMList = memo(function VMList({
 
   return (
     <div className="space-y-3">
-      {vms.map((vm) => (
-        <VMItem
+      {vms.map((vm, index) => (
+        <div
           key={vm.vmid}
-          vm={vm}
-          onStartVM={onStartVM}
-          onStopVM={onStopVM}
-          onSuspendVM={onSuspendVM}
-          onConnectVM={onConnectVM}
-          isStarting={startingVMs.has(vm.vmid)}
-          isStopping={stoppingVMs.has(vm.vmid)}
-          isSuspending={suspendingVMs.has(vm.vmid)}
-          isResuming={resumingVMs.has(vm.vmid)}
-        />
+          className="animate-fade-in-up"
+          style={{ animationDelay: `${index * 50}ms`, animationFillMode: 'backwards' }}
+        >
+          <VMItem
+            vm={vm}
+            onStartVM={onStartVM}
+            onStopVM={onStopVM}
+            onSuspendVM={onSuspendVM}
+            onConnectVM={onConnectVM}
+            isStarting={startingVMs.has(vm.vmid)}
+            isStopping={stoppingVMs.has(vm.vmid)}
+            isSuspending={suspendingVMs.has(vm.vmid)}
+            isResuming={resumingVMs.has(vm.vmid)}
+          />
+        </div>
       ))}
     </div>
   )
