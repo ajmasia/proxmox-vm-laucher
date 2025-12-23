@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import type { ProxmoxVM } from '../../../../types/proxmox'
 import VMItem from '../VMItem/VMItem'
 
@@ -14,7 +15,31 @@ interface VMListProps {
   resumingVMs: Set<number>
 }
 
-const VMList = ({
+const LoadingSkeleton = memo(function LoadingSkeleton() {
+  return (
+    <div className="space-y-2">
+      {[1, 2, 3].map((i) => (
+        <div
+          key={i}
+          className="animate-pulse rounded-xl bg-white p-6 shadow-sm ring-1 ring-black/5"
+        >
+          <div className="h-5 w-1/3 rounded bg-slate-200"></div>
+          <div className="mt-3 h-4 w-1/2 rounded bg-slate-200"></div>
+        </div>
+      ))}
+    </div>
+  )
+})
+
+const EmptyState = memo(function EmptyState() {
+  return (
+    <div className="rounded-xl bg-white p-12 text-center shadow-sm ring-1 ring-black/5">
+      <p className="text-slate-500">No virtual machines found</p>
+    </div>
+  )
+})
+
+const VMList = memo(function VMList({
   vms,
   onStartVM,
   onStopVM,
@@ -25,29 +50,13 @@ const VMList = ({
   stoppingVMs,
   suspendingVMs,
   resumingVMs,
-}: VMListProps) => {
+}: VMListProps) {
   if (loading) {
-    return (
-      <div className="space-y-2">
-        {[1, 2, 3].map((i) => (
-          <div
-            key={i}
-            className="animate-pulse rounded-xl bg-white p-6 shadow-sm ring-1 ring-black/5"
-          >
-            <div className="h-5 w-1/3 rounded bg-slate-200"></div>
-            <div className="mt-3 h-4 w-1/2 rounded bg-slate-200"></div>
-          </div>
-        ))}
-      </div>
-    )
+    return <LoadingSkeleton />
   }
 
   if (vms.length === 0) {
-    return (
-      <div className="rounded-xl bg-white p-12 text-center shadow-sm ring-1 ring-black/5">
-        <p className="text-slate-500">No virtual machines found</p>
-      </div>
-    )
+    return <EmptyState />
   }
 
   return (
@@ -68,6 +77,6 @@ const VMList = ({
       ))}
     </div>
   )
-}
+})
 
 export default VMList
