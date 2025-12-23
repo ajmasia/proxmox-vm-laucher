@@ -90,6 +90,9 @@ export const useThemeStore = create<ThemeStore>((set, get) => ({
     applyTheme(resolvedTheme)
     set({ theme, resolvedTheme })
 
+    // Save to localStorage for instant access on next load
+    localStorage.setItem('theme', theme)
+
     try {
       const tauriStore = await getStore()
       await tauriStore.set('theme', theme)
