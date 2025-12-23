@@ -250,7 +250,20 @@ export const useVMStore = create<VMStore>((set, get) => ({
     set({ error: null })
 
     try {
-      await invoke('connect_to_proxmox', { node: vm.node, vmid: vm.vmid })
+      const session = useAuthStore.getState().session
+      if (!session) {
+        set({ error: 'No active session' })
+        return
+      }
+
+      await invoke('connect_to_proxmox_with_session', {
+        host: session.server.host,
+        port: session.server.port,
+        username: session.username,
+        password: session.ticket,
+        node: vm.node,
+        vmid: vm.vmid,
+      })
       console.log('SPICE viewer launched successfully')
     } catch (err) {
       set({ error: `Failed to connect to VM: ${err}` })
