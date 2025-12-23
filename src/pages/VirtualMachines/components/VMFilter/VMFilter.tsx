@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import TagFilterPopover from '../TagFilterPopover/TagFilterPopover'
 
 interface VMFilterProps {
@@ -12,7 +13,7 @@ interface VMFilterProps {
   onClearFilters: () => void
 }
 
-const VMFilter = ({
+const VMFilter = memo(function VMFilter({
   statusFilter,
   selectedTags,
   spiceOnly,
@@ -22,7 +23,7 @@ const VMFilter = ({
   onClearTags,
   onSpiceOnlyChange,
   onClearFilters,
-}: VMFilterProps) => {
+}: VMFilterProps) {
   const statusOptions = ['all', 'running', 'stopped', 'paused'] as const
   const hasActiveFilters = statusFilter !== 'all' || selectedTags.length > 0 || !spiceOnly
 
@@ -142,6 +143,6 @@ const VMFilter = ({
       </div>
     </div>
   )
-}
+})
 
 export default VMFilter
