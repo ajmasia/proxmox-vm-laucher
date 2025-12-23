@@ -37,6 +37,9 @@ interface VMStore {
 // Helper function to wait for a delay
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
+// Minimum loading time for better UX (shows skeleton briefly)
+const MIN_LOADING_TIME = 600
+
 // Helper function to poll task status until completion
 async function pollTaskStatus(
   node: string,
@@ -146,12 +149,16 @@ export const useVMStore = create<VMStore>((set, get) => ({
         throw new Error('No active session')
       }
 
-      const vmList = await invoke<ProxmoxVM[]>('list_vms_with_session', {
-        host: session.server.host,
-        port: session.server.port,
-        username: session.username,
-        password: session.ticket,
-      })
+      // Load VMs with minimum display time for skeleton
+      const [vmList] = await Promise.all([
+        invoke<ProxmoxVM[]>('list_vms_with_session', {
+          host: session.server.host,
+          port: session.server.port,
+          username: session.username,
+          password: session.ticket,
+        }),
+        delay(MIN_LOADING_TIME),
+      ])
       set({ vms: arrayToRecord(vmList) })
     } catch (err) {
       set({ error: err as string })
