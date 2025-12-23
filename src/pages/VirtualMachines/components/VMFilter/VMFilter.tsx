@@ -28,12 +28,12 @@ const VMFilter = memo(function VMFilter({
   const hasActiveFilters = statusFilter !== 'all' || selectedTags.length > 0 || !spiceOnly
 
   return (
-    <div className="bg-white">
+    <div className="bg-white dark:bg-slate-800">
       <div className="mx-auto w-full max-w-7xl px-6 py-4">
         <div className="flex min-h-[40px] flex-wrap items-center gap-4">
         {/* Status Filter */}
         <div className="flex flex-wrap items-center gap-2">
-          <label className="text-sm font-medium text-slate-700">Status:</label>
+          <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Status:</label>
           <div className="flex flex-wrap gap-1.5">
             {statusOptions.map((status) => (
               <button
@@ -43,8 +43,8 @@ const VMFilter = memo(function VMFilter({
                   statusFilter === status
                     ? status === 'all'
                       ? 'bg-slate-700 text-white shadow-sm'
-                      : 'bg-blue-100 text-blue-700 ring-1 ring-blue-600/20'
-                    : 'bg-slate-200 text-slate-600 hover:bg-slate-300 hover:text-slate-900'
+                      : 'bg-blue-100 text-blue-700 ring-1 ring-blue-600/20 dark:bg-blue-900/50 dark:text-blue-400 dark:ring-blue-500/30'
+                    : 'bg-slate-200 text-slate-600 hover:bg-slate-300 hover:text-slate-900 dark:bg-slate-600 dark:text-slate-300 dark:hover:bg-slate-500 dark:hover:text-slate-100'
                 }`}
               >
                 {status.charAt(0).toUpperCase() + status.slice(1)}
@@ -56,7 +56,7 @@ const VMFilter = memo(function VMFilter({
         {/* Tag Filter */}
         {uniqueTags.length > 0 && uniqueTags.length <= 5 && (
           <div className="flex flex-wrap items-center gap-2">
-            <label className="text-sm font-medium text-slate-700">Tags:</label>
+            <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Tags:</label>
             <div className="flex flex-wrap gap-1.5">
               {uniqueTags.map((tag) => (
                 <button
@@ -64,8 +64,8 @@ const VMFilter = memo(function VMFilter({
                   onClick={() => onToggleTag(tag)}
                   className={`rounded-md px-3 py-1.5 text-sm font-medium transition-all ${
                     selectedTags.includes(tag)
-                      ? 'bg-blue-100 text-blue-700 ring-1 ring-blue-600/20'
-                      : 'bg-slate-200 text-slate-600 hover:bg-slate-300 hover:text-slate-900'
+                      ? 'bg-blue-100 text-blue-700 ring-1 ring-blue-600/20 dark:bg-blue-900/50 dark:text-blue-400 dark:ring-blue-500/30'
+                      : 'bg-slate-200 text-slate-600 hover:bg-slate-300 hover:text-slate-900 dark:bg-slate-600 dark:text-slate-300 dark:hover:bg-slate-500 dark:hover:text-slate-100'
                   }`}
                 >
                   {tag}
@@ -78,7 +78,7 @@ const VMFilter = memo(function VMFilter({
         {/* Tag Filter Popover (for more than 5 tags) */}
         {uniqueTags.length > 5 && (
           <div className="flex items-center gap-2">
-            <label className="text-sm font-medium text-slate-700">Tags:</label>
+            <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Tags:</label>
             <TagFilterPopover
               selectedTags={selectedTags}
               uniqueTags={uniqueTags}
@@ -96,7 +96,7 @@ const VMFilter = memo(function VMFilter({
                 type="checkbox"
                 checked={spiceOnly}
                 onChange={(e) => onSpiceOnlyChange(e.target.checked)}
-                className="peer h-4 w-4 cursor-pointer appearance-none rounded border-2 border-slate-300 bg-white transition-all checked:border-slate-700 checked:bg-slate-700 hover:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2"
+                className="peer h-4 w-4 cursor-pointer appearance-none rounded border-2 border-slate-300 bg-white transition-all checked:border-slate-700 checked:bg-slate-700 hover:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 dark:border-slate-500 dark:bg-slate-700 dark:checked:border-slate-500 dark:checked:bg-slate-500 dark:hover:border-slate-400 dark:focus:ring-offset-slate-800"
               />
               <svg
                 className="pointer-events-none absolute h-3 w-3 text-white opacity-0 transition-opacity peer-checked:opacity-100"
@@ -113,7 +113,7 @@ const VMFilter = memo(function VMFilter({
                 />
               </svg>
             </div>
-            <span className="text-sm font-medium text-slate-700">SPICE only</span>
+            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">SPICE only</span>
           </label>
         </div>
 
@@ -121,7 +121,7 @@ const VMFilter = memo(function VMFilter({
         {hasActiveFilters && (
           <button
             onClick={onClearFilters}
-            className="ml-auto inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-600 transition-all hover:border-slate-400 hover:text-slate-900"
+            className="ml-auto inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-600 transition-all hover:border-slate-400 hover:text-slate-900 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-300 dark:hover:border-slate-500 dark:hover:text-slate-100"
             title="Clear filters"
           >
             <svg

@@ -5,24 +5,24 @@ interface AlertProps {
 
 const alertStyles = {
   error: {
-    container: 'border-red-200 bg-red-50',
-    icon: 'text-red-600',
-    text: 'text-red-800',
+    container: 'border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-900/30',
+    icon: 'text-red-600 dark:text-red-400',
+    text: 'text-red-800 dark:text-red-300',
   },
   success: {
-    container: 'border-emerald-200 bg-emerald-50',
-    icon: 'text-emerald-600',
-    text: 'text-emerald-800',
+    container: 'border-emerald-200 bg-emerald-50 dark:border-emerald-800 dark:bg-emerald-900/30',
+    icon: 'text-emerald-600 dark:text-emerald-400',
+    text: 'text-emerald-800 dark:text-emerald-300',
   },
   info: {
-    container: 'border-blue-200 bg-blue-50',
-    icon: 'text-blue-600',
-    text: 'text-blue-800',
+    container: 'border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-900/30',
+    icon: 'text-blue-600 dark:text-blue-400',
+    text: 'text-blue-800 dark:text-blue-300',
   },
   warning: {
-    container: 'border-amber-200 bg-amber-50',
-    icon: 'text-amber-600',
-    text: 'text-amber-800',
+    container: 'border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-900/30',
+    icon: 'text-amber-600 dark:text-amber-400',
+    text: 'text-amber-800 dark:text-amber-300',
   },
 }
 

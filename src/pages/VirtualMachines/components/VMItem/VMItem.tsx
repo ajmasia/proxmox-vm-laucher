@@ -37,32 +37,32 @@ const VMItem = memo(
   }: VMItemProps) {
     return (
       <div
-        className={`group overflow-hidden rounded-xl bg-white shadow-sm transition-all hover:shadow-md ${
-          vm.spice ? 'ring-2 ring-blue-400/40' : 'ring-1 ring-black/5'
+        className={`group overflow-hidden rounded-xl bg-white shadow-sm transition-all hover:shadow-md dark:bg-slate-800 ${
+          vm.spice ? 'ring-2 ring-blue-400/40' : 'ring-1 ring-black/5 dark:ring-white/10'
         }`}
       >
         <div className="flex items-center gap-2 p-4">
           {/* VM Icon and Name */}
           <div className="flex items-center gap-3 flex-1 min-w-0">
-            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-600">
+            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-400">
               <MonitorIcon className="h-5 w-5" />
             </div>
             <div className="min-w-0 flex-1">
-              <div className="font-medium text-slate-900 truncate">{vm.name}</div>
+              <div className="font-medium text-slate-900 truncate dark:text-slate-100">{vm.name}</div>
               <div className="mt-1 flex flex-wrap items-center gap-1.5">
                 {/* Node Badge */}
-                <span className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700 ring-1 ring-slate-600/10">
+                <span className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700 ring-1 ring-slate-600/10 dark:bg-slate-700 dark:text-slate-300 dark:ring-slate-500/20">
                   {vm.node.toUpperCase()}
                 </span>
 
                 {/* VM ID Badge */}
-                <span className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700 ring-1 ring-slate-600/10">
+                <span className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700 ring-1 ring-slate-600/10 dark:bg-slate-700 dark:text-slate-300 dark:ring-slate-500/20">
                   {vm.vmid}
                 </span>
 
                 {/* SPICE Badge */}
                 {vm.spice && (
-                  <span className="inline-flex items-center gap-1 rounded-md bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700 ring-1 ring-blue-600/20">
+                  <span className="inline-flex items-center gap-1 rounded-md bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700 ring-1 ring-blue-600/20 dark:bg-blue-900/50 dark:text-blue-400 dark:ring-blue-500/30">
                     <PlugIcon className="h-3 w-3" />
                     SPICE
                   </span>
@@ -71,14 +71,14 @@ const VMItem = memo(
                 {/* Tags */}
                 {vm.tags && vm.tags.trim() && (
                   <>
-                    <span className="text-slate-300">•</span>
+                    <span className="text-slate-300 dark:text-slate-600">•</span>
                     {vm.tags
                       .split(';')
                       .filter((tag) => tag.trim())
                       .map((tag, idx) => (
                         <span
                           key={idx}
-                          className="inline-flex items-center rounded-md bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700 ring-1 ring-blue-600/10"
+                          className="inline-flex items-center rounded-md bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700 ring-1 ring-blue-600/10 dark:bg-blue-900/30 dark:text-blue-400 dark:ring-blue-500/20"
                         >
                           {tag.trim()}
                         </span>
@@ -101,8 +101,8 @@ const VMItem = memo(
 
           {/* Resources */}
           <div className="flex-shrink-0 text-right min-w-[110px]">
-            <div className="text-sm text-slate-900">{vm.cpus || 0} vCPU</div>
-            <div className="text-xs text-slate-500">
+            <div className="text-sm text-slate-900 dark:text-slate-100">{vm.cpus || 0} vCPU</div>
+            <div className="text-xs text-slate-500 dark:text-slate-400">
               {formatBytes(vm.mem || 0)} / {formatBytes(vm.maxmem || 0)}
             </div>
           </div>
@@ -110,7 +110,7 @@ const VMItem = memo(
           {/* Actions */}
           <div className="flex-shrink-0 min-w-[180px] min-h-[40px] flex items-center justify-end">
             {isStarting || isResuming || isStopping || isSuspending ? (
-              <div className="inline-flex items-center gap-2 text-slate-600">
+              <div className="inline-flex items-center gap-2 text-slate-600 dark:text-slate-400">
                 <SpinnerIcon className="h-4 w-4" />
                 <span className="text-sm font-medium">
                   {isStarting && 'Starting...'}
@@ -127,8 +127,8 @@ const VMItem = memo(
                   disabled={vm.status === 'running'}
                   className={`inline-flex items-center justify-center rounded-lg p-2 transition-all ${
                     vm.status === 'running'
-                      ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
-                      : 'bg-slate-200 text-slate-700 hover:text-slate-900 hover:bg-slate-300'
+                      ? 'bg-slate-100 text-slate-400 cursor-not-allowed dark:bg-slate-700 dark:text-slate-500'
+                      : 'bg-slate-200 text-slate-700 hover:text-slate-900 hover:bg-slate-300 dark:bg-slate-600 dark:text-slate-300 dark:hover:bg-slate-500 dark:hover:text-slate-100'
                   }`}
                   title={vm.status === 'paused' ? 'Resume VM' : 'Start VM'}
                 >
@@ -145,8 +145,8 @@ const VMItem = memo(
                   disabled={vm.status !== 'running'}
                   className={`inline-flex items-center justify-center rounded-lg p-2 transition-all ${
                     vm.status !== 'running'
-                      ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
-                      : 'bg-slate-200 text-slate-700 hover:text-slate-900 hover:bg-slate-300'
+                      ? 'bg-slate-100 text-slate-400 cursor-not-allowed dark:bg-slate-700 dark:text-slate-500'
+                      : 'bg-slate-200 text-slate-700 hover:text-slate-900 hover:bg-slate-300 dark:bg-slate-600 dark:text-slate-300 dark:hover:bg-slate-500 dark:hover:text-slate-100'
                   }`}
                   title={vm.status !== 'running' ? 'VM must be running' : 'Pause VM'}
                 >
@@ -159,8 +159,8 @@ const VMItem = memo(
                   disabled={vm.status === 'stopped'}
                   className={`inline-flex items-center justify-center rounded-lg p-2 transition-all ${
                     vm.status === 'stopped'
-                      ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
-                      : 'bg-slate-200 text-slate-700 hover:text-slate-900 hover:bg-slate-300'
+                      ? 'bg-slate-100 text-slate-400 cursor-not-allowed dark:bg-slate-700 dark:text-slate-500'
+                      : 'bg-slate-200 text-slate-700 hover:text-slate-900 hover:bg-slate-300 dark:bg-slate-600 dark:text-slate-300 dark:hover:bg-slate-500 dark:hover:text-slate-100'
                   }`}
                   title={vm.status === 'stopped' ? 'VM already stopped' : 'Stop VM'}
                 >
@@ -173,8 +173,8 @@ const VMItem = memo(
                   disabled={vm.status !== 'running' || !vm.spice}
                   className={`inline-flex items-center justify-center rounded-lg p-2 transition-all ${
                     vm.status !== 'running' || !vm.spice
-                      ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
-                      : 'bg-slate-200 text-slate-700 hover:text-slate-900 hover:bg-slate-300'
+                      ? 'bg-slate-100 text-slate-400 cursor-not-allowed dark:bg-slate-700 dark:text-slate-500'
+                      : 'bg-slate-200 text-slate-700 hover:text-slate-900 hover:bg-slate-300 dark:bg-slate-600 dark:text-slate-300 dark:hover:bg-slate-500 dark:hover:text-slate-100'
                   }`}
                   title={
                     vm.status !== 'running'
