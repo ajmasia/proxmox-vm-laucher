@@ -69,6 +69,28 @@ struct VMConfigResponse {
 }
 
 #[derive(Debug, Deserialize)]
+struct TaskResponse {
+    data: String, // UPID string
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct TaskStatus {
+    pub status: String,      // "running" or "stopped"
+    #[serde(default)]
+    pub exitstatus: String,  // "OK" or error message (only when stopped)
+    #[serde(default)]
+    pub node: String,
+    #[serde(rename = "type")]
+    #[serde(default)]
+    pub task_type: String,
+}
+
+#[derive(Debug, Deserialize)]
+struct TaskStatusResponse {
+    data: TaskStatus,
+}
+
+#[derive(Debug, Deserialize)]
 struct VMConfig {
     #[serde(default)]
     vga: String,
@@ -305,7 +327,7 @@ pub async fn start_vm(
     password: &str,
     node: &str,
     vmid: u32,
-) -> Result<(), String> {
+) -> Result<String, String> {
     let client = reqwest::Client::builder()
         .danger_accept_invalid_certs(true)
         .build()
@@ -365,9 +387,14 @@ pub async fn start_vm(
         ));
     }
 
-    println!("VM start command sent successfully");
+    let task_response: TaskResponse = start_response
+        .json()
+        .await
+        .map_err(|e| format!("Failed to parse task response: {}", e))?;
 
-    Ok(())
+    println!("VM start task initiated: {}", task_response.data);
+
+    Ok(task_response.data)
 }
 
 pub async fn stop_vm(
@@ -377,7 +404,7 @@ pub async fn stop_vm(
     password: &str,
     node: &str,
     vmid: u32,
-) -> Result<(), String> {
+) -> Result<String, String> {
     let client = reqwest::Client::builder()
         .danger_accept_invalid_certs(true)
         .build()
@@ -437,9 +464,14 @@ pub async fn stop_vm(
         ));
     }
 
-    println!("VM stop command sent successfully");
+    let task_response: TaskResponse = stop_response
+        .json()
+        .await
+        .map_err(|e| format!("Failed to parse task response: {}", e))?;
 
-    Ok(())
+    println!("VM stop task initiated: {}", task_response.data);
+
+    Ok(task_response.data)
 }
 
 pub async fn resume_vm(
@@ -449,7 +481,7 @@ pub async fn resume_vm(
     password: &str,
     node: &str,
     vmid: u32,
-) -> Result<(), String> {
+) -> Result<String, String> {
     let client = reqwest::Client::builder()
         .danger_accept_invalid_certs(true)
         .build()
@@ -509,9 +541,14 @@ pub async fn resume_vm(
         ));
     }
 
-    println!("VM resume command sent successfully");
+    let task_response: TaskResponse = resume_response
+        .json()
+        .await
+        .map_err(|e| format!("Failed to parse task response: {}", e))?;
 
-    Ok(())
+    println!("VM resume task initiated: {}", task_response.data);
+
+    Ok(task_response.data)
 }
 
 pub async fn suspend_vm(
@@ -521,7 +558,7 @@ pub async fn suspend_vm(
     password: &str,
     node: &str,
     vmid: u32,
-) -> Result<(), String> {
+) -> Result<String, String> {
     let client = reqwest::Client::builder()
         .danger_accept_invalid_certs(true)
         .build()
@@ -581,9 +618,14 @@ pub async fn suspend_vm(
         ));
     }
 
-    println!("VM suspend command sent successfully");
+    let task_response: TaskResponse = suspend_response
+        .json()
+        .await
+        .map_err(|e| format!("Failed to parse task response: {}", e))?;
 
-    Ok(())
+    println!("VM suspend task initiated: {}", task_response.data);
+
+    Ok(task_response.data)
 }
 
 pub fn launch_spice_viewer(spice_config: &str) -> Result<(), String> {
@@ -722,4 +764,83 @@ async fn get_node_name(host: &str, port: u16, ticket: &str) -> Result<String, St
         .map_err(|e| format!("Failed to parse nodes response: {}", e))?;
 
     Ok(nodes.data.first().map(|n| n.node.clone()).unwrap_or_else(|| host.to_string()))
+}
+
+/// Get the status of a Proxmox task by its UPID
+pub async fn get_task_status(
+    host: &str,
+    port: u16,
+    username: &str,
+    password: &str,
+    node: &str,
+    upid: &str,
+) -> Result<TaskStatus, String> {
+    let client = reqwest::Client::builder()
+        .danger_accept_invalid_certs(true)
+        .build()
+        .map_err(|e| format!("Failed to create HTTP client: {}", e))?;
+
+    // Authenticate
+    let auth_url = format!("https://{}:{}/api2/json/access/ticket", host, port);
+    let params = [("username", username), ("password", password)];
+
+    let response = client
+        .post(&auth_url)
+        .form(&params)
+        .send()
+        .await
+        .map_err(|e| format!("Authentication request failed: {}", e))?;
+
+    if !response.status().is_success() {
+        return Err(format!(
+            "Authentication failed with status: {}",
+            response.status()
+        ));
+    }
+
+    let auth_response: AuthResponse = response
+        .json()
+        .await
+        .map_err(|e| format!("Failed to parse authentication response: {}", e))?;
+
+    let ticket = auth_response.data.ticket;
+
+    // URL encode the UPID since it contains special characters
+    let encoded_upid = urlencoding::encode(upid);
+
+    // Get task status
+    let task_url = format!(
+        "https://{}:{}/api2/json/nodes/{}/tasks/{}/status",
+        host, port, node, encoded_upid
+    );
+
+    println!("Checking task status: {}", upid);
+
+    let task_response = client
+        .get(&task_url)
+        .header("Cookie", format!("PVEAuthCookie={}", ticket))
+        .send()
+        .await
+        .map_err(|e| format!("Failed to get task status: {}", e))?;
+
+    if !task_response.status().is_success() {
+        let status = task_response.status();
+        let body = task_response
+            .text()
+            .await
+            .unwrap_or_else(|_| "Unknown error".to_string());
+        return Err(format!(
+            "Failed to get task status with status: {}. Response: {}",
+            status, body
+        ));
+    }
+
+    let status_response: TaskStatusResponse = task_response
+        .json()
+        .await
+        .map_err(|e| format!("Failed to parse task status response: {}", e))?;
+
+    println!("Task status: {:?}", status_response.data);
+
+    Ok(status_response.data)
 }

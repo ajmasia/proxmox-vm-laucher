@@ -23,7 +23,8 @@ pub fn run() {
             resume_vm,
             resume_vm_with_session,
             connect_to_proxmox,
-            connect_to_proxmox_with_session
+            connect_to_proxmox_with_session,
+            get_task_status_with_session
         ])
         .setup(|_app| {
             // DevTools disabled by default
@@ -67,11 +68,11 @@ async fn list_vms(app: tauri::AppHandle) -> Result<Vec<proxmox::VMInfo>, String>
 }
 
 #[tauri::command]
-async fn start_vm(app: tauri::AppHandle, node: String, vmid: u32) -> Result<(), String> {
+async fn start_vm(app: tauri::AppHandle, node: String, vmid: u32) -> Result<String, String> {
     // Load server config
     let config = config::load_config(&app)?;
 
-    // Start the VM
+    // Start the VM - returns UPID
     proxmox::start_vm(
         &config.host,
         config.port,
@@ -84,11 +85,11 @@ async fn start_vm(app: tauri::AppHandle, node: String, vmid: u32) -> Result<(), 
 }
 
 #[tauri::command]
-async fn stop_vm(app: tauri::AppHandle, node: String, vmid: u32) -> Result<(), String> {
+async fn stop_vm(app: tauri::AppHandle, node: String, vmid: u32) -> Result<String, String> {
     // Load server config
     let config = config::load_config(&app)?;
 
-    // Stop the VM
+    // Stop the VM - returns UPID
     proxmox::stop_vm(
         &config.host,
         config.port,
@@ -101,11 +102,11 @@ async fn stop_vm(app: tauri::AppHandle, node: String, vmid: u32) -> Result<(), S
 }
 
 #[tauri::command]
-async fn suspend_vm(app: tauri::AppHandle, node: String, vmid: u32) -> Result<(), String> {
+async fn suspend_vm(app: tauri::AppHandle, node: String, vmid: u32) -> Result<String, String> {
     // Load server config
     let config = config::load_config(&app)?;
 
-    // Suspend the VM
+    // Suspend the VM - returns UPID
     proxmox::suspend_vm(
         &config.host,
         config.port,
@@ -118,11 +119,11 @@ async fn suspend_vm(app: tauri::AppHandle, node: String, vmid: u32) -> Result<()
 }
 
 #[tauri::command]
-async fn resume_vm(app: tauri::AppHandle, node: String, vmid: u32) -> Result<(), String> {
+async fn resume_vm(app: tauri::AppHandle, node: String, vmid: u32) -> Result<String, String> {
     // Load server config
     let config = config::load_config(&app)?;
 
-    // Resume the VM
+    // Resume the VM - returns UPID
     proxmox::resume_vm(
         &config.host,
         config.port,
@@ -254,7 +255,7 @@ async fn start_vm_with_session(
     password: String,
     node: String,
     vmid: u32,
-) -> Result<(), String> {
+) -> Result<String, String> {
     proxmox::start_vm(&host, port, &username, &password, &node, vmid).await
 }
 
@@ -266,7 +267,7 @@ async fn stop_vm_with_session(
     password: String,
     node: String,
     vmid: u32,
-) -> Result<(), String> {
+) -> Result<String, String> {
     proxmox::stop_vm(&host, port, &username, &password, &node, vmid).await
 }
 
@@ -278,7 +279,7 @@ async fn suspend_vm_with_session(
     password: String,
     node: String,
     vmid: u32,
-) -> Result<(), String> {
+) -> Result<String, String> {
     proxmox::suspend_vm(&host, port, &username, &password, &node, vmid).await
 }
 
@@ -290,6 +291,29 @@ async fn resume_vm_with_session(
     password: String,
     node: String,
     vmid: u32,
-) -> Result<(), String> {
+) -> Result<String, String> {
     proxmox::resume_vm(&host, port, &username, &password, &node, vmid).await
+}
+
+#[derive(serde::Serialize)]
+struct TaskStatusResult {
+    status: String,
+    #[serde(rename = "exitStatus")]
+    exit_status: String,
+}
+
+#[tauri::command]
+async fn get_task_status_with_session(
+    host: String,
+    port: u16,
+    username: String,
+    password: String,
+    node: String,
+    upid: String,
+) -> Result<TaskStatusResult, String> {
+    let status = proxmox::get_task_status(&host, port, &username, &password, &node, &upid).await?;
+    Ok(TaskStatusResult {
+        status: status.status,
+        exit_status: status.exitstatus,
+    })
 }
