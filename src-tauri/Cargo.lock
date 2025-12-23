@@ -2436,8 +2436,8 @@ dependencies = [
 ]
 
 [[package]]
-name = "proxmox-vm-launcher"
-version = "0.1.0"
+name = "pvel"
+version = "0.2.2"
 dependencies = [
  "base64 0.22.1",
  "reqwest",

@@ -67,6 +67,9 @@ export const useVMStore = create<VMStore>((set, get) => ({
         throw new Error('No active session')
       }
 
+      const currentVM = get().vmMap.get(vmid)
+      if (!currentVM) return
+
       const vmList = await invoke<ProxmoxVM[]>('list_vms_with_session', {
         host: session.server.host,
         port: session.server.port,
@@ -76,11 +79,14 @@ export const useVMStore = create<VMStore>((set, get) => ({
       const updatedVM = vmList.find((vm) => vm.vmid === vmid)
 
       if (updatedVM) {
-        set((state) => {
-          const newMap = new Map(state.vmMap)
-          newMap.set(vmid, updatedVM)
-          return { vmMap: newMap }
-        })
+        // Only update if status actually changed to avoid unnecessary re-renders
+        if (updatedVM.status !== currentVM.status) {
+          set((state) => {
+            const newMap = new Map(state.vmMap)
+            newMap.set(vmid, updatedVM)
+            return { vmMap: newMap }
+          })
+        }
       }
     } catch (err) {
       console.error('Error refreshing single VM:', err)

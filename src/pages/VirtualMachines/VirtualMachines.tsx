@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useCallback, useMemo } from 'react'
 import Alert from '../../components/Alert/Alert'
 import VMList from './components/VMList/VMList'
 import VMFilter from './components/VMFilter/VMFilter'
@@ -39,42 +39,55 @@ const VirtualMachines = () => {
     clearFilters,
   } = useVMFilters(vms)
 
-  // Set refresh handler and loading state
+  // Memoize callbacks to prevent unnecessary re-renders
+  const handleStatusFilterChange = useCallback(setStatusFilter, [setStatusFilter])
+  const handleToggleTag = useCallback(toggleTag, [toggleTag])
+  const handleClearTags = useCallback(clearTags, [clearTags])
+  const handleSpiceOnlyChange = useCallback(setSpiceOnly, [setSpiceOnly])
+  const handleClearFilters = useCallback(clearFilters, [clearFilters])
+
+  // Set refresh handler - only once on mount
   useEffect(() => {
     setRefreshHandler(loadVMs)
   }, [loadVMs, setRefreshHandler])
 
+  // Update loading state
   useEffect(() => {
     setIsLoading(loading)
   }, [loading, setIsLoading])
 
-  // Set filter slot
-  useEffect(() => {
-    setFilterSlot(
+  // Memoize filter component to prevent unnecessary re-renders
+  const filterComponent = useMemo(
+    () => (
       <VMFilter
         statusFilter={statusFilter}
         selectedTags={selectedTags}
         spiceOnly={spiceOnly}
         uniqueTags={uniqueTags}
-        onStatusFilterChange={setStatusFilter}
-        onToggleTag={toggleTag}
-        onClearTags={clearTags}
-        onSpiceOnlyChange={setSpiceOnly}
-        onClearFilters={clearFilters}
+        onStatusFilterChange={handleStatusFilterChange}
+        onToggleTag={handleToggleTag}
+        onClearTags={handleClearTags}
+        onSpiceOnlyChange={handleSpiceOnlyChange}
+        onClearFilters={handleClearFilters}
       />
-    )
-  }, [
-    statusFilter,
-    selectedTags,
-    spiceOnly,
-    uniqueTags,
-    setStatusFilter,
-    toggleTag,
-    clearTags,
-    setSpiceOnly,
-    clearFilters,
-    setFilterSlot,
-  ])
+    ),
+    [
+      statusFilter,
+      selectedTags,
+      spiceOnly,
+      uniqueTags,
+      handleStatusFilterChange,
+      handleToggleTag,
+      handleClearTags,
+      handleSpiceOnlyChange,
+      handleClearFilters,
+    ]
+  )
+
+  // Set filter slot
+  useEffect(() => {
+    setFilterSlot(filterComponent)
+  }, [filterComponent, setFilterSlot])
 
   // Load VMs on mount
   useEffect(() => {
