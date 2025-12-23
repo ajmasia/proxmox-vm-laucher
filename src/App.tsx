@@ -4,6 +4,7 @@ import { getCurrentWindow } from '@tauri-apps/api/window'
 import { Toaster } from 'sonner'
 import { routes } from './config/routes'
 import { useThemeStore } from './stores/themeStore'
+import { useUpdateStore } from './stores/updateStore'
 
 const router = createBrowserRouter(routes)
 
@@ -11,8 +12,11 @@ function App() {
   const [isReady, setIsReady] = useState(false)
   const initTheme = useThemeStore((state) => state.initTheme)
   const resolvedTheme = useThemeStore((state) => state.resolvedTheme)
+  const checkForUpdates = useUpdateStore((state) => state.checkForUpdates)
 
   useEffect(() => {
+    let updateTimeout: ReturnType<typeof setTimeout>
+
     async function init() {
       try {
         await initTheme()
@@ -30,9 +34,18 @@ function App() {
       }
 
       setIsReady(true)
+
+      // Check for updates after app is ready (non-blocking)
+      updateTimeout = setTimeout(() => {
+        checkForUpdates()
+      }, 2000)
     }
     init()
-  }, [initTheme])
+
+    return () => {
+      clearTimeout(updateTimeout)
+    }
+  }, [initTheme, checkForUpdates])
 
   if (!isReady) return null
 
