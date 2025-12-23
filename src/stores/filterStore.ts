@@ -69,7 +69,7 @@ export const useFilterStore = create<FilterStore>((set, get) => ({
         selectedTags.length === 0 ||
         (vm.tags &&
           selectedTags.some((selectedTag) =>
-            vm.tags
+            vm.tags!
               .split(';')
               .map((tag) => tag.trim())
               .includes(selectedTag)

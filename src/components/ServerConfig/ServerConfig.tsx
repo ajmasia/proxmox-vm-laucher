@@ -7,8 +7,10 @@ interface ServerConfigProps {
 }
 
 const ServerConfig = ({ onSave, initialConfig }: ServerConfigProps) => {
-  const [config, setConfig] = useState<ProxmoxServerConfig>(
+  const [config, setConfig] = useState<ProxmoxServerConfig & { password?: string }>(
     initialConfig || {
+      id: '',
+      name: '',
       host: '',
       port: 8006,
       username: 'root@pam',
@@ -93,7 +95,7 @@ const ServerConfig = ({ onSave, initialConfig }: ServerConfigProps) => {
           type="password"
           id="password"
           name="password"
-          value={config.password}
+          value={config.password || ''}
           onChange={handleChange}
           required
           className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"

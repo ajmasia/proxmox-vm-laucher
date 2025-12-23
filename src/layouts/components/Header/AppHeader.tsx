@@ -9,7 +9,7 @@ interface AppHeaderProps {
 
 const AppHeader = ({ onRefresh, isLoading }: AppHeaderProps) => {
   const navigate = useNavigate()
-  const { session, logout } = useAuthStore()
+  const { logout } = useAuthStore()
 
   const handleLogout = () => {
     logout()
