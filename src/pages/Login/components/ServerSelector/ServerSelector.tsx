@@ -18,10 +18,10 @@ const ServerSelector = ({
   if (servers.length === 0) {
     return (
       <div className="mb-6 text-center">
-        <p className="mb-4 text-sm text-slate-600">No servers configured yet</p>
+        <p className="mb-4 text-sm text-slate-600 dark:text-slate-400">No servers configured yet</p>
         <button
           onClick={onAddServer}
-          className="w-full rounded-lg bg-slate-700 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2"
+          className="w-full rounded-lg bg-slate-700 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800"
         >
           Add Server
         </button>
@@ -31,30 +31,30 @@ const ServerSelector = ({
 
   return (
     <div className="mb-6">
-      <label className="mb-2 block text-sm font-medium text-slate-700">Server</label>
+      <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">Server</label>
       <div className="space-y-2">
         {servers.map((server) => (
           <div
             key={server.id}
             className={`group flex items-center gap-2 rounded-lg border-2 p-3 transition-all ${
               selectedServer?.id === server.id
-                ? 'border-slate-700 bg-slate-50 shadow-sm'
-                : 'border-slate-200 bg-white'
+                ? 'border-slate-700 bg-slate-50 shadow-sm dark:border-slate-500 dark:bg-slate-700/50'
+                : 'border-slate-200 bg-white dark:border-slate-600 dark:bg-slate-700'
             }`}
           >
             <button
               onClick={() => onSelectServer(server)}
               className="flex-1 text-left transition-all hover:opacity-80"
             >
-              <div className="font-medium text-slate-900">{server.name}</div>
-              <div className="mt-0.5 text-xs text-slate-500">
+              <div className="font-medium text-slate-900 dark:text-slate-100">{server.name}</div>
+              <div className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
                 {server.username}@{server.host}:{server.port}
               </div>
             </button>
             <div className="flex flex-shrink-0 items-center gap-1">
               <button
                 onClick={() => onDeleteServer(server.id)}
-                className="rounded p-1 text-slate-400 opacity-0 transition-all hover:bg-slate-100 hover:text-slate-600 group-hover:opacity-100"
+                className="rounded p-1 text-slate-400 opacity-0 transition-all hover:bg-slate-100 hover:text-slate-600 group-hover:opacity-100 dark:hover:bg-slate-600 dark:hover:text-slate-300"
                 title="Delete server"
               >
                 <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -69,7 +69,7 @@ const ServerSelector = ({
               {selectedServer?.id === server.id && (
                 <div className="flex-shrink-0">
                   <svg
-                    className="h-5 w-5 text-slate-700"
+                    className="h-5 w-5 text-slate-700 dark:text-slate-300"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -90,7 +90,7 @@ const ServerSelector = ({
 
       <button
         onClick={onAddServer}
-        className="mt-3 w-full rounded-lg border-2 border-dashed border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-600 transition-all hover:border-slate-400 hover:bg-slate-50 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2"
+        className="mt-3 w-full rounded-lg border-2 border-dashed border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-600 transition-all hover:border-slate-400 hover:bg-slate-50 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-300 dark:hover:border-slate-500 dark:hover:bg-slate-600 dark:hover:text-slate-100 dark:focus:ring-offset-slate-800"
       >
         + Add New Server
       </button>
