@@ -8,6 +8,15 @@
   font-weight: 400;
 }
 
+/* Base theme colors applied to html/body to prevent flash */
+html {
+  background-color: rgb(248 250 252); /* slate-50 */
+}
+
+html.dark {
+  background-color: rgb(15 23 42); /* slate-900 */
+}
+
 /* Light mode select styling */
 select {
   background-color: white;
