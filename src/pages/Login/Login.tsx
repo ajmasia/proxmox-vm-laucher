@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { MonitorIcon } from '../../icons'
 import { useAuthStore } from '../../stores/authStore'
 import { useServerStore } from '../../stores/serverStore'
 import type { ProxmoxServerConfig } from '../../types/proxmox'
@@ -72,19 +73,7 @@ const Login = () => {
           <div className="mb-8 text-center">
             <div className="mb-4 flex justify-center">
               <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-700 shadow-lg">
-                <svg
-                  className="h-10 w-10 text-white"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                  />
-                </svg>
+                <MonitorIcon className="h-10 w-10 text-white" />
               </div>
             </div>
             <h1 className="text-2xl font-bold text-slate-900">Proxmox VM Launcher</h1>
