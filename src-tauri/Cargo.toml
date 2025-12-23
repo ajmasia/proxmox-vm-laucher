@@ -1,6 +1,6 @@
 [package]
 name = "pvel"
-version = "0.2.3"
+version = "0.3.0"
 description = "PVE Launcher - Connect to Proxmox VMs using SPICE"
 authors = ["ajmasia"]
 edition = "2021"
