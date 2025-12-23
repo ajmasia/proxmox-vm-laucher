@@ -39,7 +39,11 @@ export const useFilterStore = create<FilterStore>((set, get) => ({
       }
     }),
   clearTags: () => set({ selectedTags: [] }),
-  setSpiceOnly: (enabled) => set({ spiceOnly: enabled }),
+  setSpiceOnly: (enabled) =>
+    set((state) => ({
+      spiceOnly: enabled,
+      selectedTags: enabled ? [] : state.selectedTags,
+    })),
   clearFilters: () => set({ statusFilter: 'all', selectedTags: [], spiceOnly: true }),
 
   // Computed helpers

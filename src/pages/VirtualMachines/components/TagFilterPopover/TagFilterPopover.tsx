@@ -33,17 +33,17 @@ const TagFilterPopover = ({
     }
   }, [isOpen])
 
-  if (uniqueTags.length === 0) return null
+  if (uniqueTags.length === 0 || uniqueTags.length > 5) return null
 
   return (
     <div className="relative" ref={popoverRef}>
       {/* Trigger Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-all ${
+        className={`rounded-md px-3 py-1.5 text-sm font-medium transition-all ${
           selectedTags.length > 0
-            ? 'bg-slate-700 text-white shadow-sm'
-            : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900'
+            ? 'bg-blue-100 text-blue-700 ring-1 ring-blue-600/20'
+            : 'bg-slate-200 text-slate-600 hover:bg-slate-300 hover:text-slate-900'
         }`}
       >
         Tags
