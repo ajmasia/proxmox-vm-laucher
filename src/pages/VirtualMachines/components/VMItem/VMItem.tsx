@@ -125,10 +125,10 @@ const VMItem = memo(
                 <button
                   onClick={() => onStartVM(vm)}
                   disabled={vm.status === 'running'}
-                  className={`inline-flex items-center justify-center rounded-lg p-2 transition-all ${
+                  className={`inline-flex items-center justify-center rounded-lg p-2 transition-all duration-200 ${
                     vm.status === 'running'
-                      ? 'bg-slate-100 text-slate-400 cursor-not-allowed dark:bg-slate-700 dark:text-slate-500'
-                      : 'bg-slate-200 text-slate-700 hover:text-slate-900 hover:bg-slate-300 dark:bg-slate-600 dark:text-slate-300 dark:hover:bg-slate-500 dark:hover:text-slate-100'
+                      ? 'bg-slate-100 text-slate-400 cursor-not-allowed opacity-50 dark:bg-slate-700 dark:text-slate-500'
+                      : 'bg-slate-200 text-slate-700 hover:text-slate-900 hover:bg-slate-300 hover:scale-105 active:scale-95 dark:bg-slate-600 dark:text-slate-300 dark:hover:bg-slate-500 dark:hover:text-slate-100'
                   }`}
                   title={vm.status === 'paused' ? 'Resume VM' : 'Start VM'}
                 >
@@ -143,10 +143,10 @@ const VMItem = memo(
                 <button
                   onClick={() => onSuspendVM(vm)}
                   disabled={vm.status !== 'running'}
-                  className={`inline-flex items-center justify-center rounded-lg p-2 transition-all ${
+                  className={`inline-flex items-center justify-center rounded-lg p-2 transition-all duration-200 ${
                     vm.status !== 'running'
-                      ? 'bg-slate-100 text-slate-400 cursor-not-allowed dark:bg-slate-700 dark:text-slate-500'
-                      : 'bg-slate-200 text-slate-700 hover:text-slate-900 hover:bg-slate-300 dark:bg-slate-600 dark:text-slate-300 dark:hover:bg-slate-500 dark:hover:text-slate-100'
+                      ? 'bg-slate-100 text-slate-400 cursor-not-allowed opacity-50 dark:bg-slate-700 dark:text-slate-500'
+                      : 'bg-slate-200 text-slate-700 hover:text-slate-900 hover:bg-slate-300 hover:scale-105 active:scale-95 dark:bg-slate-600 dark:text-slate-300 dark:hover:bg-slate-500 dark:hover:text-slate-100'
                   }`}
                   title={vm.status !== 'running' ? 'VM must be running' : 'Pause VM'}
                 >
@@ -157,10 +157,10 @@ const VMItem = memo(
                 <button
                   onClick={() => onStopVM(vm)}
                   disabled={vm.status === 'stopped'}
-                  className={`inline-flex items-center justify-center rounded-lg p-2 transition-all ${
+                  className={`inline-flex items-center justify-center rounded-lg p-2 transition-all duration-200 ${
                     vm.status === 'stopped'
-                      ? 'bg-slate-100 text-slate-400 cursor-not-allowed dark:bg-slate-700 dark:text-slate-500'
-                      : 'bg-slate-200 text-slate-700 hover:text-slate-900 hover:bg-slate-300 dark:bg-slate-600 dark:text-slate-300 dark:hover:bg-slate-500 dark:hover:text-slate-100'
+                      ? 'bg-slate-100 text-slate-400 cursor-not-allowed opacity-50 dark:bg-slate-700 dark:text-slate-500'
+                      : 'bg-slate-200 text-slate-700 hover:text-slate-900 hover:bg-slate-300 hover:scale-105 active:scale-95 dark:bg-slate-600 dark:text-slate-300 dark:hover:bg-slate-500 dark:hover:text-slate-100'
                   }`}
                   title={vm.status === 'stopped' ? 'VM already stopped' : 'Stop VM'}
                 >
@@ -171,10 +171,10 @@ const VMItem = memo(
                 <button
                   onClick={() => onConnectVM(vm)}
                   disabled={vm.status !== 'running' || !vm.spice}
-                  className={`inline-flex items-center justify-center rounded-lg p-2 transition-all ${
+                  className={`inline-flex items-center justify-center rounded-lg p-2 transition-all duration-200 ${
                     vm.status !== 'running' || !vm.spice
-                      ? 'bg-slate-100 text-slate-400 cursor-not-allowed dark:bg-slate-700 dark:text-slate-500'
-                      : 'bg-slate-200 text-slate-700 hover:text-slate-900 hover:bg-slate-300 dark:bg-slate-600 dark:text-slate-300 dark:hover:bg-slate-500 dark:hover:text-slate-100'
+                      ? 'bg-slate-100 text-slate-400 cursor-not-allowed opacity-50 dark:bg-slate-700 dark:text-slate-500'
+                      : 'bg-slate-200 text-slate-700 hover:text-slate-900 hover:bg-slate-300 hover:scale-105 active:scale-95 dark:bg-slate-600 dark:text-slate-300 dark:hover:bg-slate-500 dark:hover:text-slate-100'
                   }`}
                   title={
                     vm.status !== 'running'
