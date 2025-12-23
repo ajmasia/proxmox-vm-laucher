@@ -36,7 +36,11 @@ const VMItem = memo(
     isResuming,
   }: VMItemProps) {
     return (
-      <div className="group overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-black/5 transition-all hover:shadow-md">
+      <div
+        className={`group overflow-hidden rounded-xl bg-white shadow-sm transition-all hover:shadow-md ${
+          vm.spice ? 'ring-2 ring-blue-400/40' : 'ring-1 ring-black/5'
+        }`}
+      >
         <div className="flex items-center gap-2 p-4">
           {/* VM Icon and Name */}
           <div className="flex items-center gap-3 flex-1 min-w-0">
@@ -55,6 +59,14 @@ const VMItem = memo(
                 <span className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700 ring-1 ring-slate-600/10">
                   {vm.vmid}
                 </span>
+
+                {/* SPICE Badge */}
+                {vm.spice && (
+                  <span className="inline-flex items-center gap-1 rounded-md bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700 ring-1 ring-blue-600/20">
+                    <PlugIcon className="h-3 w-3" />
+                    SPICE
+                  </span>
+                )}
 
                 {/* Tags */}
                 {vm.tags && vm.tags.trim() && (
