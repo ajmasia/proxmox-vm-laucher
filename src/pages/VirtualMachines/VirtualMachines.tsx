@@ -1,5 +1,4 @@
 import { useEffect, useRef } from 'react'
-import Alert from '../../components/Alert/Alert'
 import VMList from './components/VMList/VMList'
 import VMFilter from './components/VMFilter/VMFilter'
 import { useVirtualMachines } from './hooks/useVirtualMachines'
@@ -18,7 +17,6 @@ const VirtualMachines = () => {
     stoppingVMs,
     suspendingVMs,
     resumingVMs,
-    error,
     loadVMs,
     startVM,
     stopVM,
@@ -88,8 +86,6 @@ const VirtualMachines = () => {
 
   return (
     <div className="space-y-4 pb-4">
-      {error && <Alert type="error" message={error} />}
-
       <VMList
         vms={filteredVMs}
         onStartVM={startVM}
