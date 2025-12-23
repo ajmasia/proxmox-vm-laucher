@@ -3,9 +3,20 @@ import { invoke } from '@tauri-apps/api/core'
 import type { ProxmoxVM } from '../types/proxmox'
 import { useAuthStore } from './authStore'
 
+interface TaskStatus {
+  status: string
+  exitStatus: string
+}
+
+const TASK_POLL_INTERVAL = 2000 // Poll every 2 seconds
+const TASK_POLL_TIMEOUT = 120000 // Timeout after 2 minutes
+
+// Use Record instead of Map for better React/Zustand compatibility
+type VMRecord = Record<number, ProxmoxVM>
+
 interface VMStore {
   // State
-  vmMap: Map<number, ProxmoxVM>
+  vms: VMRecord
   loadingVMs: boolean
   startingVMs: Set<number>
   stoppingVMs: Set<number>
@@ -23,9 +34,99 @@ interface VMStore {
   connectVM: (vm: ProxmoxVM) => Promise<void>
 }
 
+// Helper function to wait for a delay
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
+
+// Helper function to poll task status until completion
+async function pollTaskStatus(
+  node: string,
+  upid: string,
+  vmid: number,
+  originalStatus: string,
+  onComplete: () => Promise<void>,
+  onError: (error: string) => void
+): Promise<void> {
+  const session = useAuthStore.getState().session
+  if (!session) {
+    onError('No active session')
+    return
+  }
+
+  const startTime = Date.now()
+
+  // Phase 1: Wait for task to complete
+  while (true) {
+    if (Date.now() - startTime > TASK_POLL_TIMEOUT) {
+      onError('Task timed out')
+      return
+    }
+
+    try {
+      const status = await invoke<TaskStatus>('get_task_status_with_session', {
+        host: session.server.host,
+        port: session.server.port,
+        username: session.username,
+        password: session.ticket,
+        node,
+        upid,
+      })
+
+      if (status.status === 'stopped') {
+        if (status.exitStatus !== 'OK') {
+          onError(`Task failed: ${status.exitStatus}`)
+          return
+        }
+        break
+      }
+
+      await delay(TASK_POLL_INTERVAL)
+    } catch (err) {
+      onError(`Failed to get task status: ${err}`)
+      return
+    }
+  }
+
+  // Phase 2: Poll until VM status changes from original
+  const stateChangeTimeout = 15000 // 15 seconds max wait for state change
+  const stateChangeStart = Date.now()
+
+  while (Date.now() - stateChangeStart < stateChangeTimeout) {
+    try {
+      const vmList = await invoke<ProxmoxVM[]>('list_vms_with_session', {
+        host: session.server.host,
+        port: session.server.port,
+        username: session.username,
+        password: session.ticket,
+      })
+      const vm = vmList.find((v) => v.vmid === vmid)
+
+      if (vm && vm.status !== originalStatus) {
+        await onComplete()
+        return
+      }
+
+      await delay(1000)
+    } catch (err) {
+      console.error('Error polling VM status:', err)
+    }
+  }
+
+  // Timeout waiting for state change, call onComplete anyway
+  await onComplete()
+}
+
+// Helper to convert VM array to Record
+const arrayToRecord = (vmList: ProxmoxVM[]): VMRecord => {
+  const record: VMRecord = {}
+  for (const vm of vmList) {
+    record[vm.vmid] = vm
+  }
+  return record
+}
+
 export const useVMStore = create<VMStore>((set, get) => ({
   // Initial state
-  vmMap: new Map(),
+  vms: {},
   loadingVMs: false,
   startingVMs: new Set(),
   stoppingVMs: new Set(),
@@ -49,9 +150,9 @@ export const useVMStore = create<VMStore>((set, get) => ({
         host: session.server.host,
         port: session.server.port,
         username: session.username,
-        password: session.ticket, // Using ticket as password for authenticated calls
+        password: session.ticket,
       })
-      set({ vmMap: new Map(vmList.map((vm) => [vm.vmid, vm])) })
+      set({ vms: arrayToRecord(vmList) })
     } catch (err) {
       set({ error: err as string })
       console.error('Error loading VMs:', err)
@@ -67,9 +168,6 @@ export const useVMStore = create<VMStore>((set, get) => ({
         throw new Error('No active session')
       }
 
-      const currentVM = get().vmMap.get(vmid)
-      if (!currentVM) return
-
       const vmList = await invoke<ProxmoxVM[]>('list_vms_with_session', {
         host: session.server.host,
         port: session.server.port,
@@ -79,14 +177,9 @@ export const useVMStore = create<VMStore>((set, get) => ({
       const updatedVM = vmList.find((vm) => vm.vmid === vmid)
 
       if (updatedVM) {
-        // Only update if status actually changed to avoid unnecessary re-renders
-        if (updatedVM.status !== currentVM.status) {
-          set((state) => {
-            const newMap = new Map(state.vmMap)
-            newMap.set(vmid, updatedVM)
-            return { vmMap: newMap }
-          })
-        }
+        set((state) => ({
+          vms: { ...state.vms, [vmid]: updatedVM },
+        }))
       }
     } catch (err) {
       console.error('Error refreshing single VM:', err)
@@ -109,7 +202,7 @@ export const useVMStore = create<VMStore>((set, get) => ({
       }))
 
       try {
-        await invoke('resume_vm_with_session', {
+        const upid = await invoke<string>('resume_vm_with_session', {
           host: session.server.host,
           port: session.server.port,
           username: session.username,
@@ -118,14 +211,28 @@ export const useVMStore = create<VMStore>((set, get) => ({
           vmid: vm.vmid,
         })
 
-        setTimeout(async () => {
-          await get().refreshSingleVM(vm.vmid)
-          set((state) => {
-            const newSet = new Set(state.resumingVMs)
-            newSet.delete(vm.vmid)
-            return { resumingVMs: newSet }
-          })
-        }, 5000)
+        await pollTaskStatus(
+          vm.node,
+          upid,
+          vm.vmid,
+          vm.status,
+          async () => {
+            await get().refreshSingleVM(vm.vmid)
+            set((state) => {
+              const newSet = new Set(state.resumingVMs)
+              newSet.delete(vm.vmid)
+              return { resumingVMs: newSet }
+            })
+          },
+          (error) => {
+            set({ error: `Failed to resume VM: ${error}` })
+            set((state) => {
+              const newSet = new Set(state.resumingVMs)
+              newSet.delete(vm.vmid)
+              return { resumingVMs: newSet }
+            })
+          }
+        )
       } catch (err) {
         set({ error: `Failed to resume VM: ${err}` })
         set((state) => {
@@ -140,7 +247,7 @@ export const useVMStore = create<VMStore>((set, get) => ({
       }))
 
       try {
-        await invoke('start_vm_with_session', {
+        const upid = await invoke<string>('start_vm_with_session', {
           host: session.server.host,
           port: session.server.port,
           username: session.username,
@@ -149,14 +256,28 @@ export const useVMStore = create<VMStore>((set, get) => ({
           vmid: vm.vmid,
         })
 
-        setTimeout(async () => {
-          await get().refreshSingleVM(vm.vmid)
-          set((state) => {
-            const newSet = new Set(state.startingVMs)
-            newSet.delete(vm.vmid)
-            return { startingVMs: newSet }
-          })
-        }, 30000)
+        await pollTaskStatus(
+          vm.node,
+          upid,
+          vm.vmid,
+          vm.status,
+          async () => {
+            await get().refreshSingleVM(vm.vmid)
+            set((state) => {
+              const newSet = new Set(state.startingVMs)
+              newSet.delete(vm.vmid)
+              return { startingVMs: newSet }
+            })
+          },
+          (error) => {
+            set({ error: `Failed to start VM: ${error}` })
+            set((state) => {
+              const newSet = new Set(state.startingVMs)
+              newSet.delete(vm.vmid)
+              return { startingVMs: newSet }
+            })
+          }
+        )
       } catch (err) {
         set({ error: `Failed to start VM: ${err}` })
         set((state) => {
@@ -182,7 +303,7 @@ export const useVMStore = create<VMStore>((set, get) => ({
     }))
 
     try {
-      await invoke('stop_vm_with_session', {
+      const upid = await invoke<string>('stop_vm_with_session', {
         host: session.server.host,
         port: session.server.port,
         username: session.username,
@@ -191,14 +312,28 @@ export const useVMStore = create<VMStore>((set, get) => ({
         vmid: vm.vmid,
       })
 
-      setTimeout(async () => {
-        await get().refreshSingleVM(vm.vmid)
-        set((state) => {
-          const newSet = new Set(state.stoppingVMs)
-          newSet.delete(vm.vmid)
-          return { stoppingVMs: newSet }
-        })
-      }, 5000)
+      await pollTaskStatus(
+        vm.node,
+        upid,
+        vm.vmid,
+        vm.status,
+        async () => {
+          await get().refreshSingleVM(vm.vmid)
+          set((state) => {
+            const newSet = new Set(state.stoppingVMs)
+            newSet.delete(vm.vmid)
+            return { stoppingVMs: newSet }
+          })
+        },
+        (error) => {
+          set({ error: `Failed to stop VM: ${error}` })
+          set((state) => {
+            const newSet = new Set(state.stoppingVMs)
+            newSet.delete(vm.vmid)
+            return { stoppingVMs: newSet }
+          })
+        }
+      )
     } catch (err) {
       set({ error: `Failed to stop VM: ${err}` })
       console.error('Error stopping VM:', err)
@@ -224,7 +359,7 @@ export const useVMStore = create<VMStore>((set, get) => ({
     }))
 
     try {
-      await invoke('suspend_vm_with_session', {
+      const upid = await invoke<string>('suspend_vm_with_session', {
         host: session.server.host,
         port: session.server.port,
         username: session.username,
@@ -233,14 +368,28 @@ export const useVMStore = create<VMStore>((set, get) => ({
         vmid: vm.vmid,
       })
 
-      setTimeout(async () => {
-        await get().refreshSingleVM(vm.vmid)
-        set((state) => {
-          const newSet = new Set(state.suspendingVMs)
-          newSet.delete(vm.vmid)
-          return { suspendingVMs: newSet }
-        })
-      }, 5000)
+      await pollTaskStatus(
+        vm.node,
+        upid,
+        vm.vmid,
+        vm.status,
+        async () => {
+          await get().refreshSingleVM(vm.vmid)
+          set((state) => {
+            const newSet = new Set(state.suspendingVMs)
+            newSet.delete(vm.vmid)
+            return { suspendingVMs: newSet }
+          })
+        },
+        (error) => {
+          set({ error: `Failed to suspend VM: ${error}` })
+          set((state) => {
+            const newSet = new Set(state.suspendingVMs)
+            newSet.delete(vm.vmid)
+            return { suspendingVMs: newSet }
+          })
+        }
+      )
     } catch (err) {
       set({ error: `Failed to suspend VM: ${err}` })
       console.error('Error suspending VM:', err)
