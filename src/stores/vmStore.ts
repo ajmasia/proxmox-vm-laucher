@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { invoke } from '@tauri-apps/api/core'
+import { toast } from 'sonner'
 import type { ProxmoxVM } from '../types/proxmox'
 import { useAuthStore } from './authStore'
 
@@ -161,8 +162,9 @@ export const useVMStore = create<VMStore>((set, get) => ({
       ])
       set({ vms: arrayToRecord(vmList) })
     } catch (err) {
-      set({ error: err as string })
-      console.error('Error loading VMs:', err)
+      const message = `Failed to load VMs: ${err}`
+      set({ error: message })
+      toast.error(message)
     } finally {
       set({ loadingVMs: false })
     }
@@ -198,7 +200,7 @@ export const useVMStore = create<VMStore>((set, get) => ({
 
     const session = useAuthStore.getState().session
     if (!session) {
-      set({ error: 'No active session' })
+      toast.error('No active session')
       return
     }
 
@@ -230,9 +232,10 @@ export const useVMStore = create<VMStore>((set, get) => ({
               newSet.delete(vm.vmid)
               return { resumingVMs: newSet }
             })
+            toast.success(`VM "${vm.name}" resumed`)
           },
           (error) => {
-            set({ error: `Failed to resume VM: ${error}` })
+            toast.error(`Failed to resume VM: ${error}`)
             set((state) => {
               const newSet = new Set(state.resumingVMs)
               newSet.delete(vm.vmid)
@@ -241,7 +244,7 @@ export const useVMStore = create<VMStore>((set, get) => ({
           }
         )
       } catch (err) {
-        set({ error: `Failed to resume VM: ${err}` })
+        toast.error(`Failed to resume VM: ${err}`)
         set((state) => {
           const newSet = new Set(state.resumingVMs)
           newSet.delete(vm.vmid)
@@ -275,9 +278,10 @@ export const useVMStore = create<VMStore>((set, get) => ({
               newSet.delete(vm.vmid)
               return { startingVMs: newSet }
             })
+            toast.success(`VM "${vm.name}" started`)
           },
           (error) => {
-            set({ error: `Failed to start VM: ${error}` })
+            toast.error(`Failed to start VM: ${error}`)
             set((state) => {
               const newSet = new Set(state.startingVMs)
               newSet.delete(vm.vmid)
@@ -286,7 +290,7 @@ export const useVMStore = create<VMStore>((set, get) => ({
           }
         )
       } catch (err) {
-        set({ error: `Failed to start VM: ${err}` })
+        toast.error(`Failed to start VM: ${err}`)
         set((state) => {
           const newSet = new Set(state.startingVMs)
           newSet.delete(vm.vmid)
@@ -301,7 +305,7 @@ export const useVMStore = create<VMStore>((set, get) => ({
 
     const session = useAuthStore.getState().session
     if (!session) {
-      set({ error: 'No active session' })
+      toast.error('No active session')
       return
     }
 
@@ -331,9 +335,10 @@ export const useVMStore = create<VMStore>((set, get) => ({
             newSet.delete(vm.vmid)
             return { stoppingVMs: newSet }
           })
+          toast.success(`VM "${vm.name}" stopped`)
         },
         (error) => {
-          set({ error: `Failed to stop VM: ${error}` })
+          toast.error(`Failed to stop VM: ${error}`)
           set((state) => {
             const newSet = new Set(state.stoppingVMs)
             newSet.delete(vm.vmid)
@@ -342,8 +347,7 @@ export const useVMStore = create<VMStore>((set, get) => ({
         }
       )
     } catch (err) {
-      set({ error: `Failed to stop VM: ${err}` })
-      console.error('Error stopping VM:', err)
+      toast.error(`Failed to stop VM: ${err}`)
       set((state) => {
         const newSet = new Set(state.stoppingVMs)
         newSet.delete(vm.vmid)
@@ -357,7 +361,7 @@ export const useVMStore = create<VMStore>((set, get) => ({
 
     const session = useAuthStore.getState().session
     if (!session) {
-      set({ error: 'No active session' })
+      toast.error('No active session')
       return
     }
 
@@ -387,9 +391,10 @@ export const useVMStore = create<VMStore>((set, get) => ({
             newSet.delete(vm.vmid)
             return { suspendingVMs: newSet }
           })
+          toast.success(`VM "${vm.name}" paused`)
         },
         (error) => {
-          set({ error: `Failed to suspend VM: ${error}` })
+          toast.error(`Failed to pause VM: ${error}`)
           set((state) => {
             const newSet = new Set(state.suspendingVMs)
             newSet.delete(vm.vmid)
@@ -398,8 +403,7 @@ export const useVMStore = create<VMStore>((set, get) => ({
         }
       )
     } catch (err) {
-      set({ error: `Failed to suspend VM: ${err}` })
-      console.error('Error suspending VM:', err)
+      toast.error(`Failed to pause VM: ${err}`)
       set((state) => {
         const newSet = new Set(state.suspendingVMs)
         newSet.delete(vm.vmid)
@@ -414,7 +418,7 @@ export const useVMStore = create<VMStore>((set, get) => ({
     try {
       const session = useAuthStore.getState().session
       if (!session) {
-        set({ error: 'No active session' })
+        toast.error('No active session')
         return
       }
 
@@ -426,10 +430,9 @@ export const useVMStore = create<VMStore>((set, get) => ({
         node: vm.node,
         vmid: vm.vmid,
       })
-      console.log('SPICE viewer launched successfully')
+      toast.success(`Connected to "${vm.name}"`)
     } catch (err) {
-      set({ error: `Failed to connect to VM: ${err}` })
-      console.error('Error connecting to VM:', err)
+      toast.error(`Failed to connect to VM: ${err}`)
     }
   },
 }))
