@@ -1,4 +1,4 @@
-import { memo } from 'react'
+import { memo, useMemo } from 'react'
 import type { ProxmoxVM } from '../../../../types/proxmox'
 import {
   PlayIcon,
@@ -7,7 +7,6 @@ import {
   ResumeIcon,
   MonitorIcon,
   PlugIcon,
-  SpinnerIcon,
 } from '../../../../icons'
 import { formatBytes, getStatusColor, getStatusDot } from './utils'
 
@@ -35,6 +34,18 @@ const VMItem = memo(
     isSuspending,
     isResuming,
   }: VMItemProps) {
+    // Calculate display status based on transitional states
+    const displayStatus = useMemo(() => {
+      if (isStarting) return 'starting'
+      if (isResuming) return 'resuming'
+      if (isStopping) return 'stopping'
+      if (isSuspending) return 'pausing'
+      return vm.status
+    }, [vm.status, isStarting, isResuming, isStopping, isSuspending])
+
+    // Any operation in progress disables all buttons
+    const isOperationInProgress = isStarting || isResuming || isStopping || isSuspending
+
     return (
       <div
         className={`group overflow-hidden rounded-xl bg-white shadow-sm transition-all hover:shadow-md dark:bg-slate-800 ${
@@ -92,10 +103,10 @@ const VMItem = memo(
           {/* Status */}
           <div className="flex-shrink-0 min-w-[90px] flex justify-center">
             <span
-              className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium ${getStatusColor(vm.status)}`}
+              className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium ${getStatusColor(displayStatus)}`}
             >
-              <span className={`h-1.5 w-1.5 rounded-full ${getStatusDot(vm.status)}`}></span>
-              {vm.status}
+              <span className={`h-1.5 w-1.5 rounded-full ${getStatusDot(displayStatus)}`}></span>
+              {displayStatus}
             </span>
           </div>
 
@@ -109,85 +120,73 @@ const VMItem = memo(
 
           {/* Actions */}
           <div className="flex-shrink-0 min-w-[180px] min-h-[40px] flex items-center justify-end">
-            {isStarting || isResuming || isStopping || isSuspending ? (
-              <div className="inline-flex items-center gap-2 text-slate-600 dark:text-slate-400">
-                <SpinnerIcon className="h-4 w-4" />
-                <span className="text-sm font-medium">
-                  {isStarting && 'Starting...'}
-                  {isResuming && 'Resuming...'}
-                  {isStopping && 'Stopping...'}
-                  {isSuspending && 'Pausing...'}
-                </span>
-              </div>
-            ) : (
-              <div className="flex items-center gap-1.5">
-                {/* Start/Resume button */}
-                <button
-                  onClick={() => onStartVM(vm)}
-                  disabled={vm.status === 'running'}
-                  className={`inline-flex items-center justify-center rounded-lg p-2 transition-all duration-200 ${
-                    vm.status === 'running'
-                      ? 'bg-slate-100 text-slate-400 cursor-not-allowed opacity-50 dark:bg-slate-700 dark:text-slate-500'
-                      : 'bg-slate-200 text-slate-700 hover:text-slate-900 hover:bg-slate-300 hover:scale-105 active:scale-95 dark:bg-slate-600 dark:text-slate-300 dark:hover:bg-slate-500 dark:hover:text-slate-100'
-                  }`}
-                  title={vm.status === 'paused' ? 'Resume VM' : 'Start VM'}
-                >
-                  {vm.status === 'paused' ? (
-                    <ResumeIcon className="h-4 w-4" />
-                  ) : (
-                    <PlayIcon className="h-4 w-4" />
-                  )}
-                </button>
+            <div className="flex items-center gap-1.5">
+              {/* Start/Resume button */}
+              <button
+                onClick={() => onStartVM(vm)}
+                disabled={isOperationInProgress || vm.status === 'running'}
+                className={`inline-flex items-center justify-center rounded-lg p-2 transition-all duration-200 ${
+                  isOperationInProgress || vm.status === 'running'
+                    ? 'bg-slate-100 text-slate-400 cursor-not-allowed opacity-50 dark:bg-slate-700 dark:text-slate-500'
+                    : 'bg-slate-200 text-slate-700 hover:text-slate-900 hover:bg-slate-300 hover:scale-105 active:scale-95 dark:bg-slate-600 dark:text-slate-300 dark:hover:bg-slate-500 dark:hover:text-slate-100'
+                }`}
+                title={vm.status === 'paused' ? 'Resume VM' : 'Start VM'}
+              >
+                {vm.status === 'paused' ? (
+                  <ResumeIcon className="h-4 w-4" />
+                ) : (
+                  <PlayIcon className="h-4 w-4" />
+                )}
+              </button>
 
-                {/* Pause button */}
-                <button
-                  onClick={() => onSuspendVM(vm)}
-                  disabled={vm.status !== 'running'}
-                  className={`inline-flex items-center justify-center rounded-lg p-2 transition-all duration-200 ${
-                    vm.status !== 'running'
-                      ? 'bg-slate-100 text-slate-400 cursor-not-allowed opacity-50 dark:bg-slate-700 dark:text-slate-500'
-                      : 'bg-slate-200 text-slate-700 hover:text-slate-900 hover:bg-slate-300 hover:scale-105 active:scale-95 dark:bg-slate-600 dark:text-slate-300 dark:hover:bg-slate-500 dark:hover:text-slate-100'
-                  }`}
-                  title={vm.status !== 'running' ? 'VM must be running' : 'Pause VM'}
-                >
-                  <PauseIcon className="h-4 w-4" />
-                </button>
+              {/* Pause button */}
+              <button
+                onClick={() => onSuspendVM(vm)}
+                disabled={isOperationInProgress || vm.status !== 'running'}
+                className={`inline-flex items-center justify-center rounded-lg p-2 transition-all duration-200 ${
+                  isOperationInProgress || vm.status !== 'running'
+                    ? 'bg-slate-100 text-slate-400 cursor-not-allowed opacity-50 dark:bg-slate-700 dark:text-slate-500'
+                    : 'bg-slate-200 text-slate-700 hover:text-slate-900 hover:bg-slate-300 hover:scale-105 active:scale-95 dark:bg-slate-600 dark:text-slate-300 dark:hover:bg-slate-500 dark:hover:text-slate-100'
+                }`}
+                title={vm.status !== 'running' ? 'VM must be running' : 'Pause VM'}
+              >
+                <PauseIcon className="h-4 w-4" />
+              </button>
 
-                {/* Stop button */}
-                <button
-                  onClick={() => onStopVM(vm)}
-                  disabled={vm.status === 'stopped'}
-                  className={`inline-flex items-center justify-center rounded-lg p-2 transition-all duration-200 ${
-                    vm.status === 'stopped'
-                      ? 'bg-slate-100 text-slate-400 cursor-not-allowed opacity-50 dark:bg-slate-700 dark:text-slate-500'
-                      : 'bg-slate-200 text-slate-700 hover:text-slate-900 hover:bg-slate-300 hover:scale-105 active:scale-95 dark:bg-slate-600 dark:text-slate-300 dark:hover:bg-slate-500 dark:hover:text-slate-100'
-                  }`}
-                  title={vm.status === 'stopped' ? 'VM already stopped' : 'Stop VM'}
-                >
-                  <StopIcon className="h-4 w-4" />
-                </button>
+              {/* Stop button */}
+              <button
+                onClick={() => onStopVM(vm)}
+                disabled={isOperationInProgress || vm.status === 'stopped'}
+                className={`inline-flex items-center justify-center rounded-lg p-2 transition-all duration-200 ${
+                  isOperationInProgress || vm.status === 'stopped'
+                    ? 'bg-slate-100 text-slate-400 cursor-not-allowed opacity-50 dark:bg-slate-700 dark:text-slate-500'
+                    : 'bg-slate-200 text-slate-700 hover:text-slate-900 hover:bg-slate-300 hover:scale-105 active:scale-95 dark:bg-slate-600 dark:text-slate-300 dark:hover:bg-slate-500 dark:hover:text-slate-100'
+                }`}
+                title={vm.status === 'stopped' ? 'VM already stopped' : 'Stop VM'}
+              >
+                <StopIcon className="h-4 w-4" />
+              </button>
 
-                {/* Connect button */}
-                <button
-                  onClick={() => onConnectVM(vm)}
-                  disabled={vm.status !== 'running' || !vm.spice}
-                  className={`inline-flex items-center justify-center rounded-lg p-2 transition-all duration-200 ${
-                    vm.status !== 'running' || !vm.spice
-                      ? 'bg-slate-100 text-slate-400 cursor-not-allowed opacity-50 dark:bg-slate-700 dark:text-slate-500'
-                      : 'bg-slate-200 text-slate-700 hover:text-slate-900 hover:bg-slate-300 hover:scale-105 active:scale-95 dark:bg-slate-600 dark:text-slate-300 dark:hover:bg-slate-500 dark:hover:text-slate-100'
-                  }`}
-                  title={
-                    vm.status !== 'running'
-                      ? 'VM must be running'
-                      : !vm.spice
-                        ? 'SPICE not enabled'
-                        : 'Connect via SPICE'
-                  }
-                >
-                  <PlugIcon className="h-4 w-4" />
-                </button>
-              </div>
-            )}
+              {/* Connect button */}
+              <button
+                onClick={() => onConnectVM(vm)}
+                disabled={isOperationInProgress || vm.status !== 'running' || !vm.spice}
+                className={`inline-flex items-center justify-center rounded-lg p-2 transition-all duration-200 ${
+                  isOperationInProgress || vm.status !== 'running' || !vm.spice
+                    ? 'bg-slate-100 text-slate-400 cursor-not-allowed opacity-50 dark:bg-slate-700 dark:text-slate-500'
+                    : 'bg-slate-200 text-slate-700 hover:text-slate-900 hover:bg-slate-300 hover:scale-105 active:scale-95 dark:bg-slate-600 dark:text-slate-300 dark:hover:bg-slate-500 dark:hover:text-slate-100'
+                }`}
+                title={
+                  vm.status !== 'running'
+                    ? 'VM must be running'
+                    : !vm.spice
+                      ? 'SPICE not enabled'
+                      : 'Connect via SPICE'
+                }
+              >
+                <PlugIcon className="h-4 w-4" />
+              </button>
+            </div>
           </div>
         </div>
       </div>
