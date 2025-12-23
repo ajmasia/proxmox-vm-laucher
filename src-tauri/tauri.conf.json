@@ -1,7 +1,7 @@
 {
-  "productName": "Proxmox VM Launcher",
+  "productName": "pvel",
   "version": "0.1.0",
-  "identifier": "com.proxmox.vmlauncher",
+  "identifier": "com.ajmasia.pvel",
   "build": {
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://localhost:1420",
@@ -10,19 +10,29 @@
   },
   "bundle": {
     "active": true,
-    "targets": "all",
+    "targets": ["deb", "dmg", "appimage"],
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",
       "icons/128x128@2x.png",
       "icons/icon.icns",
       "icons/icon.ico"
-    ]
+    ],
+    "shortDescription": "Connect to Proxmox VMs using SPICE",
+    "longDescription": "Easy way to connect and manage your Proxmox virtual machines using SPICE protocol",
+    "linux": {
+      "deb": {
+        "depends": []
+      }
+    },
+    "macOS": {
+      "minimumSystemVersion": "10.13"
+    }
   },
   "app": {
     "windows": [
       {
-        "title": "Proxmox VM Launcher",
+        "title": "PVE Launcher",
         "width": 1200,
         "height": 860,
         "minWidth": 1200,
