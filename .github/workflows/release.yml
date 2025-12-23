@@ -96,6 +96,6 @@ jobs:
             ## 📝 Full Changelog
 
             See the commits included in this release for detailed changes.
-          releaseDraft: true
+          releaseDraft: false
           prerelease: false
           args: ${{ matrix.args }}
