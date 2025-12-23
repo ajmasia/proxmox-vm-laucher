@@ -22,7 +22,8 @@ pub fn run() {
             suspend_vm_with_session,
             resume_vm,
             resume_vm_with_session,
-            connect_to_proxmox
+            connect_to_proxmox,
+            connect_to_proxmox_with_session
         ])
         .setup(|_app| {
             // DevTools disabled by default
@@ -145,6 +146,38 @@ async fn connect_to_proxmox(app: tauri::AppHandle, node: String, vmid: u32) -> R
         port: config.port,
         username: config.username,
         password: config.password,
+        node,
+        vmid: vmid.to_string(),
+    };
+
+    // Authenticate with Proxmox
+    let tokens = proxmox::authenticate(&connection).await?;
+
+    // Get SPICE configuration
+    let spice_config = proxmox::get_spice_config(&connection, &tokens).await?;
+
+    // Save SPICE config to temporary file and launch remote-viewer
+    proxmox::launch_spice_viewer(&spice_config)?;
+
+    Ok(())
+}
+
+#[tauri::command]
+async fn connect_to_proxmox_with_session(
+    host: String,
+    port: u16,
+    username: String,
+    password: String,
+    node: String,
+    vmid: u32,
+) -> Result<(), String> {
+    // Create ProxmoxConnection from session
+    let connection = proxmox::ProxmoxConnection {
+        name: String::from("default"),
+        host,
+        port,
+        username,
+        password,
         node,
         vmid: vmid.to_string(),
     };
