@@ -5,6 +5,7 @@ use relm4::gtk;
 
 use crate::api;
 use crate::models::{AuthTokens, ServerConfig, Session};
+use crate::ui::main::{MainPage, MainOutput};
 use crate::utils;
 
 /// Login page mode
@@ -36,6 +37,8 @@ pub struct LoginPage {
     error: Option<String>,
     // Track if server list needs refresh
     servers_changed: bool,
+    // Main page controller (when logged in)
+    main_page: Option<Controller<MainPage>>,
 }
 
 /// Login page messages
@@ -58,6 +61,8 @@ pub enum LoginMsg {
     Login,
     LoginSuccess(AuthTokens, Option<String>),
     LoginError(String),
+    // Navigation
+    Logout,
 }
 
 /// Login page output (sent to parent)
@@ -382,10 +387,16 @@ impl SimpleComponent for LoginPage {
             password: String::new(),
             is_loading: false,
             error: None,
-            servers_changed: true, // Trigger initial population
+            servers_changed: false,
+            main_page: None,
         };
 
         let widgets = view_output!();
+
+        // Populate server list on initial load
+        if model.mode == LoginMode::Login {
+            refresh_server_list(&widgets.server_listbox, &model.servers, model.selected_server_idx);
+        }
 
         ComponentParts { model, widgets }
     }
@@ -484,18 +495,23 @@ impl SimpleComponent for LoginPage {
             }
             LoginMsg::Login => {
                 if !self.can_login() {
+                    println!("Cannot login - missing password or server");
                     return;
                 }
 
+                println!("Starting login...");
                 self.is_loading = true;
                 self.error = None;
 
                 let server = self.servers[self.selected_server_idx.unwrap()].clone();
                 let password = self.password.clone();
+                let sender_clone = sender.clone();
 
                 relm4::spawn(async move {
+                    println!("Authenticating to {}:{}...", server.host, server.port);
                     match api::authenticate(&server.host, server.port, &server.username, &password).await {
                         Ok(tokens) => {
+                            println!("Authentication successful!");
                             let _ = utils::set_last_used_server(&server.id);
 
                             let cluster_name = api::get_cluster_name(
@@ -507,25 +523,38 @@ impl SimpleComponent for LoginPage {
                             .await
                             .ok();
 
-                            sender.input(LoginMsg::LoginSuccess(tokens, cluster_name));
+                            sender_clone.input(LoginMsg::LoginSuccess(tokens, cluster_name));
                         }
                         Err(e) => {
-                            sender.input(LoginMsg::LoginError(e.to_string()));
+                            println!("Authentication failed: {}", e);
+                            sender_clone.input(LoginMsg::LoginError(e.to_string()));
                         }
                     }
                 });
             }
             LoginMsg::LoginSuccess(tokens, cluster_name) => {
+                println!("LoginSuccess received, creating MainPage...");
                 self.is_loading = false;
 
                 let server = self.servers[self.selected_server_idx.unwrap()].clone();
                 let session = Session::new(server, self.password.clone(), tokens, cluster_name);
 
-                let _ = sender.output(LoginOutput::LoggedIn(session));
+                // Create main page (detached - logout not handled for now)
+                let main = MainPage::builder()
+                    .launch(session)
+                    .detach();
+
+                self.main_page = Some(main);
             }
             LoginMsg::LoginError(error) => {
                 self.is_loading = false;
                 self.error = Some(error);
+            }
+            LoginMsg::Logout => {
+                // Destroy main page - this will close its window
+                self.main_page = None;
+                // Clear password for security
+                self.password.clear();
             }
         }
     }

@@ -1,5 +1,4 @@
 use serde::Deserialize;
-use super::auth::authenticate;
 use super::client::create_client;
 use super::error::{ApiError, Result};
 use crate::models::VMInfo;
@@ -108,18 +107,17 @@ async fn get_vm_ip(
 pub async fn list_vms(
     host: &str,
     port: u16,
-    username: &str,
-    password: &str,
+    ticket: &str,
+    _csrf: &str,
 ) -> Result<Vec<VMInfo>> {
     let client = create_client()?;
-    let tokens = authenticate(host, port, username, password).await?;
 
     // Get list of resources (VMs across all nodes)
     let resources_url = format!("https://{}:{}/api2/json/cluster/resources?type=vm", host, port);
 
     let vm_response = client
         .get(&resources_url)
-        .header("Cookie", format!("PVEAuthCookie={}", tokens.ticket))
+        .header("Cookie", format!("PVEAuthCookie={}", ticket))
         .send()
         .await?;
 
@@ -150,7 +148,7 @@ pub async fn list_vms(
 
         if let Ok(response) = client
             .get(&config_url)
-            .header("Cookie", format!("PVEAuthCookie={}", tokens.ticket))
+            .header("Cookie", format!("PVEAuthCookie={}", ticket))
             .send()
             .await
         {
@@ -166,7 +164,7 @@ pub async fn list_vms(
 
         // Get IP address for running VMs
         if vm.status == "running" {
-            vm.ip_address = get_vm_ip(&client, host, port, &tokens.ticket, &vm.node, vm.vmid).await;
+            vm.ip_address = get_vm_ip(&client, host, port, ticket, &vm.node, vm.vmid).await;
         }
     }
 
@@ -177,13 +175,12 @@ pub async fn list_vms(
 pub async fn start_vm(
     host: &str,
     port: u16,
-    username: &str,
-    password: &str,
+    ticket: &str,
+    csrf: &str,
     node: &str,
     vmid: u32,
 ) -> Result<String> {
     let client = create_client()?;
-    let tokens = authenticate(host, port, username, password).await?;
 
     let start_url = format!(
         "https://{}:{}/api2/json/nodes/{}/qemu/{}/status/start",
@@ -192,8 +189,8 @@ pub async fn start_vm(
 
     let response = client
         .post(&start_url)
-        .header("CSRFPreventionToken", &tokens.csrf_token)
-        .header("Cookie", format!("PVEAuthCookie={}", tokens.ticket))
+        .header("CSRFPreventionToken", csrf)
+        .header("Cookie", format!("PVEAuthCookie={}", ticket))
         .send()
         .await?;
 
@@ -214,13 +211,12 @@ pub async fn start_vm(
 pub async fn stop_vm(
     host: &str,
     port: u16,
-    username: &str,
-    password: &str,
+    ticket: &str,
+    csrf: &str,
     node: &str,
     vmid: u32,
 ) -> Result<String> {
     let client = create_client()?;
-    let tokens = authenticate(host, port, username, password).await?;
 
     let stop_url = format!(
         "https://{}:{}/api2/json/nodes/{}/qemu/{}/status/stop",
@@ -229,8 +225,8 @@ pub async fn stop_vm(
 
     let response = client
         .post(&stop_url)
-        .header("CSRFPreventionToken", &tokens.csrf_token)
-        .header("Cookie", format!("PVEAuthCookie={}", tokens.ticket))
+        .header("CSRFPreventionToken", csrf)
+        .header("Cookie", format!("PVEAuthCookie={}", ticket))
         .send()
         .await?;
 
@@ -251,13 +247,12 @@ pub async fn stop_vm(
 pub async fn suspend_vm(
     host: &str,
     port: u16,
-    username: &str,
-    password: &str,
+    ticket: &str,
+    csrf: &str,
     node: &str,
     vmid: u32,
 ) -> Result<String> {
     let client = create_client()?;
-    let tokens = authenticate(host, port, username, password).await?;
 
     let suspend_url = format!(
         "https://{}:{}/api2/json/nodes/{}/qemu/{}/status/suspend",
@@ -266,8 +261,8 @@ pub async fn suspend_vm(
 
     let response = client
         .post(&suspend_url)
-        .header("CSRFPreventionToken", &tokens.csrf_token)
-        .header("Cookie", format!("PVEAuthCookie={}", tokens.ticket))
+        .header("CSRFPreventionToken", csrf)
+        .header("Cookie", format!("PVEAuthCookie={}", ticket))
         .send()
         .await?;
 
@@ -288,13 +283,12 @@ pub async fn suspend_vm(
 pub async fn resume_vm(
     host: &str,
     port: u16,
-    username: &str,
-    password: &str,
+    ticket: &str,
+    csrf: &str,
     node: &str,
     vmid: u32,
 ) -> Result<String> {
     let client = create_client()?;
-    let tokens = authenticate(host, port, username, password).await?;
 
     let resume_url = format!(
         "https://{}:{}/api2/json/nodes/{}/qemu/{}/status/resume",
@@ -303,8 +297,8 @@ pub async fn resume_vm(
 
     let response = client
         .post(&resume_url)
-        .header("CSRFPreventionToken", &tokens.csrf_token)
-        .header("Cookie", format!("PVEAuthCookie={}", tokens.ticket))
+        .header("CSRFPreventionToken", csrf)
+        .header("Cookie", format!("PVEAuthCookie={}", ticket))
         .send()
         .await?;
 

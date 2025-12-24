@@ -25,14 +25,18 @@ pub async fn authenticate(
     let client = create_client()?;
 
     let url = format!("https://{}:{}/api2/json/access/ticket", host, port);
+    println!("Auth URL: {}, User: {}", url, username);
     let params = [("username", username), ("password", password)];
 
     let response = client.post(&url).form(&params).send().await?;
 
     if !response.status().is_success() {
+        let status = response.status();
+        let body = response.text().await.unwrap_or_default();
+        println!("Auth error - Status: {}, Body: {}", status, body);
         return Err(ApiError::Auth(format!(
-            "Authentication failed with status: {}",
-            response.status()
+            "Authentication failed: {} - {}",
+            status, body
         )));
     }
 
