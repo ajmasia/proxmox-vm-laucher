@@ -26,3 +26,9 @@ urlencoding = "2"
 
 # Error handling
 thiserror = "1"
+
+# Config directories
+directories = "5"
+
+# UUID for server IDs
+uuid = { version = "1", features = ["v4"] }
