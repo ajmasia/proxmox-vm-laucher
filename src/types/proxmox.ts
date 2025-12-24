@@ -30,6 +30,7 @@ export interface ProxmoxVM {
   disk?: number
   tags?: string
   spice?: boolean
+  ipAddress?: string
 }
 
 // Legacy - for backward compatibility
