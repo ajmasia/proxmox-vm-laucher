@@ -38,6 +38,9 @@ pub struct VMInfo {
     pub tags: String,
     #[serde(default)]
     pub spice: bool,
+    #[serde(default)]
+    #[serde(rename = "ipAddress")]
+    pub ip_address: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -217,6 +220,79 @@ pub async fn get_spice_config(
         .map_err(|e| format!("Failed to read SPICE config: {}", e))
 }
 
+// Get VM IP address from QEMU Guest Agent
+async fn get_vm_ip(
+    client: &reqwest::Client,
+    host: &str,
+    port: u16,
+    ticket: &str,
+    node: &str,
+    vmid: u32,
+) -> Option<String> {
+    #[derive(Deserialize)]
+    struct NetworkResponse {
+        data: Option<NetworkData>,
+    }
+
+    #[derive(Deserialize)]
+    struct NetworkData {
+        result: Option<Vec<NetworkInterface>>,
+    }
+
+    #[derive(Deserialize)]
+    struct NetworkInterface {
+        name: String,
+        #[serde(rename = "ip-addresses")]
+        ip_addresses: Option<Vec<IpAddress>>,
+    }
+
+    #[derive(Deserialize)]
+    struct IpAddress {
+        #[serde(rename = "ip-address")]
+        ip_address: String,
+        #[serde(rename = "ip-address-type")]
+        ip_address_type: String,
+    }
+
+    let url = format!(
+        "https://{}:{}/api2/json/nodes/{}/qemu/{}/agent/network-get-interfaces",
+        host, port, node, vmid
+    );
+
+    let response = client
+        .get(&url)
+        .header("Cookie", format!("PVEAuthCookie={}", ticket))
+        .send()
+        .await
+        .ok()?;
+
+    if !response.status().is_success() {
+        return None;
+    }
+
+    let network_data: NetworkResponse = response.json().await.ok()?;
+    let result = network_data.data?.result?;
+
+    // Find the first non-loopback IPv4 address
+    for interface in result {
+        // Skip loopback interface
+        if interface.name == "lo" {
+            continue;
+        }
+
+        if let Some(addresses) = interface.ip_addresses {
+            for addr in addresses {
+                // Only get IPv4 addresses (skip 127.x.x.x)
+                if addr.ip_address_type == "ipv4" && !addr.ip_address.starts_with("127.") {
+                    return Some(addr.ip_address);
+                }
+            }
+        }
+    }
+
+    None
+}
+
 pub async fn list_vms(host: &str, port: u16, username: &str, password: &str) -> Result<Vec<VMInfo>, String> {
     let client = reqwest::Client::builder()
         .danger_accept_invalid_certs(true)
@@ -312,6 +388,11 @@ pub async fn list_vms(host: &str, port: u16, username: &str, password: &str) -> 
                 // If we can't get the config, assume no SPICE
                 vm.spice = false;
             }
+        }
+
+        // Get IP address for running VMs via QEMU Guest Agent
+        if vm.status == "running" {
+            vm.ip_address = get_vm_ip(&client, host, port, &ticket, &vm.node, vm.vmid).await;
         }
     }
 
