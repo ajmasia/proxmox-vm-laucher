@@ -79,6 +79,13 @@ const VMItem = memo(
                   </span>
                 )}
 
+                {/* IP Address Badge */}
+                {vm.ipAddress && (
+                  <span className="inline-flex items-center rounded-md bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700 ring-1 ring-emerald-600/20 dark:bg-emerald-900/50 dark:text-emerald-400 dark:ring-emerald-500/30">
+                    {vm.ipAddress}
+                  </span>
+                )}
+
                 {/* Tags */}
                 {vm.tags && vm.tags.trim() && (
                   <>
@@ -204,6 +211,7 @@ const VMItem = memo(
       prevProps.vm.maxmem === nextProps.vm.maxmem &&
       prevProps.vm.node === nextProps.vm.node &&
       prevProps.vm.tags === nextProps.vm.tags &&
+      prevProps.vm.ipAddress === nextProps.vm.ipAddress &&
       prevProps.isStarting === nextProps.isStarting &&
       prevProps.isStopping === nextProps.isStopping &&
       prevProps.isSuspending === nextProps.isSuspending &&
