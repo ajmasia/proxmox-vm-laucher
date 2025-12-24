@@ -27,6 +27,9 @@ dist-ssr
 # Tauri
 src-tauri/target
 
+# GTK app
+gtk-app/target
+
 # AI context files
 CLAUDE.md
 .ai-context/

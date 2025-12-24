@@ -1,14 +1,12 @@
-mod app;
 mod api;
-mod ui;
 mod models;
+mod ui;
 mod utils;
 
 use relm4::RelmApp;
-use app::App;
+use ui::LoginPage;
 
 fn main() {
-    // Initialize libadwaita
     let app = RelmApp::new("com.ajmasia.pvel");
-    app.run::<App>(());
+    app.run::<LoginPage>(());
 }
