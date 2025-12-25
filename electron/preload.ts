@@ -7,6 +7,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
   closeWindow: () => ipcRenderer.invoke('window:close'),
   minimizeWindow: () => ipcRenderer.invoke('window:minimize'),
   maximizeWindow: () => ipcRenderer.invoke('window:maximize'),
+  isMaximized: () => ipcRenderer.invoke('window:isMaximized'),
+  onMaximizedChange: (callback: (isMaximized: boolean) => void) => {
+    ipcRenderer.on('window:maximized-change', (_, isMaximized) => callback(isMaximized))
+  },
 
   // Proxmox API
   authenticate: (config: { host: string, port: number, username: string, password: string }) =>
@@ -51,6 +55,8 @@ declare global {
       closeWindow: () => Promise<void>
       minimizeWindow: () => Promise<void>
       maximizeWindow: () => Promise<void>
+      isMaximized: () => Promise<boolean>
+      onMaximizedChange: (callback: (isMaximized: boolean) => void) => void
       authenticate: (config: { host: string, port: number, username: string, password: string }) => Promise<{ ticket: string, csrfToken: string }>
       getClusterName: (config: { host: string, port: number, ticket: string }) => Promise<string>
       listVMs: (config: { host: string, port: number, ticket: string }) => Promise<any[]>

@@ -6,6 +6,8 @@ interface Window {
     closeWindow: () => Promise<void>
     minimizeWindow: () => Promise<void>
     maximizeWindow: () => Promise<void>
+    isMaximized: () => Promise<boolean>
+    onMaximizedChange: (callback: (isMaximized: boolean) => void) => void
     authenticate: (config: {
       host: string
       port: number

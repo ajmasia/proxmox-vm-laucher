@@ -19,7 +19,6 @@ function createWindow() {
     minHeight: 860,
     frame: false,
     transparent: true,
-    backgroundColor: '#00000000',
     hasShadow: false,
     show: false,
     webPreferences: {
@@ -40,6 +39,18 @@ function createWindow() {
   mainWindow.on('closed', () => {
     mainWindow = null
   })
+
+  // Notify renderer of maximize/fullscreen state changes
+  const notifyWindowState = () => {
+    const isFullScreen = mainWindow?.isFullScreen() ?? false
+    const isMaximized = mainWindow?.isMaximized() ?? false
+    mainWindow?.webContents.send('window:maximized-change', isFullScreen || isMaximized)
+  }
+
+  mainWindow.on('maximize', notifyWindowState)
+  mainWindow.on('unmaximize', notifyWindowState)
+  mainWindow.on('enter-full-screen', notifyWindowState)
+  mainWindow.on('leave-full-screen', notifyWindowState)
 }
 
 app.whenReady().then(createWindow)
@@ -77,6 +88,12 @@ ipcMain.handle('window:maximize', () => {
   } else {
     mainWindow?.maximize()
   }
+})
+
+ipcMain.handle('window:isMaximized', () => {
+  const isFullScreen = mainWindow?.isFullScreen() ?? false
+  const isMaximized = mainWindow?.isMaximized() ?? false
+  return isFullScreen || isMaximized
 })
 
 // Proxmox API helper using Node.js https module
