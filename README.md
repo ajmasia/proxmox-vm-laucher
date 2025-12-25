@@ -1,170 +1,98 @@
-# Proxmox VM Launcher
+# PVE Launcher
 
-A cross-platform desktop application for connecting to Proxmox virtual machines via SPICE protocol.
+Desktop application to manage and connect to Proxmox VMs using SPICE.
 
 ## Features
 
-- Connect to Proxmox VMs through an intuitive GUI
-- Manage multiple VM profiles
-- Secure credential storage
-- Cross-platform support (Windows, macOS, Linux)
+- Connect to multiple Proxmox VE servers
+- View and manage virtual machines
+- Start, stop, suspend, and resume VMs
+- Quick SPICE connection to VMs with QXL graphics
+- Filter VMs by status and tags
+- Dark/light theme support
+- Custom window decorations (GTK4/Adwaita style)
 
-## Tech Stack
+## Requirements
 
-- **Frontend**: React 18 + TypeScript + Tailwind CSS
-- **Backend**: Rust + Tauri 2.x
-- **Build Tool**: Vite 6
-- **Testing**: Vitest
-- **Code Quality**: ESLint + Prettier
+- Node.js 18+
+- `remote-viewer` (virt-viewer) for SPICE connections
+- A Proxmox VE server with API access
 
-## Prerequisites
+### Installing remote-viewer
 
-### System Requirements
-
-- Node.js 18+ and npm
-- Rust 1.70+ (install from [rustup.rs](https://rustup.rs))
-- Git
-
-### Linux-specific Dependencies
-
-#### Ubuntu/Debian
+**Debian/Ubuntu:**
 ```bash
-sudo apt update && sudo apt install -y \
-  libwebkit2gtk-4.1-dev \
-  libsoup-3.0-dev \
-  libjavascriptcoregtk-4.1-dev \
-  libgtk-3-dev \
-  libayatana-appindicator3-dev \
-  librsvg2-dev
+sudo apt install virt-viewer
 ```
 
-#### Fedora/RHEL
+**Fedora:**
 ```bash
-sudo dnf install webkit2gtk4.1-devel libsoup3-devel
+sudo dnf install virt-viewer
 ```
 
-#### Arch Linux
+**Arch Linux:**
 ```bash
-sudo pacman -S webkit2gtk-4.1 libsoup3
-```
-
-### Development Tools
-
-Install Tauri CLI globally:
-```bash
-cargo install tauri-cli --version '^2.0.0'
+sudo pacman -S virt-viewer
 ```
 
 ## Getting Started
 
-1. Clone the repository:
-```bash
-git clone <repository-url>
-cd proxmox-vm-launcher
-```
+### Install dependencies
 
-2. Install dependencies:
 ```bash
 npm install
 ```
 
-3. Run in development mode:
+### Run in development mode
+
 ```bash
-npm run tauri dev
+npm run dev
 ```
 
-## Available Scripts
+### Build for production
 
-- `npm run dev` - Start Vite dev server only
-- `npm run build` - Build for production
-- `npm run preview` - Preview production build
-- `npm run tauri dev` - Run Tauri app in development mode
-- `npm run tauri build` - Build Tauri app for production
-- `npm test` - Run tests with Vitest
-- `npm run test:ui` - Run tests with UI
-- `npm run test:coverage` - Generate test coverage report
-- `npm run lint` - Lint code with ESLint
-- `npm run lint:fix` - Fix linting issues automatically
-- `npm run format` - Format code with Prettier
+```bash
+npm run build
+```
 
 ## Project Structure
 
 ```
-proxmox-vm-launcher/
-├── src/                    # React frontend
-│   ├── components/         # React components
-│   ├── services/          # Business logic
-│   ├── types/             # TypeScript types
-│   ├── App.tsx            # Main app component
-│   ├── main.tsx           # Entry point
-│   └── index.css          # Global styles
-├── src-tauri/             # Rust backend
-│   ├── src/
-│   │   ├── main.rs        # Entry point
-│   │   └── lib.rs         # Tauri logic
-│   ├── Cargo.toml         # Rust dependencies
-│   ├── tauri.conf.json    # Tauri configuration
-│   └── icons/             # Application icons
-├── index.html             # HTML entry
-├── package.json           # Node dependencies
-├── vite.config.ts         # Vite configuration
-├── tsconfig.json          # TypeScript configuration
-├── tailwind.config.js     # Tailwind CSS configuration
-└── eslint.config.js       # ESLint configuration
+pve-launcher/
+├── electron/           # Electron main process
+│   ├── main.ts        # Main process entry point
+│   └── preload.ts     # Preload script for IPC
+├── src/               # React application
+│   ├── components/    # Reusable UI components
+│   ├── pages/         # Page components
+│   ├── layouts/       # Layout components
+│   ├── stores/        # Zustand state stores
+│   ├── contexts/      # React contexts
+│   ├── icons/         # SVG icon components
+│   └── types/         # TypeScript types
+├── index.html         # HTML entry point
+├── vite.config.ts     # Vite configuration
+└── package.json       # Project dependencies
 ```
 
-## Development
+## Technology Stack
 
-The application uses Tauri's IPC (Inter-Process Communication) to communicate between the React frontend and Rust backend.
+- **Electron** - Desktop application framework
+- **React 18** - UI framework
+- **TypeScript** - Type safety
+- **Vite** - Build tool
+- **Tailwind CSS** - Styling
+- **Zustand** - State management
+- **React Router** - Navigation
 
-### Adding Tauri Commands
+## Usage
 
-1. Define the command in `src-tauri/src/lib.rs`:
-```rust
-#[tauri::command]
-fn my_command(param: String) -> Result<String, String> {
-    Ok(format!("Received: {}", param))
-}
-```
-
-2. Register the command:
-```rust
-.invoke_handler(tauri::generate_handler![my_command])
-```
-
-3. Call from React:
-```typescript
-import { invoke } from '@tauri-apps/api/core'
-
-const result = await invoke('my_command', { param: 'value' })
-```
-
-## Building for Production
-
-### Development Build
-```bash
-npm run tauri build
-```
-
-This will create platform-specific bundles in `src-tauri/target/release/bundle/`.
-
-### Supported Platforms
-- Linux: `.deb`, `.AppImage`
-- macOS: `.dmg`, `.app`
-- Windows: `.msi`, `.exe`
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Run tests and linting
-5. Submit a pull request
+1. Launch the application
+2. Add a Proxmox server (host, port, username)
+3. Enter your password to authenticate
+4. Browse and manage your virtual machines
+5. Click the SPICE button to connect to a running VM
 
 ## License
 
-[Add your license here]
-
-## Original Script
-
-The project is based on the `pve-connect.sh` script for connecting to Proxmox VMs via SPICE.
+MIT

@@ -1,27 +1,44 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import electron from 'vite-plugin-electron'
+import renderer from 'vite-plugin-electron-renderer'
+import path from 'path'
 
-// https://vite.dev/config/
 export default defineConfig({
-  plugins: [react()],
-
-  // Prevent vite from obscuring rust errors
-  clearScreen: false,
-
-  // Tauri expects a fixed port, fail if that port is not available
-  server: {
-    port: 1420,
-    strictPort: true,
-    watch: {
-      // Tell vite to ignore watching `src-tauri`
-      ignored: ['**/src-tauri/**'],
-    },
-  },
-
-  test: {
-    globals: true,
-    environment: 'jsdom',
-    setupFiles: './src/test/setup.ts',
-    css: true,
-  },
+  plugins: [
+    react(),
+    electron([
+      {
+        entry: 'electron/main.ts',
+        vite: {
+          build: {
+            outDir: 'dist-electron',
+            rollupOptions: {
+              external: ['electron']
+            }
+          }
+        }
+      },
+      {
+        entry: 'electron/preload.ts',
+        onstart(options) {
+          options.reload()
+        },
+        vite: {
+          build: {
+            outDir: 'dist-electron',
+            rollupOptions: {
+              external: ['electron']
+            }
+          }
+        }
+      }
+    ]),
+    renderer()
+  ],
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src')
+    }
+  }
 })

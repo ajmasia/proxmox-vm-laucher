@@ -1,15 +1,14 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <script>
-      // Apply theme and background IMMEDIATELY via inline style
+      // Apply theme immediately before anything renders to prevent flash
       (function() {
         var theme = localStorage.getItem('theme') || 'system';
         var isDark = theme === 'dark' ||
           (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
         var bg = isDark ? 'rgb(15,23,42)' : 'rgb(248,250,252)';
-        // Set background immediately before anything else renders
         document.documentElement.style.backgroundColor = bg;
         document.body && (document.body.style.backgroundColor = bg);
         if (isDark) {
@@ -25,12 +24,11 @@
         background-color: rgb(15, 23, 42);
       }
     </style>
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-    <title>Proxmox VM Launcher</title>
+    <title>PVE Launcher</title>
   </head>
   <body>
     <div id="root"></div>

@@ -8,12 +8,12 @@ const MainLayoutContent = () => {
   const { onRefresh, isLoading } = useLayout()
 
   return (
-    <div className="flex h-screen flex-col bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
+    <div className="flex h-full flex-col bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
       {/* Header */}
       <AppHeader onRefresh={onRefresh || (() => {})} isLoading={isLoading} />
 
-      {/* Main Content - Scrollable */}
-      <div className="flex-1 overflow-y-auto">
+      {/* Main Content */}
+      <div className="flex-1 overflow-hidden">
         <Outlet />
       </div>
 

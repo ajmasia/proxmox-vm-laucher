@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import { getVersion } from '@tauri-apps/api/app'
 import { useAuthStore } from '../../../stores/authStore'
 
 const AppFooter = () => {
@@ -7,7 +6,7 @@ const AppFooter = () => {
   const [appVersion, setAppVersion] = useState<string>('')
 
   useEffect(() => {
-    getVersion().then(setAppVersion)
+    window.electronAPI.getVersion().then(setAppVersion)
   }, [])
 
   return (
