@@ -10,6 +10,7 @@ interface AuthStore {
 
   // Actions
   login: (server: ProxmoxServerConfig, password: string) => Promise<void>
+  restoreSession: (sessionData: SessionData) => void
   logout: () => void
   clearError: () => void
 
@@ -49,19 +50,25 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         clusterName = undefined
       }
 
-      // Create session
-      const session: ProxmoxSession = {
+      // Create session data for transfer
+      const sessionData: SessionData = {
         ticket: authResponse.ticket,
         csrfToken: authResponse.csrfToken,
         username: server.username,
-        server,
+        server: {
+          id: server.id,
+          name: server.name,
+          host: server.host,
+          port: server.port,
+          username: server.username,
+        },
         clusterName,
       }
 
-      set({ session, isAuthenticating: false, error: null })
-
-      const serverInfo = clusterName || server.host
-      toast.success(`Connected to ${serverInfo}`)
+      // Transfer session to main window via IPC
+      // This will create the main window and close the login window
+      set({ isAuthenticating: false, error: null })
+      await window.electronAPI.transferSession(sessionData)
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Authentication failed'
       set({
@@ -74,9 +81,25 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     }
   },
 
+  // Restore session from IPC (called in main window)
+  restoreSession: (sessionData: SessionData) => {
+    const session: ProxmoxSession = {
+      ticket: sessionData.ticket,
+      csrfToken: sessionData.csrfToken,
+      username: sessionData.username,
+      server: sessionData.server,
+      clusterName: sessionData.clusterName,
+    }
+    set({ session, error: null })
+    const serverInfo = sessionData.clusterName || sessionData.server.host
+    toast.success(`Connected to ${serverInfo}`)
+  },
+
   // Logout action
   logout: () => {
     set({ session: null, error: null })
+    // Close main window and reopen login window
+    window.electronAPI.logout()
   },
 
   // Clear error
