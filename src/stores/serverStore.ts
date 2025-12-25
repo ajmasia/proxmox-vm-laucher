@@ -52,14 +52,20 @@ export const useServerStore = create<ServerStore>((set, get) => ({
     }
   },
 
-  // Add new server
+  // Add new server (max 2 servers allowed)
   addServer: async (serverData) => {
+    const currentServers = get().servers
+    if (currentServers.length >= 2) {
+      console.warn('Maximum of 2 servers allowed')
+      return
+    }
+
     const newServer: ProxmoxServerConfig = {
       ...serverData,
       id: crypto.randomUUID(),
     }
 
-    const servers = [...get().servers, newServer]
+    const servers = [...currentServers, newServer]
     set({ servers })
     saveToStorage(servers, get().lastUsedServerId)
   },
