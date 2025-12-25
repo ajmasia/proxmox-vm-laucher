@@ -35,7 +35,7 @@ const ServerSelector = ({
         Server
       </label>
       <div className="space-y-2">
-        {servers.map((server) => (
+        {servers.slice(0, 2).map((server) => (
           <div
             key={server.id}
             className={`group flex items-center gap-2 rounded-lg border-2 p-3 transition-all ${
@@ -50,7 +50,7 @@ const ServerSelector = ({
             >
               <div className="font-medium text-slate-900 dark:text-slate-100">{server.name}</div>
               <div className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
-                {server.username}@{server.host}:{server.port}
+                {server.username.split('@')[0]}@{server.host}:{server.port}
               </div>
             </button>
             <div className="flex flex-shrink-0 items-center gap-1">
@@ -90,12 +90,14 @@ const ServerSelector = ({
         ))}
       </div>
 
-      <button
-        onClick={onAddServer}
-        className="mt-3 w-full rounded-lg border-2 border-dashed border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-600 transition-all hover:border-slate-400 hover:bg-slate-50 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-300 dark:hover:border-slate-500 dark:hover:bg-slate-600 dark:hover:text-slate-100 dark:focus:ring-offset-slate-800"
-      >
-        + Add New Server
-      </button>
+      {servers.length < 2 && (
+        <button
+          onClick={onAddServer}
+          className="mt-3 w-full rounded-lg border-2 border-dashed border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-600 transition-all hover:border-slate-400 hover:bg-slate-50 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-300 dark:hover:border-slate-500 dark:hover:bg-slate-600 dark:hover:text-slate-100 dark:focus:ring-offset-slate-800"
+        >
+          + Add New Server
+        </button>
+      )}
     </div>
   )
 }
