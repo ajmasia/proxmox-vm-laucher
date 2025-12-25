@@ -18,6 +18,15 @@ pub struct MainPage {
     error: Option<String>,
     operating_vms: HashSet<u32>,
     toast_message: Option<String>,
+    status_filter: StatusFilter,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Default)]
+pub enum StatusFilter {
+    #[default]
+    All,
+    Running,
+    Stopped,
 }
 
 /// Main page messages
@@ -37,6 +46,10 @@ pub enum MainMsg {
     VMOperationError(u32, String),
     // Toast
     ShowToast(String),
+    // Filters
+    SetStatusFilter(StatusFilter),
+    // Theme
+    ToggleTheme,
     // Navigation
     Logout,
 }
@@ -85,6 +98,43 @@ impl SimpleComponent for MainPage {
                             #[watch]
                             set_sensitive: !model.is_loading,
                             connect_clicked => MainMsg::LoadVMs,
+                        },
+
+                        pack_end = &gtk::Button {
+                            set_icon_name: "weather-clear-night-symbolic",
+                            set_tooltip_text: Some("Toggle theme"),
+                            connect_clicked => MainMsg::ToggleTheme,
+                        },
+                    },
+
+                    // Filter bar
+                    gtk::Box {
+                        set_orientation: gtk::Orientation::Horizontal,
+                        set_spacing: 6,
+                        set_margin_start: 12,
+                        set_margin_end: 12,
+                        set_margin_top: 6,
+                        set_halign: gtk::Align::Center,
+
+                        gtk::ToggleButton {
+                            set_label: "All",
+                            #[watch]
+                            set_active: model.status_filter == StatusFilter::All,
+                            connect_clicked => MainMsg::SetStatusFilter(StatusFilter::All),
+                        },
+
+                        gtk::ToggleButton {
+                            set_label: "Running",
+                            #[watch]
+                            set_active: model.status_filter == StatusFilter::Running,
+                            connect_clicked => MainMsg::SetStatusFilter(StatusFilter::Running),
+                        },
+
+                        gtk::ToggleButton {
+                            set_label: "Stopped",
+                            #[watch]
+                            set_active: model.status_filter == StatusFilter::Stopped,
+                            connect_clicked => MainMsg::SetStatusFilter(StatusFilter::Stopped),
                         },
                     },
 
@@ -192,6 +242,7 @@ impl SimpleComponent for MainPage {
             error: None,
             operating_vms: HashSet::new(),
             toast_message: None,
+            status_filter: StatusFilter::All,
         };
 
         let vm_list = model.vms.widget();
@@ -240,10 +291,20 @@ impl SimpleComponent for MainPage {
                 self.is_loading = false;
                 self.error = None;
 
+                // Apply status filter
+                let filtered: Vec<_> = vms
+                    .into_iter()
+                    .filter(|vm| match self.status_filter {
+                        StatusFilter::All => true,
+                        StatusFilter::Running => vm.status == "running",
+                        StatusFilter::Stopped => vm.status == "stopped",
+                    })
+                    .collect();
+
                 // Clear and repopulate the factory
                 let mut guard = self.vms.guard();
                 guard.clear();
-                for vm in vms {
+                for vm in filtered {
                     guard.push_back(vm);
                 }
             }
@@ -317,6 +378,21 @@ impl SimpleComponent for MainPage {
             }
             MainMsg::ShowToast(message) => {
                 self.toast_message = Some(message);
+            }
+            MainMsg::SetStatusFilter(filter) => {
+                self.status_filter = filter;
+                // Re-apply filter by reloading VMs
+                sender.input(MainMsg::LoadVMs);
+            }
+            MainMsg::ToggleTheme => {
+                let style_manager = adw::StyleManager::default();
+                let current = style_manager.color_scheme();
+                let new_scheme = if current == adw::ColorScheme::PreferDark {
+                    adw::ColorScheme::PreferLight
+                } else {
+                    adw::ColorScheme::PreferDark
+                };
+                style_manager.set_color_scheme(new_scheme);
             }
             MainMsg::ConnectVM(vmid, node) => {
                 if self.operating_vms.contains(&vmid) {
