@@ -5,34 +5,42 @@ interface TooltipProps {
   children: ReactNode
   text: string
   position?: 'top' | 'bottom'
+  delay?: number
 }
 
-const Tooltip = ({ children, text, position = 'bottom' }: TooltipProps) => {
+const Tooltip = ({ children, text, position = 'bottom', delay = 1000 }: TooltipProps) => {
   const [isVisible, setIsVisible] = useState(false)
   const [coords, setCoords] = useState({ top: 0, left: 0 })
   const triggerRef = useRef<HTMLDivElement>(null)
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   const handleMouseEnter = useCallback(() => {
-    if (triggerRef.current) {
-      const rect = triggerRef.current.getBoundingClientRect()
-      const tooltipOffset = 8
+    timeoutRef.current = setTimeout(() => {
+      if (triggerRef.current) {
+        const rect = triggerRef.current.getBoundingClientRect()
+        const tooltipOffset = 8
 
-      if (position === 'top') {
-        setCoords({
-          top: rect.top - tooltipOffset,
-          left: rect.left + rect.width / 2,
-        })
-      } else {
-        setCoords({
-          top: rect.bottom + tooltipOffset,
-          left: rect.left + rect.width / 2,
-        })
+        if (position === 'top') {
+          setCoords({
+            top: rect.top - tooltipOffset,
+            left: rect.left + rect.width / 2,
+          })
+        } else {
+          setCoords({
+            top: rect.bottom + tooltipOffset,
+            left: rect.left + rect.width / 2,
+          })
+        }
+        setIsVisible(true)
       }
-      setIsVisible(true)
-    }
-  }, [position])
+    }, delay)
+  }, [position, delay])
 
   const handleMouseLeave = useCallback(() => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current)
+      timeoutRef.current = null
+    }
     setIsVisible(false)
   }, [])
 
