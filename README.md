@@ -1,5 +1,12 @@
 # PVE Launcher
 
+[![CI](https://github.com/your-org/pve-launcher/actions/workflows/ci.yml/badge.svg)](https://github.com/your-org/pve-launcher/actions/workflows/ci.yml)
+[![Release](https://github.com/your-org/pve-launcher/actions/workflows/release.yml/badge.svg)](https://github.com/your-org/pve-launcher/actions/workflows/release.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Electron](https://img.shields.io/badge/Electron-39.x-47848F?logo=electron&logoColor=white)](https://www.electronjs.org/)
+[![React](https://img.shields.io/badge/React-18.x-61DAFB?logo=react&logoColor=white)](https://reactjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+
 Desktop application to manage and connect to Proxmox VMs using SPICE.
 
 ## Features
