@@ -20,7 +20,7 @@ const AppHeader = ({ onRefresh, isLoading }: AppHeaderProps) => {
 
   return (
     <div className="bg-white py-4 dark:bg-slate-800">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-6">
+      <div className="flex items-center justify-between px-6">
         {/* Left: Logo + Title */}
         <div className="flex items-center gap-3">
           {/* Logo */}
