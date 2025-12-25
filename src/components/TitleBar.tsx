@@ -10,25 +10,32 @@ interface TitleBarProps {
 // Circular button component for title bar
 function TitleBarButton({
   onClick,
-  title,
+  tooltip,
   children,
   variant = 'default',
 }: {
   onClick: () => void
-  title: string
+  tooltip: string
   children: React.ReactNode
   variant?: 'default' | 'danger'
 }) {
   const baseClasses = 'flex h-6 w-6 items-center justify-center rounded-full transition-all'
   const variantClasses =
     variant === 'danger'
-      ? 'bg-slate-600 text-slate-400 hover:text-white dark:bg-slate-600 dark:text-slate-400 dark:hover:text-white'
-      : 'bg-slate-600 text-slate-400 hover:text-white dark:bg-slate-600 dark:text-slate-400 dark:hover:text-white'
+      ? 'bg-slate-600/50 text-slate-400 hover:text-white dark:bg-slate-700/50 dark:text-slate-400 dark:hover:text-white'
+      : 'bg-slate-600/50 text-slate-400 hover:text-white dark:bg-slate-700/50 dark:text-slate-400 dark:hover:text-white'
 
   return (
-    <button onClick={onClick} className={`${baseClasses} ${variantClasses}`} title={title}>
-      {children}
-    </button>
+    <div className="group relative">
+      <button onClick={onClick} className={`${baseClasses} ${variantClasses}`}>
+        {children}
+      </button>
+      <div className="pointer-events-none absolute left-1/2 top-full z-50 mt-2 -translate-x-1/2 opacity-0 transition-opacity group-hover:opacity-100">
+        <div className="whitespace-nowrap rounded-lg bg-slate-800 px-3 py-1.5 text-xs font-medium text-slate-200 shadow-lg dark:bg-slate-900">
+          {tooltip}
+        </div>
+      </div>
+    </div>
   )
 }
 
@@ -81,7 +88,7 @@ export function TitleBar({ title = 'PVE Launcher' }: TitleBarProps) {
         className="z-10 flex items-center gap-1.5"
         style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
       >
-        <TitleBarButton onClick={handleLogout} title="Logout">
+        <TitleBarButton onClick={handleLogout} tooltip="Logout">
           <svg
             className="h-3.5 w-3.5"
             viewBox="0 0 24 24"
@@ -96,7 +103,7 @@ export function TitleBar({ title = 'PVE Launcher' }: TitleBarProps) {
             />
           </svg>
         </TitleBarButton>
-        <TitleBarButton onClick={handleRefresh} title="Refresh VMs">
+        <TitleBarButton onClick={handleRefresh} tooltip="Refresh VMs">
           <svg
             className="h-3.5 w-3.5"
             viewBox="0 0 24 24"
@@ -123,10 +130,10 @@ export function TitleBar({ title = 'PVE Launcher' }: TitleBarProps) {
         className="z-10 flex items-center gap-1.5"
         style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
       >
-        <TitleBarButton onClick={cycleTheme} title={`Theme: ${getThemeLabel()}`}>
+        <TitleBarButton onClick={cycleTheme} tooltip={`Theme: ${getThemeLabel()}`}>
           {getThemeIcon()}
         </TitleBarButton>
-        <TitleBarButton onClick={handleClose} title="Close">
+        <TitleBarButton onClick={handleClose} tooltip="Close">
           <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor">
             <path d="M18.3 5.71a1 1 0 0 0-1.42 0L12 10.59 7.12 5.71a1 1 0 0 0-1.42 1.42L10.59 12l-4.89 4.88a1 1 0 1 0 1.42 1.42L12 13.41l4.88 4.89a1 1 0 0 0 1.42-1.42L13.41 12l4.89-4.88a1 1 0 0 0 0-1.41z" />
           </svg>
