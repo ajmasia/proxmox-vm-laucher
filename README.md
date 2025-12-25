@@ -2,6 +2,7 @@
 
 [![CI](https://github.com/your-org/pve-launcher/actions/workflows/ci.yml/badge.svg)](https://github.com/your-org/pve-launcher/actions/workflows/ci.yml)
 [![Release](https://github.com/your-org/pve-launcher/actions/workflows/release.yml/badge.svg)](https://github.com/your-org/pve-launcher/actions/workflows/release.yml)
+[![GitHub release](https://img.shields.io/github/v/release/your-org/pve-launcher?logo=github)](https://github.com/your-org/pve-launcher/releases/latest)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Electron](https://img.shields.io/badge/Electron-39.x-47848F?logo=electron&logoColor=white)](https://www.electronjs.org/)
 [![React](https://img.shields.io/badge/React-18.x-61DAFB?logo=react&logoColor=white)](https://reactjs.org/)
