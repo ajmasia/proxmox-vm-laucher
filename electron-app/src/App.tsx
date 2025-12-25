@@ -15,6 +15,8 @@ function App() {
   useEffect(() => {
     initTheme()
     checkForUpdates()
+    // Show window after React has rendered
+    window.electronAPI.showWindow()
   }, [initTheme, checkForUpdates])
 
   return (

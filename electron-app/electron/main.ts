@@ -20,12 +20,14 @@ function createWindow() {
     frame: false,
     transparent: true,
     backgroundColor: '#00000000',
+    show: false,
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
       preload: path.join(__dirname, 'preload.js')
     }
   })
+
 
   // Load the app
   if (process.env.VITE_DEV_SERVER_URL) {
@@ -56,6 +58,10 @@ app.on('activate', () => {
 // IPC Handlers
 
 // Window controls
+ipcMain.handle('window:show', () => {
+  mainWindow?.show()
+})
+
 ipcMain.handle('window:close', () => {
   mainWindow?.close()
 })
