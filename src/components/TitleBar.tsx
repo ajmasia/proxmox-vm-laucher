@@ -2,6 +2,7 @@ import { useAuthStore } from '../stores/authStore'
 import { useVMStore } from '../stores/vmStore'
 import { useThemeStore } from '../stores/themeStore'
 import { SunIcon, MoonIcon, ComputerIcon } from '../icons'
+import Tooltip from './Tooltip/Tooltip'
 
 interface TitleBarProps {
   title?: string
@@ -17,25 +18,20 @@ function TitleBarButton({
   onClick: () => void
   tooltip: string
   children: React.ReactNode
-  variant?: 'default' | 'danger'
+  variant?: 'default' | 'close'
 }) {
-  const baseClasses = 'flex h-6 w-6 items-center justify-center rounded-full transition-all'
+  const baseClasses = 'flex h-7 w-7 items-center justify-center rounded-lg transition-all'
   const variantClasses =
-    variant === 'danger'
-      ? 'bg-slate-600/50 text-slate-400 hover:text-white dark:bg-slate-700/50 dark:text-slate-400 dark:hover:text-white'
-      : 'bg-slate-600/50 text-slate-400 hover:text-white dark:bg-slate-700/50 dark:text-slate-400 dark:hover:text-white'
+    variant === 'close'
+      ? 'bg-slate-600/50 text-slate-400 hover:text-white dark:bg-slate-700/50'
+      : 'text-white hover:bg-slate-500/40 dark:hover:bg-slate-600/50'
 
   return (
-    <div className="group relative">
+    <Tooltip text={tooltip}>
       <button onClick={onClick} className={`${baseClasses} ${variantClasses}`}>
         {children}
       </button>
-      <div className="pointer-events-none absolute left-1/2 top-full z-50 mt-2 -translate-x-1/2 opacity-0 transition-opacity group-hover:opacity-100">
-        <div className="whitespace-nowrap rounded-lg bg-slate-800 px-3 py-1.5 text-xs font-medium text-slate-200 shadow-lg dark:bg-slate-900">
-          {tooltip}
-        </div>
-      </div>
-    </div>
+    </Tooltip>
   )
 }
 
@@ -59,11 +55,11 @@ export function TitleBar({ title = 'PVE Launcher' }: TitleBarProps) {
   const getThemeIcon = () => {
     switch (theme) {
       case 'light':
-        return <SunIcon className="h-3.5 w-3.5" />
+        return <SunIcon className="h-4 w-4" />
       case 'dark':
-        return <MoonIcon className="h-3.5 w-3.5" />
+        return <MoonIcon className="h-4 w-4" />
       case 'system':
-        return <ComputerIcon className="h-3.5 w-3.5" />
+        return <ComputerIcon className="h-4 w-4" />
     }
   }
 
@@ -90,7 +86,7 @@ export function TitleBar({ title = 'PVE Launcher' }: TitleBarProps) {
       >
         <TitleBarButton onClick={handleLogout} tooltip="Logout">
           <svg
-            className="h-3.5 w-3.5"
+            className="h-4 w-4"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -105,7 +101,7 @@ export function TitleBar({ title = 'PVE Launcher' }: TitleBarProps) {
         </TitleBarButton>
         <TitleBarButton onClick={handleRefresh} tooltip="Refresh VMs">
           <svg
-            className="h-3.5 w-3.5"
+            className="h-4 w-4"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -133,7 +129,8 @@ export function TitleBar({ title = 'PVE Launcher' }: TitleBarProps) {
         <TitleBarButton onClick={cycleTheme} tooltip={`Theme: ${getThemeLabel()}`}>
           {getThemeIcon()}
         </TitleBarButton>
-        <TitleBarButton onClick={handleClose} tooltip="Close">
+        <div className="w-1" />
+        <TitleBarButton onClick={handleClose} tooltip="Close" variant="close">
           <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor">
             <path d="M18.3 5.71a1 1 0 0 0-1.42 0L12 10.59 7.12 5.71a1 1 0 0 0-1.42 1.42L10.59 12l-4.89 4.88a1 1 0 1 0 1.42 1.42L12 13.41l4.88 4.89a1 1 0 0 0 1.42-1.42L13.41 12l4.89-4.88a1 1 0 0 0 0-1.41z" />
           </svg>
