@@ -1,10 +1,10 @@
 {
   "name": "pve-launcher",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "type": "module",
   "description": "Desktop application to manage and connect to Proxmox VMs using SPICE",
   "author": "Noah",
-  "license": "MIT",
+  "license": "GPL-3.0",
   "main": "dist-electron/main.js",
   "scripts": {
     "dev": "vite",
