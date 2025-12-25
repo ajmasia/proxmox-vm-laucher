@@ -54,7 +54,7 @@ const VMFilter = memo(function VMFilter({
         </div>
 
         {/* Tag Filter */}
-        {uniqueTags.length > 0 && uniqueTags.length <= 5 && (
+        {uniqueTags.length > 0 && uniqueTags.length <= 6 && (
           <div className="flex flex-wrap items-center gap-2">
             <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Tags:</label>
             <div className="flex flex-wrap gap-1.5">
@@ -75,8 +75,8 @@ const VMFilter = memo(function VMFilter({
           </div>
         )}
 
-        {/* Tag Filter Popover (for more than 5 tags) */}
-        {uniqueTags.length > 5 && (
+        {/* Tag Filter Popover (for more than 6 tags) */}
+        {uniqueTags.length > 6 && (
           <div className="flex items-center gap-2">
             <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Tags:</label>
             <TagFilterPopover
