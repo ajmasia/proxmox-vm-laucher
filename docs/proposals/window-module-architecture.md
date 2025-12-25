@@ -89,5 +89,9 @@ function App() {
 
 ## Estado
 
-- [ ] Pendiente de implementación
-- Fecha: 2024-12-25
+- [x] Implementado parcialmente en v0.6.0
+  - Multi-window architecture implementada
+  - Detección de estado maximizado/fullscreen
+  - Estructura modular propuesta pendiente para futuras versiones
+- Fecha propuesta: 2024-12-25
+- Última actualización: 2024-12-26

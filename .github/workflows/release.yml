@@ -104,6 +104,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Download Linux artifacts
         uses: actions/download-artifact@v4
@@ -129,55 +131,142 @@ jobs:
           # Get commits since last tag
           PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
           if [ -n "$PREV_TAG" ]; then
-            COMMITS=$(git log --pretty=format:"- %s" $PREV_TAG..HEAD --no-merges)
+            COMMITS=$(git log --pretty=format:"%s" $PREV_TAG..HEAD --no-merges)
           else
-            COMMITS=$(git log --pretty=format:"- %s" --no-merges -20)
+            COMMITS=$(git log --pretty=format:"%s" --no-merges -20)
           fi
 
-          cat > release_notes.md << RELEASE_EOF
-          ## 🚀 What's New
+          # Initialize category arrays
+          FEATURES=""
+          FIXES=""
+          REFACTORS=""
+          STYLES=""
+          DOCS=""
+          CHORES=""
+          PERFS=""
+          CI=""
+          TESTS=""
 
-          ${COMMITS}
+          # Categorize each commit
+          while IFS= read -r commit; do
+            [ -z "$commit" ] && continue
+            case "$commit" in
+              feat*) FEATURES="${FEATURES}- ${commit}"$'\n' ;;
+              fix*) FIXES="${FIXES}- ${commit}"$'\n' ;;
+              refactor*) REFACTORS="${REFACTORS}- ${commit}"$'\n' ;;
+              style*) STYLES="${STYLES}- ${commit}"$'\n' ;;
+              docs*) DOCS="${DOCS}- ${commit}"$'\n' ;;
+              chore*) CHORES="${CHORES}- ${commit}"$'\n' ;;
+              perf*) PERFS="${PERFS}- ${commit}"$'\n' ;;
+              ci*) CI="${CI}- ${commit}"$'\n' ;;
+              test*) TESTS="${TESTS}- ${commit}"$'\n' ;;
+            esac
+          done <<< "$COMMITS"
 
-          ## 📦 Downloads
+          # Build the changelog
+          {
+            echo "## What's Changed"
+            echo ""
 
-          | Platform | File | Description |
-          |----------|------|-------------|
-          | 🐧 Linux | \`pve-launcher_${VERSION}_amd64.deb\` | Debian/Ubuntu package |
-          | 🐧 Linux | \`PVE-Launcher-${VERSION}.AppImage\` | Portable AppImage |
-          | 🐧 Linux | \`pve-launcher-${VERSION}.x86_64.rpm\` | Fedora/RHEL package |
-          | 🍎 macOS | \`PVE-Launcher-${VERSION}.dmg\` | macOS disk image |
+            if [ -n "$FEATURES" ]; then
+              echo "### ✨ New Features"
+              echo ""
+              printf "%s" "$FEATURES"
+              echo ""
+            fi
 
-          ## 📋 Requirements
+            if [ -n "$FIXES" ]; then
+              echo "### 🐛 Bug Fixes"
+              echo ""
+              printf "%s" "$FIXES"
+              echo ""
+            fi
 
-          - **Linux**: \`remote-viewer\` (virt-viewer) for SPICE connections
-          - **macOS**: SPICE client for VM connections
+            if [ -n "$PERFS" ]; then
+              echo "### ⚡ Performance"
+              echo ""
+              printf "%s" "$PERFS"
+              echo ""
+            fi
 
-          ## 🛠️ Installation
+            if [ -n "$REFACTORS" ]; then
+              echo "### ♻️ Refactors"
+              echo ""
+              printf "%s" "$REFACTORS"
+              echo ""
+            fi
 
-          ### Debian/Ubuntu
-          \`\`\`bash
-          sudo dpkg -i pve-launcher_${VERSION}_amd64.deb
-          \`\`\`
+            if [ -n "$STYLES" ]; then
+              echo "### 💄 Styles"
+              echo ""
+              printf "%s" "$STYLES"
+              echo ""
+            fi
 
-          ### Fedora/RHEL
-          \`\`\`bash
-          sudo rpm -i pve-launcher-${VERSION}.x86_64.rpm
-          \`\`\`
+            if [ -n "$DOCS" ]; then
+              echo "### 📚 Documentation"
+              echo ""
+              printf "%s" "$DOCS"
+              echo ""
+            fi
 
-          ### AppImage
-          \`\`\`bash
-          chmod +x PVE-Launcher-${VERSION}.AppImage
-          ./PVE-Launcher-${VERSION}.AppImage
-          \`\`\`
+            if [ -n "$TESTS" ]; then
+              echo "### 🧪 Tests"
+              echo ""
+              printf "%s" "$TESTS"
+              echo ""
+            fi
 
-          ---
+            if [ -n "$CI" ]; then
+              echo "### 🔄 CI/CD"
+              echo ""
+              printf "%s" "$CI"
+              echo ""
+            fi
 
-          📄 **License**: GPL-3.0 | 🐛 **Issues**: [Report a bug](https://github.com/${REPO}/issues)
-          RELEASE_EOF
+            if [ -n "$CHORES" ]; then
+              echo "### 🔧 Maintenance"
+              echo ""
+              printf "%s" "$CHORES"
+              echo ""
+            fi
 
-          # Remove leading whitespace from each line
-          sed -i 's/^          //' release_notes.md
+            echo "## 📦 Downloads"
+            echo ""
+            echo "| Platform | File | Description |"
+            echo "|----------|------|-------------|"
+            echo "| 🐧 Linux | \`pve-launcher_${VERSION}_amd64.deb\` | Debian/Ubuntu package |"
+            echo "| 🐧 Linux | \`PVE-Launcher-${VERSION}.AppImage\` | Portable AppImage |"
+            echo "| 🐧 Linux | \`pve-launcher-${VERSION}.x86_64.rpm\` | Fedora/RHEL package |"
+            echo "| 🍎 macOS | \`PVE-Launcher-${VERSION}.dmg\` | macOS disk image |"
+            echo ""
+            echo "## 📋 Requirements"
+            echo ""
+            echo "- **Linux**: \`remote-viewer\` (virt-viewer) for SPICE connections"
+            echo "- **macOS**: SPICE client for VM connections"
+            echo ""
+            echo "## 🛠️ Installation"
+            echo ""
+            echo "### Debian/Ubuntu"
+            echo "\`\`\`bash"
+            echo "sudo dpkg -i pve-launcher_${VERSION}_amd64.deb"
+            echo "\`\`\`"
+            echo ""
+            echo "### Fedora/RHEL"
+            echo "\`\`\`bash"
+            echo "sudo rpm -i pve-launcher-${VERSION}.x86_64.rpm"
+            echo "\`\`\`"
+            echo ""
+            echo "### AppImage"
+            echo "\`\`\`bash"
+            echo "chmod +x PVE-Launcher-${VERSION}.AppImage"
+            echo "./PVE-Launcher-${VERSION}.AppImage"
+            echo "\`\`\`"
+            echo ""
+            echo "---"
+            echo ""
+            echo "📄 **License**: GPL-3.0 | 🐛 **Issues**: [Report a bug](https://github.com/${REPO}/issues)"
+          } > release_notes.md
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2

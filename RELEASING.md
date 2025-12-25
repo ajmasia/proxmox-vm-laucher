@@ -65,7 +65,14 @@ Once the tag is pushed, GitHub Actions will automatically:
   - Generate `.dmg` (Intel + Apple Silicon)
 - ✅ Create a GitHub release with:
   - All build artifacts attached
-  - Auto-generated release notes
+  - Auto-generated release notes categorized by commit type:
+    - ✨ New Features (`feat:`)
+    - 🐛 Bug Fixes (`fix:`)
+    - ⚡ Performance (`perf:`)
+    - ♻️ Refactors (`refactor:`)
+    - 💄 Styles (`style:`)
+    - 📚 Documentation (`docs:`)
+    - 🔧 Maintenance (`chore:`)
 
 ### 7. Finalize Release
 
