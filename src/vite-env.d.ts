@@ -1,13 +1,44 @@
 /// <reference types="vite/client" />
 
+// Session data type for handoff between windows
+interface SessionData {
+  ticket: string
+  csrfToken: string
+  username: string
+  server: {
+    id: string
+    name: string
+    host: string
+    port: number
+    username: string
+  }
+  clusterName?: string
+}
+
 interface Window {
   electronAPI: {
+    // Window controls
     showWindow: () => Promise<void>
     closeWindow: () => Promise<void>
     minimizeWindow: () => Promise<void>
     maximizeWindow: () => Promise<void>
     isMaximized: () => Promise<boolean>
     onMaximizedChange: (callback: (isMaximized: boolean) => void) => void
+
+    // Window type detection
+    getWindowType: () => Promise<'login' | 'addServer' | 'main' | 'unknown'>
+
+    // Add server window
+    openAddServerWindow: () => Promise<void>
+
+    // Session management
+    transferSession: (session: SessionData) => Promise<void>
+    requestSession: () => Promise<SessionData | null>
+    logout: () => Promise<void>
+    onSessionReceive: (callback: (session: SessionData) => void) => void
+    removeSessionListener: () => void
+
+    // Proxmox API
     authenticate: (config: {
       host: string
       port: number
@@ -63,7 +94,11 @@ interface Window {
       node: string
       vmid: number
     }) => Promise<boolean>
+
+    // App info
     getVersion: () => Promise<string>
+
+    // Shell
     openExternal: (url: string) => Promise<void>
   }
 }
