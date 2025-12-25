@@ -10,7 +10,7 @@ const VirtualMachinesLayout = () => {
       {filterSlot}
 
       {/* Main Content - Scrollable (VM list only) */}
-      <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col overflow-y-auto p-6">
+      <div className="flex w-full flex-1 flex-col overflow-y-auto p-6">
         <Outlet />
       </div>
     </div>

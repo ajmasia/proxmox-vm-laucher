@@ -29,7 +29,7 @@ const VMFilter = memo(function VMFilter({
 
   return (
     <div className="bg-white dark:bg-slate-800">
-      <div className="mx-auto w-full max-w-7xl px-6 py-4">
+      <div className="w-full px-6 py-4">
         <div className="flex min-h-[40px] flex-wrap items-center gap-4">
           {/* Status Filter */}
           <div className="flex flex-wrap items-center gap-2">
