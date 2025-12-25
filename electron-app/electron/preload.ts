@@ -3,6 +3,7 @@ import { contextBridge, ipcRenderer } from 'electron'
 // Expose protected methods to the renderer process
 contextBridge.exposeInMainWorld('electronAPI', {
   // Window controls
+  showWindow: () => ipcRenderer.invoke('window:show'),
   closeWindow: () => ipcRenderer.invoke('window:close'),
   minimizeWindow: () => ipcRenderer.invoke('window:minimize'),
   maximizeWindow: () => ipcRenderer.invoke('window:maximize'),
@@ -46,6 +47,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
 declare global {
   interface Window {
     electronAPI: {
+      showWindow: () => Promise<void>
       closeWindow: () => Promise<void>
       minimizeWindow: () => Promise<void>
       maximizeWindow: () => Promise<void>
