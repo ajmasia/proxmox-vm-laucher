@@ -1,6 +1,7 @@
 import { create } from 'zustand'
-import { invoke } from '@tauri-apps/api/core'
 import type { ProxmoxServerConfig } from '../types/proxmox'
+
+const STORAGE_KEY = 'pve-launcher-servers'
 
 interface ConfigStore {
   // State
@@ -27,8 +28,9 @@ export const useConfigStore = create<ConfigStore>((set) => ({
   // Actions
   checkConfig: async () => {
     try {
-      await invoke('load_server_config')
-      set({ hasConfig: true, configLoaded: true })
+      const serversJson = localStorage.getItem(STORAGE_KEY)
+      const servers = serversJson ? JSON.parse(serversJson) : []
+      set({ hasConfig: servers.length > 0, configLoaded: true })
     } catch {
       set({ hasConfig: false, configLoaded: true })
     }
@@ -38,11 +40,21 @@ export const useConfigStore = create<ConfigStore>((set) => ({
     set({ error: null, success: false })
 
     try {
-      await invoke('save_server_config', { config })
+      const serversJson = localStorage.getItem(STORAGE_KEY)
+      const servers = serversJson ? JSON.parse(serversJson) : []
+
+      const newServer = {
+        ...config,
+        id: config.id || crypto.randomUUID(),
+      }
+
+      servers.push(newServer)
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(servers))
+
       set({ success: true, hasConfig: true })
       console.log('Configuration saved successfully')
     } catch (err) {
-      set({ error: err as string })
+      set({ error: String(err) })
       console.error('Error saving configuration:', err)
     }
   },

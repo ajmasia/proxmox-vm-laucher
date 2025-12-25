@@ -1,7 +1,6 @@
 import { create } from 'zustand'
 import { toast } from 'sonner'
 import type { ProxmoxSession, ProxmoxServerConfig } from '../types/proxmox'
-import { invoke } from '@tauri-apps/api/core'
 
 interface AuthStore {
   // State
@@ -30,25 +29,20 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
     try {
       // Call backend to authenticate
-      const authResponse = await invoke<{ ticket: string; csrfToken: string }>('authenticate', {
-        config: {
-          host: server.host,
-          port: server.port,
-          username: server.username,
-          password,
-        },
+      const authResponse = await window.electronAPI.authenticate({
+        host: server.host,
+        port: server.port,
+        username: server.username,
+        password,
       })
 
       // Try to get cluster name (optional, don't fail if it doesn't work)
       let clusterName: string | undefined
       try {
-        clusterName = await invoke<string>('get_cluster_name', {
-          config: {
-            host: server.host,
-            port: server.port,
-            username: server.username,
-            password,
-          },
+        clusterName = await window.electronAPI.getClusterName({
+          host: server.host,
+          port: server.port,
+          ticket: authResponse.ticket,
         })
       } catch {
         // Ignore cluster name errors

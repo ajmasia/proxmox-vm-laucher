@@ -1,6 +1,8 @@
 import { create } from 'zustand'
-import { Store } from '@tauri-apps/plugin-store'
 import type { ProxmoxServerConfig } from '../types/proxmox'
+
+const STORAGE_KEY = 'pve-launcher-servers'
+const LAST_USED_KEY = 'pve-launcher-last-server'
 
 interface ServerStore {
   // State
@@ -20,13 +22,13 @@ interface ServerStore {
   getLastUsedServer: () => ProxmoxServerConfig | undefined
 }
 
-let store: Store | null = null
-
-const getStore = async () => {
-  if (!store) {
-    store = await Store.load('servers.json')
+const saveToStorage = (servers: ProxmoxServerConfig[], lastUsedServerId: string | null) => {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(servers))
+  if (lastUsedServerId) {
+    localStorage.setItem(LAST_USED_KEY, lastUsedServerId)
+  } else {
+    localStorage.removeItem(LAST_USED_KEY)
   }
-  return store
 }
 
 export const useServerStore = create<ServerStore>((set, get) => ({
@@ -35,13 +37,13 @@ export const useServerStore = create<ServerStore>((set, get) => ({
   lastUsedServerId: null,
   isLoading: false,
 
-  // Load servers from Tauri Store
+  // Load servers from localStorage
   loadServers: async () => {
     set({ isLoading: true })
     try {
-      const tauriStore = await getStore()
-      const servers = (await tauriStore.get<ProxmoxServerConfig[]>('servers')) || []
-      const lastUsedServerId = (await tauriStore.get<string>('lastUsedServerId')) || null
+      const serversJson = localStorage.getItem(STORAGE_KEY)
+      const servers = serversJson ? JSON.parse(serversJson) : []
+      const lastUsedServerId = localStorage.getItem(LAST_USED_KEY) || null
 
       set({ servers, lastUsedServerId, isLoading: false })
     } catch (error) {
@@ -59,22 +61,14 @@ export const useServerStore = create<ServerStore>((set, get) => ({
 
     const servers = [...get().servers, newServer]
     set({ servers })
-
-    // Save to Tauri Store
-    const tauriStore = await getStore()
-    await tauriStore.set('servers', servers)
-    await tauriStore.save()
+    saveToStorage(servers, get().lastUsedServerId)
   },
 
   // Update existing server
   updateServer: async (id, updates) => {
     const servers = get().servers.map((s) => (s.id === id ? { ...s, ...updates } : s))
     set({ servers })
-
-    // Save to Tauri Store
-    const tauriStore = await getStore()
-    await tauriStore.set('servers', servers)
-    await tauriStore.save()
+    saveToStorage(servers, get().lastUsedServerId)
   },
 
   // Delete server
@@ -83,22 +77,13 @@ export const useServerStore = create<ServerStore>((set, get) => ({
     const lastUsedServerId = get().lastUsedServerId === id ? null : get().lastUsedServerId
 
     set({ servers, lastUsedServerId })
-
-    // Save to Tauri Store
-    const tauriStore = await getStore()
-    await tauriStore.set('servers', servers)
-    await tauriStore.set('lastUsedServerId', lastUsedServerId)
-    await tauriStore.save()
+    saveToStorage(servers, lastUsedServerId)
   },
 
   // Set last used server
   setLastUsedServer: async (id) => {
     set({ lastUsedServerId: id })
-
-    // Save to Tauri Store
-    const tauriStore = await getStore()
-    await tauriStore.set('lastUsedServerId', id)
-    await tauriStore.save()
+    saveToStorage(get().servers, id)
   },
 
   // Get server by ID

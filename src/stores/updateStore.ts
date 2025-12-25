@@ -1,6 +1,4 @@
 import { create } from 'zustand'
-import { getVersion } from '@tauri-apps/api/app'
-import { open } from '@tauri-apps/plugin-shell'
 import { toast } from 'sonner'
 
 const GITHUB_REPO = 'ajmasia/proxmox-vm-laucher'
@@ -54,8 +52,8 @@ export const useUpdateStore = create<UpdateStore>((set, get) => ({
     set({ isChecking: true })
 
     try {
-      // Get current app version
-      const currentVersion = await getVersion()
+      // Get current app version via Electron IPC
+      const currentVersion = await window.electronAPI.getVersion()
       set({ currentVersion })
 
       // Fetch latest release from GitHub
@@ -110,7 +108,7 @@ export const useUpdateStore = create<UpdateStore>((set, get) => ({
   openReleasesPage: async () => {
     const { latestRelease } = get()
     const url = latestRelease?.url || RELEASES_URL
-    await open(url)
+    await window.electronAPI.openExternal(url)
   },
 
   // Dismiss update notification

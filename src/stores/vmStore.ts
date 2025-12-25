@@ -1,22 +1,19 @@
 import { create } from 'zustand'
-import { invoke } from '@tauri-apps/api/core'
 import { toast } from 'sonner'
 import type { ProxmoxVM } from '../types/proxmox'
 import { useAuthStore } from './authStore'
 
 interface TaskStatus {
   status: string
-  exitStatus: string
+  exitstatus?: string  // Proxmox uses lowercase
 }
 
-const TASK_POLL_INTERVAL = 2000 // Poll every 2 seconds
-const TASK_POLL_TIMEOUT = 120000 // Timeout after 2 minutes
+const TASK_POLL_INTERVAL = 2000
+const TASK_POLL_TIMEOUT = 120000
 
-// Use Record instead of Map for better React/Zustand compatibility
 type VMRecord = Record<number, ProxmoxVM>
 
 interface VMStore {
-  // State
   vms: VMRecord
   loadingVMs: boolean
   startingVMs: Set<number>
@@ -25,7 +22,6 @@ interface VMStore {
   resumingVMs: Set<number>
   error: string | null
 
-  // Actions
   setError: (error: string | null) => void
   loadVMs: () => Promise<void>
   refreshSingleVM: (vmid: number) => Promise<void>
@@ -35,13 +31,9 @@ interface VMStore {
   connectVM: (vm: ProxmoxVM) => Promise<void>
 }
 
-// Helper function to wait for a delay
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
-
-// Minimum loading time for better UX (shows skeleton briefly)
 const MIN_LOADING_TIME = 600
 
-// Helper function to poll task status until completion
 async function pollTaskStatus(
   node: string,
   upid: string,
@@ -58,7 +50,6 @@ async function pollTaskStatus(
 
   const startTime = Date.now()
 
-  // Phase 1: Wait for task to complete
   while (true) {
     if (Date.now() - startTime > TASK_POLL_TIMEOUT) {
       onError('Task timed out')
@@ -66,18 +57,17 @@ async function pollTaskStatus(
     }
 
     try {
-      const status = await invoke<TaskStatus>('get_task_status_with_session', {
+      const status = await window.electronAPI.getTaskStatus({
         host: session.server.host,
         port: session.server.port,
-        username: session.username,
-        password: session.ticket,
+        ticket: session.ticket,
         node,
         upid,
-      })
+      }) as TaskStatus
 
       if (status.status === 'stopped') {
-        if (status.exitStatus !== 'OK') {
-          onError(`Task failed: ${status.exitStatus}`)
+        if (status.exitstatus && status.exitstatus !== 'OK') {
+          onError(`Task failed: ${status.exitstatus}`)
           return
         }
         break
@@ -90,19 +80,17 @@ async function pollTaskStatus(
     }
   }
 
-  // Phase 2: Poll until VM status changes from original
-  const stateChangeTimeout = 15000 // 15 seconds max wait for state change
+  const stateChangeTimeout = 15000
   const stateChangeStart = Date.now()
 
   while (Date.now() - stateChangeStart < stateChangeTimeout) {
     try {
-      const vmList = await invoke<ProxmoxVM[]>('list_vms_with_session', {
+      const vmList = await window.electronAPI.listVMs({
         host: session.server.host,
         port: session.server.port,
-        username: session.username,
-        password: session.ticket,
+        ticket: session.ticket,
       })
-      const vm = vmList.find((v) => v.vmid === vmid)
+      const vm = vmList.find((v: ProxmoxVM) => v.vmid === vmid)
 
       if (vm && vm.status !== originalStatus) {
         await onComplete()
@@ -115,11 +103,9 @@ async function pollTaskStatus(
     }
   }
 
-  // Timeout waiting for state change, call onComplete anyway
   await onComplete()
 }
 
-// Helper to convert VM array to Record
 const arrayToRecord = (vmList: ProxmoxVM[]): VMRecord => {
   const record: VMRecord = {}
   for (const vm of vmList) {
@@ -129,7 +115,6 @@ const arrayToRecord = (vmList: ProxmoxVM[]): VMRecord => {
 }
 
 export const useVMStore = create<VMStore>((set, get) => ({
-  // Initial state
   vms: {},
   loadingVMs: false,
   startingVMs: new Set(),
@@ -138,7 +123,6 @@ export const useVMStore = create<VMStore>((set, get) => ({
   resumingVMs: new Set(),
   error: null,
 
-  // Actions
   setError: (error) => set({ error }),
 
   loadVMs: async () => {
@@ -150,13 +134,11 @@ export const useVMStore = create<VMStore>((set, get) => ({
         throw new Error('No active session')
       }
 
-      // Load VMs with minimum display time for skeleton
       const [vmList] = await Promise.all([
-        invoke<ProxmoxVM[]>('list_vms_with_session', {
+        window.electronAPI.listVMs({
           host: session.server.host,
           port: session.server.port,
-          username: session.username,
-          password: session.ticket,
+          ticket: session.ticket,
         }),
         delay(MIN_LOADING_TIME),
       ])
@@ -177,13 +159,12 @@ export const useVMStore = create<VMStore>((set, get) => ({
         throw new Error('No active session')
       }
 
-      const vmList = await invoke<ProxmoxVM[]>('list_vms_with_session', {
+      const vmList = await window.electronAPI.listVMs({
         host: session.server.host,
         port: session.server.port,
-        username: session.username,
-        password: session.ticket,
+        ticket: session.ticket,
       })
-      const updatedVM = vmList.find((vm) => vm.vmid === vmid)
+      const updatedVM = vmList.find((vm: ProxmoxVM) => vm.vmid === vmid)
 
       if (updatedVM) {
         set((state) => ({
@@ -204,99 +185,55 @@ export const useVMStore = create<VMStore>((set, get) => ({
       return
     }
 
-    // If VM is paused, use resume instead of start
+    // If VM is paused, resume instead of start
     if (vm.status === 'paused') {
-      set((state) => ({
-        resumingVMs: new Set(state.resumingVMs).add(vm.vmid),
-      }))
+      return get().suspendVM(vm)
+    }
 
-      try {
-        const upid = await invoke<string>('resume_vm_with_session', {
-          host: session.server.host,
-          port: session.server.port,
-          username: session.username,
-          password: session.ticket,
-          node: vm.node,
-          vmid: vm.vmid,
-        })
+    set((state) => ({
+      startingVMs: new Set(state.startingVMs).add(vm.vmid),
+    }))
 
-        await pollTaskStatus(
-          vm.node,
-          upid,
-          vm.vmid,
-          vm.status,
-          async () => {
-            await get().refreshSingleVM(vm.vmid)
-            set((state) => {
-              const newSet = new Set(state.resumingVMs)
-              newSet.delete(vm.vmid)
-              return { resumingVMs: newSet }
-            })
-            toast.success(`VM "${vm.name}" resumed`)
-          },
-          (error) => {
-            toast.error(`Failed to resume VM: ${error}`)
-            set((state) => {
-              const newSet = new Set(state.resumingVMs)
-              newSet.delete(vm.vmid)
-              return { resumingVMs: newSet }
-            })
-          }
-        )
-      } catch (err) {
-        toast.error(`Failed to resume VM: ${err}`)
-        set((state) => {
-          const newSet = new Set(state.resumingVMs)
-          newSet.delete(vm.vmid)
-          return { resumingVMs: newSet }
-        })
-      }
-    } else {
-      set((state) => ({
-        startingVMs: new Set(state.startingVMs).add(vm.vmid),
-      }))
+    try {
+      const upid = await window.electronAPI.startVM({
+        host: session.server.host,
+        port: session.server.port,
+        ticket: session.ticket,
+        csrf: session.csrfToken,
+        node: vm.node,
+        vmid: vm.vmid,
+      })
 
-      try {
-        const upid = await invoke<string>('start_vm_with_session', {
-          host: session.server.host,
-          port: session.server.port,
-          username: session.username,
-          password: session.ticket,
-          node: vm.node,
-          vmid: vm.vmid,
-        })
-
-        await pollTaskStatus(
-          vm.node,
-          upid,
-          vm.vmid,
-          vm.status,
-          async () => {
-            await get().refreshSingleVM(vm.vmid)
-            set((state) => {
-              const newSet = new Set(state.startingVMs)
-              newSet.delete(vm.vmid)
-              return { startingVMs: newSet }
-            })
-            toast.success(`VM "${vm.name}" started`)
-          },
-          (error) => {
-            toast.error(`Failed to start VM: ${error}`)
-            set((state) => {
-              const newSet = new Set(state.startingVMs)
-              newSet.delete(vm.vmid)
-              return { startingVMs: newSet }
-            })
-          }
-        )
-      } catch (err) {
-        toast.error(`Failed to start VM: ${err}`)
-        set((state) => {
-          const newSet = new Set(state.startingVMs)
-          newSet.delete(vm.vmid)
-          return { startingVMs: newSet }
-        })
-      }
+      await pollTaskStatus(
+        vm.node,
+        upid,
+        vm.vmid,
+        vm.status,
+        async () => {
+          await get().refreshSingleVM(vm.vmid)
+          set((state) => {
+            const newSet = new Set(state.startingVMs)
+            newSet.delete(vm.vmid)
+            return { startingVMs: newSet }
+          })
+          toast.success(`VM "${vm.name}" started`)
+        },
+        (error) => {
+          toast.error(`Failed to start VM: ${error}`)
+          set((state) => {
+            const newSet = new Set(state.startingVMs)
+            newSet.delete(vm.vmid)
+            return { startingVMs: newSet }
+          })
+        }
+      )
+    } catch (err) {
+      toast.error(`Failed to start VM: ${err}`)
+      set((state) => {
+        const newSet = new Set(state.startingVMs)
+        newSet.delete(vm.vmid)
+        return { startingVMs: newSet }
+      })
     }
   },
 
@@ -314,11 +251,11 @@ export const useVMStore = create<VMStore>((set, get) => ({
     }))
 
     try {
-      const upid = await invoke<string>('stop_vm_with_session', {
+      const upid = await window.electronAPI.stopVM({
         host: session.server.host,
         port: session.server.port,
-        username: session.username,
-        password: session.ticket,
+        ticket: session.ticket,
+        csrf: session.csrfToken,
         node: vm.node,
         vmid: vm.vmid,
       })
@@ -365,16 +302,23 @@ export const useVMStore = create<VMStore>((set, get) => ({
       return
     }
 
+    // If VM is paused, resume it; otherwise suspend it
+    const isPaused = vm.status === 'paused'
+    const actionSet = isPaused ? 'resumingVMs' : 'suspendingVMs'
+    const apiCall = isPaused ? window.electronAPI.resumeVM : window.electronAPI.suspendVM
+    const actionName = isPaused ? 'resume' : 'suspend'
+    const pastTense = isPaused ? 'resumed' : 'suspended'
+
     set((state) => ({
-      suspendingVMs: new Set(state.suspendingVMs).add(vm.vmid),
+      [actionSet]: new Set(state[actionSet as keyof typeof state] as Set<number>).add(vm.vmid),
     }))
 
     try {
-      const upid = await invoke<string>('suspend_vm_with_session', {
+      const upid = await apiCall({
         host: session.server.host,
         port: session.server.port,
-        username: session.username,
-        password: session.ticket,
+        ticket: session.ticket,
+        csrf: session.csrfToken,
         node: vm.node,
         vmid: vm.vmid,
       })
@@ -387,27 +331,27 @@ export const useVMStore = create<VMStore>((set, get) => ({
         async () => {
           await get().refreshSingleVM(vm.vmid)
           set((state) => {
-            const newSet = new Set(state.suspendingVMs)
+            const newSet = new Set(state[actionSet as keyof typeof state] as Set<number>)
             newSet.delete(vm.vmid)
-            return { suspendingVMs: newSet }
+            return { [actionSet]: newSet }
           })
-          toast.success(`VM "${vm.name}" paused`)
+          toast.success(`VM "${vm.name}" ${pastTense}`)
         },
         (error) => {
-          toast.error(`Failed to pause VM: ${error}`)
+          toast.error(`Failed to ${actionName} VM: ${error}`)
           set((state) => {
-            const newSet = new Set(state.suspendingVMs)
+            const newSet = new Set(state[actionSet as keyof typeof state] as Set<number>)
             newSet.delete(vm.vmid)
-            return { suspendingVMs: newSet }
+            return { [actionSet]: newSet }
           })
         }
       )
     } catch (err) {
-      toast.error(`Failed to pause VM: ${err}`)
+      toast.error(`Failed to ${actionName} VM: ${err}`)
       set((state) => {
-        const newSet = new Set(state.suspendingVMs)
+        const newSet = new Set(state[actionSet as keyof typeof state] as Set<number>)
         newSet.delete(vm.vmid)
-        return { suspendingVMs: newSet }
+        return { [actionSet]: newSet }
       })
     }
   },
@@ -422,11 +366,11 @@ export const useVMStore = create<VMStore>((set, get) => ({
         return
       }
 
-      await invoke('connect_to_proxmox_with_session', {
+      await window.electronAPI.connectSPICE({
         host: session.server.host,
         port: session.server.port,
-        username: session.username,
-        password: session.ticket,
+        ticket: session.ticket,
+        csrf: session.csrfToken,
         node: vm.node,
         vmid: vm.vmid,
       })

@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
-import { getCurrentWindow } from '@tauri-apps/api/window'
 import { Toaster } from 'sonner'
+import { TitleBar } from './components/TitleBar'
 import { routes } from './config/routes'
 import { useThemeStore } from './stores/themeStore'
 import { useUpdateStore } from './stores/updateStore'
@@ -9,71 +9,29 @@ import { useUpdateStore } from './stores/updateStore'
 const router = createBrowserRouter(routes)
 
 function App() {
-  const [isReady, setIsReady] = useState(false)
-  const initTheme = useThemeStore((state) => state.initTheme)
-  const resolvedTheme = useThemeStore((state) => state.resolvedTheme)
-  const checkForUpdates = useUpdateStore((state) => state.checkForUpdates)
+  const { initTheme } = useThemeStore()
+  const { checkForUpdates } = useUpdateStore()
 
   useEffect(() => {
-    let updateTimeout: ReturnType<typeof setTimeout>
-
-    async function init() {
-      try {
-        await initTheme()
-      } catch (e) {
-        console.error('Theme init error:', e)
-      }
-
-      // Always show window, even if theme init fails
-      try {
-        const window = getCurrentWindow()
-        await window.show()
-        await window.setFocus()
-      } catch (e) {
-        console.error('Window show error:', e)
-      }
-
-      setIsReady(true)
-
-      // Check for updates after app is ready (non-blocking)
-      updateTimeout = setTimeout(() => {
-        checkForUpdates()
-      }, 2000)
-    }
-    init()
-
-    return () => {
-      clearTimeout(updateTimeout)
-    }
+    initTheme()
+    checkForUpdates()
+    // Show window after React has rendered
+    window.electronAPI.showWindow()
   }, [initTheme, checkForUpdates])
 
-  if (!isReady) return null
-
   return (
-    <>
+    <div className="flex h-screen flex-col overflow-hidden rounded-xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-900">
+      <TitleBar />
+      <main className="flex-1 overflow-hidden">
+        <RouterProvider router={router} />
+      </main>
       <Toaster
         position="bottom-right"
-        theme={resolvedTheme}
-        closeButton
-        duration={4000}
-        offset="68px"
-        gap={8}
-        style={{ right: '24px' }}
         toastOptions={{
-          classNames: {
-            toast: 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 group',
-            title: 'text-slate-900 dark:text-slate-100',
-            description: 'text-slate-600 dark:text-slate-400',
-            success: 'bg-emerald-50 dark:bg-emerald-900/30 border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300',
-            error: 'bg-red-50 dark:bg-red-900/30 border-red-200 dark:border-red-800 text-red-800 dark:text-red-300',
-            warning: 'bg-amber-50 dark:bg-amber-900/30 border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-300',
-            info: 'bg-blue-50 dark:bg-blue-900/30 border-blue-200 dark:border-blue-800 text-blue-800 dark:text-blue-300',
-            closeButton: '!right-2 !top-2 !left-auto !transform-none !border-0 !bg-transparent hover:!bg-slate-200 dark:hover:!bg-slate-700 !text-slate-500 dark:!text-slate-400',
-          },
+          className: 'dark:bg-slate-800 dark:text-slate-100',
         }}
       />
-      <RouterProvider router={router} />
-    </>
+    </div>
   )
 }
 

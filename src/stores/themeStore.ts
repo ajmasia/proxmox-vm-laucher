@@ -1,5 +1,6 @@
 import { create } from 'zustand'
-import { Store } from '@tauri-apps/plugin-store'
+
+const THEME_KEY = 'pve-launcher-theme'
 
 type Theme = 'light' | 'dark' | 'system'
 
@@ -12,15 +13,6 @@ interface ThemeStore {
   initTheme: () => Promise<void>
   setTheme: (theme: Theme) => Promise<void>
   cycleTheme: () => Promise<void>
-}
-
-let store: Store | null = null
-
-const getStore = async () => {
-  if (!store) {
-    store = await Store.load('settings.json')
-  }
-  return store
 }
 
 // Get system preference
@@ -56,8 +48,7 @@ export const useThemeStore = create<ThemeStore>((set, get) => ({
   // Initialize theme from storage or system preference
   initTheme: async () => {
     try {
-      const tauriStore = await getStore()
-      const savedTheme = await tauriStore.get<Theme>('theme')
+      const savedTheme = localStorage.getItem(THEME_KEY) as Theme | null
       const theme = savedTheme || 'system'
       const resolvedTheme = resolveTheme(theme)
 
@@ -90,16 +81,8 @@ export const useThemeStore = create<ThemeStore>((set, get) => ({
     applyTheme(resolvedTheme)
     set({ theme, resolvedTheme })
 
-    // Save to localStorage for instant access on next load
-    localStorage.setItem('theme', theme)
-
-    try {
-      const tauriStore = await getStore()
-      await tauriStore.set('theme', theme)
-      await tauriStore.save()
-    } catch (error) {
-      console.error('Failed to save theme:', error)
-    }
+    // Save to localStorage
+    localStorage.setItem(THEME_KEY, theme)
   },
 
   // Cycle through themes: light -> dark -> system
