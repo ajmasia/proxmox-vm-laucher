@@ -88,11 +88,74 @@ jobs:
           name: macos-builds
           path: release/
 
+      - name: Get version from tag
+        id: version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: Generate release notes
+        run: |
+          VERSION="${{ steps.version.outputs.VERSION }}"
+          REPO="${{ github.repository }}"
+
+          # Get commits since last tag
+          PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+          if [ -n "$PREV_TAG" ]; then
+            COMMITS=$(git log --pretty=format:"- %s" $PREV_TAG..HEAD --no-merges)
+          else
+            COMMITS=$(git log --pretty=format:"- %s" --no-merges -20)
+          fi
+
+          cat > release_notes.md << RELEASE_EOF
+          ## 🚀 What's New
+
+          ${COMMITS}
+
+          ## 📦 Downloads
+
+          | Platform | File | Description |
+          |----------|------|-------------|
+          | 🐧 Linux | \`pve-launcher_${VERSION}_amd64.deb\` | Debian/Ubuntu package |
+          | 🐧 Linux | \`PVE-Launcher-${VERSION}.AppImage\` | Portable AppImage |
+          | 🐧 Linux | \`pve-launcher-${VERSION}.x86_64.rpm\` | Fedora/RHEL package |
+          | 🍎 macOS | \`PVE-Launcher-${VERSION}.dmg\` | macOS disk image |
+
+          ## 📋 Requirements
+
+          - **Linux**: \`remote-viewer\` (virt-viewer) for SPICE connections
+          - **macOS**: SPICE client for VM connections
+
+          ## 🛠️ Installation
+
+          ### Debian/Ubuntu
+          \`\`\`bash
+          sudo dpkg -i pve-launcher_${VERSION}_amd64.deb
+          \`\`\`
+
+          ### Fedora/RHEL
+          \`\`\`bash
+          sudo rpm -i pve-launcher-${VERSION}.x86_64.rpm
+          \`\`\`
+
+          ### AppImage
+          \`\`\`bash
+          chmod +x PVE-Launcher-${VERSION}.AppImage
+          ./PVE-Launcher-${VERSION}.AppImage
+          \`\`\`
+
+          ---
+
+          📄 **License**: GPL-3.0 | 🐛 **Issues**: [Report a bug](https://github.com/${REPO}/issues)
+          RELEASE_EOF
+
+          # Remove leading whitespace from each line
+          sed -i 's/^          //' release_notes.md
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
+          name: "🖥️ PVE Launcher v${{ steps.version.outputs.VERSION }}"
           files: release/*
-          generate_release_notes: true
+          body_path: release_notes.md
           draft: false
           prerelease: ${{ contains(github.ref, '-') }}
         env:
