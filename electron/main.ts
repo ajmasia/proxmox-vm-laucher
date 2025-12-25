@@ -9,18 +9,43 @@ const insecureAgent = new https.Agent({
   rejectUnauthorized: false,
 })
 
+// Window size constants
+const LOGIN_SIZE = { width: 450, height: 700 }
+const ADD_SERVER_SIZE = { width: 450, height: 600 }
+const MAIN_SIZE = { width: 1200, height: 860 }
+
+// Window references
+let loginWindow: BrowserWindow | null = null
+let addServerWindow: BrowserWindow | null = null
 let mainWindow: BrowserWindow | null = null
 
-function createWindow() {
-  mainWindow = new BrowserWindow({
-    width: 1200,
-    height: 860,
-    minWidth: 1200,
-    minHeight: 860,
+// Session data for handoff between windows
+interface SessionData {
+  ticket: string
+  csrfToken: string
+  username: string
+  server: {
+    id: string
+    name: string
+    host: string
+    port: number
+    username: string
+  }
+  clusterName?: string
+}
+let pendingSession: SessionData | null = null
+
+// Create login window
+function createLoginWindow(): void {
+  loginWindow = new BrowserWindow({
+    width: LOGIN_SIZE.width,
+    height: LOGIN_SIZE.height,
     frame: false,
     transparent: true,
     hasShadow: false,
+    resizable: false,
     show: false,
+    center: true,
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
@@ -28,12 +53,72 @@ function createWindow() {
     }
   })
 
-
-  // Load the app
+  // Load login route (root path)
   if (process.env.VITE_DEV_SERVER_URL) {
-    mainWindow.loadURL(process.env.VITE_DEV_SERVER_URL)
+    loginWindow.loadURL(`${process.env.VITE_DEV_SERVER_URL}#/`)
   } else {
-    mainWindow.loadFile(path.join(__dirname, 'index.html'))
+    loginWindow.loadFile(path.join(__dirname, 'index.html'), { hash: '/' })
+  }
+
+  loginWindow.on('closed', () => {
+    loginWindow = null
+  })
+}
+
+// Create add server window
+function createAddServerWindow(): void {
+  addServerWindow = new BrowserWindow({
+    width: ADD_SERVER_SIZE.width,
+    height: ADD_SERVER_SIZE.height,
+    frame: false,
+    transparent: true,
+    hasShadow: false,
+    resizable: false,
+    show: false,
+    center: true,
+    webPreferences: {
+      nodeIntegration: false,
+      contextIsolation: true,
+      preload: path.join(__dirname, 'preload.js')
+    }
+  })
+
+  // Load add server route
+  if (process.env.VITE_DEV_SERVER_URL) {
+    addServerWindow.loadURL(`${process.env.VITE_DEV_SERVER_URL}#/add-server`)
+  } else {
+    addServerWindow.loadFile(path.join(__dirname, 'index.html'), { hash: '/add-server' })
+  }
+
+  addServerWindow.on('closed', () => {
+    addServerWindow = null
+  })
+}
+
+// Create main application window
+function createMainWindow(): void {
+  mainWindow = new BrowserWindow({
+    width: MAIN_SIZE.width,
+    height: MAIN_SIZE.height,
+    minWidth: MAIN_SIZE.width,
+    minHeight: MAIN_SIZE.height,
+    frame: false,
+    transparent: true,
+    hasShadow: false,
+    show: false,
+    center: true,
+    webPreferences: {
+      nodeIntegration: false,
+      contextIsolation: true,
+      preload: path.join(__dirname, 'preload.js')
+    }
+  })
+
+  // Load main app route
+  if (process.env.VITE_DEV_SERVER_URL) {
+    mainWindow.loadURL(`${process.env.VITE_DEV_SERVER_URL}#/virtual-machines`)
+  } else {
+    mainWindow.loadFile(path.join(__dirname, 'index.html'), { hash: '/virtual-machines' })
   }
 
   mainWindow.on('closed', () => {
@@ -53,7 +138,10 @@ function createWindow() {
   mainWindow.on('leave-full-screen', notifyWindowState)
 }
 
-app.whenReady().then(createWindow)
+// App lifecycle
+app.whenReady().then(() => {
+  createLoginWindow()
+})
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
@@ -63,37 +151,89 @@ app.on('window-all-closed', () => {
 
 app.on('activate', () => {
   if (BrowserWindow.getAllWindows().length === 0) {
-    createWindow()
+    createLoginWindow()
   }
 })
 
 // IPC Handlers
 
-// Window controls
-ipcMain.handle('window:show', () => {
-  mainWindow?.show()
+// Window type detection
+ipcMain.handle('window:getType', (event) => {
+  const win = BrowserWindow.fromWebContents(event.sender)
+  if (win === loginWindow) return 'login'
+  if (win === addServerWindow) return 'addServer'
+  if (win === mainWindow) return 'main'
+  return 'unknown'
 })
 
-ipcMain.handle('window:close', () => {
-  mainWindow?.close()
+// Window controls (work with any window)
+ipcMain.handle('window:show', (event) => {
+  const win = BrowserWindow.fromWebContents(event.sender)
+  win?.show()
 })
 
-ipcMain.handle('window:minimize', () => {
-  mainWindow?.minimize()
+ipcMain.handle('window:close', (event) => {
+  const win = BrowserWindow.fromWebContents(event.sender)
+  win?.close()
 })
 
-ipcMain.handle('window:maximize', () => {
-  if (mainWindow?.isMaximized()) {
-    mainWindow.unmaximize()
+ipcMain.handle('window:minimize', (event) => {
+  const win = BrowserWindow.fromWebContents(event.sender)
+  win?.minimize()
+})
+
+ipcMain.handle('window:maximize', (event) => {
+  const win = BrowserWindow.fromWebContents(event.sender)
+  if (!win) return
+  if (win.isMaximized()) {
+    win.unmaximize()
   } else {
-    mainWindow?.maximize()
+    win.maximize()
   }
 })
 
-ipcMain.handle('window:isMaximized', () => {
-  const isFullScreen = mainWindow?.isFullScreen() ?? false
-  const isMaximized = mainWindow?.isMaximized() ?? false
-  return isFullScreen || isMaximized
+ipcMain.handle('window:isMaximized', (event) => {
+  const win = BrowserWindow.fromWebContents(event.sender)
+  if (!win) return false
+  return win.isFullScreen() || win.isMaximized()
+})
+
+// Add server window management
+ipcMain.handle('window:openAddServer', () => {
+  if (addServerWindow) {
+    addServerWindow.focus()
+    return
+  }
+  createAddServerWindow()
+})
+
+// Logout - close main window and reopen login
+ipcMain.handle('session:logout', () => {
+  mainWindow?.close()
+  createLoginWindow()
+})
+
+// Session management
+ipcMain.handle('session:transfer', async (_, session: SessionData) => {
+  pendingSession = session
+
+  // Create main window
+  createMainWindow()
+
+  // Wait for main window to be ready, then show and close login
+  mainWindow?.webContents.once('did-finish-load', () => {
+    // Don't send session:receive here - let requestSession handle it
+    // This avoids race condition with listener setup
+    mainWindow?.show()
+    loginWindow?.close()
+  })
+})
+
+ipcMain.handle('session:request', () => {
+  // Return and clear pending session
+  const session = pendingSession
+  pendingSession = null
+  return session
 })
 
 // Proxmox API helper using Node.js https module
