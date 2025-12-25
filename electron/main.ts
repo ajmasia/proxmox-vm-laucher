@@ -20,6 +20,7 @@ function createWindow() {
     frame: false,
     transparent: true,
     backgroundColor: '#00000000',
+    hasShadow: false,
     show: false,
     webPreferences: {
       nodeIntegration: false,
@@ -33,7 +34,7 @@ function createWindow() {
   if (process.env.VITE_DEV_SERVER_URL) {
     mainWindow.loadURL(process.env.VITE_DEV_SERVER_URL)
   } else {
-    mainWindow.loadFile(path.join(__dirname, '../dist/index.html'))
+    mainWindow.loadFile(path.join(__dirname, 'index.html'))
   }
 
   mainWindow.on('closed', () => {

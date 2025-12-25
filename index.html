@@ -3,14 +3,11 @@
   <head>
     <meta charset="UTF-8" />
     <script>
-      // Apply theme immediately before anything renders to prevent flash
+      // Apply theme class immediately before anything renders
       (function() {
         var theme = localStorage.getItem('theme') || 'system';
         var isDark = theme === 'dark' ||
           (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-        var bg = isDark ? 'rgb(15,23,42)' : 'rgb(248,250,252)';
-        document.documentElement.style.backgroundColor = bg;
-        document.body && (document.body.style.backgroundColor = bg);
         if (isDark) {
           document.documentElement.classList.add('dark');
         }
@@ -18,10 +15,7 @@
     </script>
     <style>
       html, body {
-        background-color: rgb(248, 250, 252);
-      }
-      html.dark, html.dark body {
-        background-color: rgb(15, 23, 42);
+        background: transparent !important;
       }
     </style>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
