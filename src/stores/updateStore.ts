@@ -57,14 +57,11 @@ export const useUpdateStore = create<UpdateStore>((set, get) => ({
       set({ currentVersion })
 
       // Fetch latest release from GitHub
-      const response = await fetch(
-        `https://api.github.com/repos/${GITHUB_REPO}/releases/latest`,
-        {
-          headers: {
-            Accept: 'application/vnd.github.v3+json',
-          },
-        }
-      )
+      const response = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/releases/latest`, {
+        headers: {
+          Accept: 'application/vnd.github.v3+json',
+        },
+      })
 
       if (!response.ok) {
         throw new Error(`Failed to fetch release info: ${response.status}`)

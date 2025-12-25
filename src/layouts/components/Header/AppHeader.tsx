@@ -31,7 +31,9 @@ const AppHeader = ({ onRefresh, isLoading }: AppHeaderProps) => {
           <div className="flex items-center gap-2">
             <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Proxmox</h2>
             <span className="text-slate-400 dark:text-slate-500">•</span>
-            <h2 className="text-lg font-medium text-slate-600 dark:text-slate-300">Virtual Machines</h2>
+            <h2 className="text-lg font-medium text-slate-600 dark:text-slate-300">
+              Virtual Machines
+            </h2>
           </div>
         </div>
 

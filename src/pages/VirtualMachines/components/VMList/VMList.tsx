@@ -17,14 +17,14 @@ interface VMListProps {
 
 const LoadingSkeleton = memo(function LoadingSkeleton() {
   return (
-    <div className="space-y-3 animate-fade-in">
+    <div className="animate-fade-in space-y-3">
       {[0, 1, 2].map((i) => (
         <div
           key={i}
           className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-black/5 dark:bg-slate-800 dark:ring-white/10"
         >
-          <div className="h-5 w-1/3 rounded shimmer"></div>
-          <div className="mt-3 h-4 w-1/2 rounded shimmer"></div>
+          <div className="shimmer h-5 w-1/3 rounded"></div>
+          <div className="shimmer mt-3 h-4 w-1/2 rounded"></div>
         </div>
       ))}
     </div>

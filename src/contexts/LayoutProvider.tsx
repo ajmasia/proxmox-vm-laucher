@@ -36,7 +36,16 @@ export const LayoutProvider = ({ children }: { children: ReactNode }) => {
       filterSlot,
       setFilterSlot,
     }),
-    [onRefresh, isLoading, filterProps, filterSlot, setRefreshHandler, setIsLoading, setFilterProps, setFilterSlot]
+    [
+      onRefresh,
+      isLoading,
+      filterProps,
+      filterSlot,
+      setRefreshHandler,
+      setIsLoading,
+      setFilterProps,
+      setFilterSlot,
+    ]
   )
 
   return <LayoutContext.Provider value={value}>{children}</LayoutContext.Provider>

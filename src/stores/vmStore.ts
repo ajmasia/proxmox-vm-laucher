@@ -5,7 +5,7 @@ import { useAuthStore } from './authStore'
 
 interface TaskStatus {
   status: string
-  exitstatus?: string  // Proxmox uses lowercase
+  exitstatus?: string // Proxmox uses lowercase
 }
 
 const TASK_POLL_INTERVAL = 2000
@@ -57,13 +57,13 @@ async function pollTaskStatus(
     }
 
     try {
-      const status = await window.electronAPI.getTaskStatus({
+      const status = (await window.electronAPI.getTaskStatus({
         host: session.server.host,
         port: session.server.port,
         ticket: session.ticket,
         node,
         upid,
-      }) as TaskStatus
+      })) as TaskStatus
 
       if (status.status === 'stopped') {
         if (status.exitstatus && status.exitstatus !== 'OK') {

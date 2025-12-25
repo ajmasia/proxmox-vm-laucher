@@ -56,11 +56,13 @@ const TagFilterPopover = ({
 
       {/* Popover */}
       {isOpen && (
-        <div className="absolute top-full left-0 z-50 mt-2 w-64 rounded-lg bg-white shadow-lg ring-1 ring-black/5 dark:bg-slate-700 dark:ring-white/10">
+        <div className="absolute left-0 top-full z-50 mt-2 w-64 rounded-lg bg-white shadow-lg ring-1 ring-black/5 dark:bg-slate-700 dark:ring-white/10">
           <div className="p-3">
             {/* Header */}
             <div className="mb-2 flex items-center justify-between">
-              <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">Filter by Tags</span>
+              <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+                Filter by Tags
+              </span>
               {selectedTags.length > 0 && (
                 <button
                   onClick={onClearTags}

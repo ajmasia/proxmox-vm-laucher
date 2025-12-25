@@ -23,7 +23,10 @@ const PasswordForm = ({ server, isLoading, error, onSubmit }: PasswordFormProps)
     <form onSubmit={handleSubmit} className="space-y-4">
       {/* Password Input */}
       <div>
-        <label htmlFor="password" className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">
+        <label
+          htmlFor="password"
+          className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300"
+        >
           Password for {server.name}
         </label>
         <div className="relative">

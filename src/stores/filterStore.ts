@@ -42,8 +42,8 @@ export const getFilteredVMs = (
       selectedTags.length === 0 ||
       (vm.tags &&
         selectedTags.some((selectedTag) =>
-          vm.tags!
-            .split(';')
+          vm
+            .tags!.split(';')
             .map((tag) => tag.trim())
             .includes(selectedTag)
         ))

@@ -1,13 +1,6 @@
 import { memo, useMemo } from 'react'
 import type { ProxmoxVM } from '../../../../types/proxmox'
-import {
-  PlayIcon,
-  StopIcon,
-  PauseIcon,
-  ResumeIcon,
-  MonitorIcon,
-  PlugIcon,
-} from '../../../../icons'
+import { PlayIcon, StopIcon, PauseIcon, ResumeIcon, MonitorIcon, PlugIcon } from '../../../../icons'
 import { formatBytes, getStatusColor, getStatusDot } from './utils'
 
 interface VMItemProps {
@@ -54,12 +47,14 @@ const VMItem = memo(
       >
         <div className="flex items-center gap-2 p-4">
           {/* VM Icon and Name */}
-          <div className="flex items-center gap-3 flex-1 min-w-0">
+          <div className="flex min-w-0 flex-1 items-center gap-3">
             <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-400">
               <MonitorIcon className="h-5 w-5" />
             </div>
             <div className="min-w-0 flex-1">
-              <div className="font-medium text-slate-900 truncate dark:text-slate-100">{vm.name}</div>
+              <div className="truncate font-medium text-slate-900 dark:text-slate-100">
+                {vm.name}
+              </div>
               <div className="mt-1 flex flex-wrap items-center gap-1.5">
                 {/* Node Badge */}
                 <span className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700 ring-1 ring-slate-600/10 dark:bg-slate-700 dark:text-slate-300 dark:ring-slate-500/20">
@@ -108,7 +103,7 @@ const VMItem = memo(
           </div>
 
           {/* Status */}
-          <div className="flex-shrink-0 min-w-[90px] flex justify-center">
+          <div className="flex min-w-[90px] flex-shrink-0 justify-center">
             <span
               className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium ${getStatusColor(displayStatus)}`}
             >
@@ -118,7 +113,7 @@ const VMItem = memo(
           </div>
 
           {/* Resources */}
-          <div className="flex-shrink-0 text-right min-w-[110px]">
+          <div className="min-w-[110px] flex-shrink-0 text-right">
             <div className="text-sm text-slate-900 dark:text-slate-100">{vm.cpus || 0} vCPU</div>
             <div className="text-xs text-slate-500 dark:text-slate-400">
               {formatBytes(vm.mem || 0)} / {formatBytes(vm.maxmem || 0)}
@@ -126,7 +121,7 @@ const VMItem = memo(
           </div>
 
           {/* Actions */}
-          <div className="flex-shrink-0 min-w-[180px] min-h-[40px] flex items-center justify-end">
+          <div className="flex min-h-[40px] min-w-[180px] flex-shrink-0 items-center justify-end">
             <div className="flex items-center gap-1.5">
               {/* Start/Resume button */}
               <button
@@ -134,8 +129,8 @@ const VMItem = memo(
                 disabled={isOperationInProgress || vm.status === 'running'}
                 className={`inline-flex items-center justify-center rounded-lg p-2 transition-all duration-200 ${
                   isOperationInProgress || vm.status === 'running'
-                    ? 'bg-slate-100 text-slate-400 cursor-not-allowed opacity-50 dark:bg-slate-700 dark:text-slate-500'
-                    : 'bg-slate-200 text-slate-700 hover:text-slate-900 hover:bg-slate-300 hover:scale-105 active:scale-95 dark:bg-slate-600 dark:text-slate-300 dark:hover:bg-slate-500 dark:hover:text-slate-100'
+                    ? 'cursor-not-allowed bg-slate-100 text-slate-400 opacity-50 dark:bg-slate-700 dark:text-slate-500'
+                    : 'bg-slate-200 text-slate-700 hover:scale-105 hover:bg-slate-300 hover:text-slate-900 active:scale-95 dark:bg-slate-600 dark:text-slate-300 dark:hover:bg-slate-500 dark:hover:text-slate-100'
                 }`}
                 title={vm.status === 'paused' ? 'Resume VM' : 'Start VM'}
               >
@@ -152,8 +147,8 @@ const VMItem = memo(
                 disabled={isOperationInProgress || vm.status !== 'running'}
                 className={`inline-flex items-center justify-center rounded-lg p-2 transition-all duration-200 ${
                   isOperationInProgress || vm.status !== 'running'
-                    ? 'bg-slate-100 text-slate-400 cursor-not-allowed opacity-50 dark:bg-slate-700 dark:text-slate-500'
-                    : 'bg-slate-200 text-slate-700 hover:text-slate-900 hover:bg-slate-300 hover:scale-105 active:scale-95 dark:bg-slate-600 dark:text-slate-300 dark:hover:bg-slate-500 dark:hover:text-slate-100'
+                    ? 'cursor-not-allowed bg-slate-100 text-slate-400 opacity-50 dark:bg-slate-700 dark:text-slate-500'
+                    : 'bg-slate-200 text-slate-700 hover:scale-105 hover:bg-slate-300 hover:text-slate-900 active:scale-95 dark:bg-slate-600 dark:text-slate-300 dark:hover:bg-slate-500 dark:hover:text-slate-100'
                 }`}
                 title={vm.status !== 'running' ? 'VM must be running' : 'Pause VM'}
               >
@@ -166,8 +161,8 @@ const VMItem = memo(
                 disabled={isOperationInProgress || vm.status === 'stopped'}
                 className={`inline-flex items-center justify-center rounded-lg p-2 transition-all duration-200 ${
                   isOperationInProgress || vm.status === 'stopped'
-                    ? 'bg-slate-100 text-slate-400 cursor-not-allowed opacity-50 dark:bg-slate-700 dark:text-slate-500'
-                    : 'bg-slate-200 text-slate-700 hover:text-slate-900 hover:bg-slate-300 hover:scale-105 active:scale-95 dark:bg-slate-600 dark:text-slate-300 dark:hover:bg-slate-500 dark:hover:text-slate-100'
+                    ? 'cursor-not-allowed bg-slate-100 text-slate-400 opacity-50 dark:bg-slate-700 dark:text-slate-500'
+                    : 'bg-slate-200 text-slate-700 hover:scale-105 hover:bg-slate-300 hover:text-slate-900 active:scale-95 dark:bg-slate-600 dark:text-slate-300 dark:hover:bg-slate-500 dark:hover:text-slate-100'
                 }`}
                 title={vm.status === 'stopped' ? 'VM already stopped' : 'Stop VM'}
               >
@@ -180,8 +175,8 @@ const VMItem = memo(
                 disabled={isOperationInProgress || vm.status !== 'running' || !vm.spice}
                 className={`inline-flex items-center justify-center rounded-lg p-2 transition-all duration-200 ${
                   isOperationInProgress || vm.status !== 'running' || !vm.spice
-                    ? 'bg-slate-100 text-slate-400 cursor-not-allowed opacity-50 dark:bg-slate-700 dark:text-slate-500'
-                    : 'bg-slate-200 text-slate-700 hover:text-slate-900 hover:bg-slate-300 hover:scale-105 active:scale-95 dark:bg-slate-600 dark:text-slate-300 dark:hover:bg-slate-500 dark:hover:text-slate-100'
+                    ? 'cursor-not-allowed bg-slate-100 text-slate-400 opacity-50 dark:bg-slate-700 dark:text-slate-500'
+                    : 'bg-slate-200 text-slate-700 hover:scale-105 hover:bg-slate-300 hover:text-slate-900 active:scale-95 dark:bg-slate-600 dark:text-slate-300 dark:hover:bg-slate-500 dark:hover:text-slate-100'
                 }`}
                 title={
                   vm.status !== 'running'

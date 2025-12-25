@@ -41,12 +41,17 @@ const AddServerForm = ({ onCancel, onServerAdded }: AddServerFormProps) => {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <h3 className="mb-4 text-lg font-semibold text-slate-900 dark:text-slate-100">Add New Server</h3>
+        <h3 className="mb-4 text-lg font-semibold text-slate-900 dark:text-slate-100">
+          Add New Server
+        </h3>
       </div>
 
       {/* Server Name */}
       <div>
-        <label htmlFor="name" className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
+        <label
+          htmlFor="name"
+          className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300"
+        >
           Server Name
         </label>
         <input
@@ -63,7 +68,10 @@ const AddServerForm = ({ onCancel, onServerAdded }: AddServerFormProps) => {
 
       {/* Host */}
       <div>
-        <label htmlFor="host" className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
+        <label
+          htmlFor="host"
+          className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300"
+        >
           Host
         </label>
         <input
@@ -80,7 +88,10 @@ const AddServerForm = ({ onCancel, onServerAdded }: AddServerFormProps) => {
 
       {/* Port */}
       <div>
-        <label htmlFor="port" className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
+        <label
+          htmlFor="port"
+          className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300"
+        >
           Port
         </label>
         <input
@@ -96,7 +107,10 @@ const AddServerForm = ({ onCancel, onServerAdded }: AddServerFormProps) => {
 
       {/* Username */}
       <div>
-        <label htmlFor="username" className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
+        <label
+          htmlFor="username"
+          className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300"
+        >
           Username
         </label>
         <input
@@ -128,7 +142,7 @@ const AddServerForm = ({ onCancel, onServerAdded }: AddServerFormProps) => {
         </button>
       </div>
 
-      <p className="text-xs text-slate-500 !mb-0 dark:text-slate-400">
+      <p className="!mb-0 text-xs text-slate-500 dark:text-slate-400">
         Note: Passwords are never stored. You'll need to enter it each time you connect.
       </p>
     </form>

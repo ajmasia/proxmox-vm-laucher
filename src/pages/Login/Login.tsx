@@ -66,7 +66,7 @@ const Login = () => {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 p-4 dark:from-slate-900 dark:to-slate-800">
-      <div className="w-full max-w-md animate-scale-in">
+      <div className="animate-scale-in w-full max-w-md">
         {/* Card */}
         <div className="rounded-2xl bg-white p-8 shadow-lg ring-1 ring-black/5 dark:bg-slate-800 dark:ring-white/10">
           {/* Header */}
@@ -76,7 +76,9 @@ const Login = () => {
                 <MonitorIcon className="h-10 w-10 text-white" />
               </div>
             </div>
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Proxmox VM Launcher</h1>
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+              Proxmox VM Launcher
+            </h1>
             <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
               Select a server and enter your password to continue
             </p>
