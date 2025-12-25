@@ -319,8 +319,35 @@ impl SimpleComponent for MainPage {
                 self.toast_message = Some(message);
             }
             MainMsg::ConnectVM(vmid, node) => {
-                println!("Connect VM {} on {}", vmid, node);
-                // TODO: Implement in Phase 6
+                if self.operating_vms.contains(&vmid) {
+                    return;
+                }
+
+                self.operating_vms.insert(vmid);
+                self.set_vm_operating(vmid, true);
+
+                let host = self.session.server.host.clone();
+                let port = self.session.server.port;
+                let ticket = self.session.tokens.ticket.clone();
+                let csrf = self.session.tokens.csrf_token.clone();
+
+                relm4::spawn(async move {
+                    match api::get_spice_config(&host, port, &ticket, &csrf, &node, vmid).await {
+                        Ok(config) => {
+                            match api::launch_spice_viewer(&config) {
+                                Ok(_) => {
+                                    sender.input(MainMsg::VMOperationComplete(vmid, "connected".to_string()));
+                                }
+                                Err(e) => {
+                                    sender.input(MainMsg::VMOperationError(vmid, e.to_string()));
+                                }
+                            }
+                        }
+                        Err(e) => {
+                            sender.input(MainMsg::VMOperationError(vmid, e.to_string()));
+                        }
+                    }
+                });
             }
             MainMsg::Logout => {
                 let _ = sender.output(MainOutput::Logout);
