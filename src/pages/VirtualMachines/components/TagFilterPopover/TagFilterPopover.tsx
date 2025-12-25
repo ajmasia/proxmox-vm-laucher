@@ -42,7 +42,7 @@ const TagFilterPopover = ({
         onClick={() => setIsOpen(!isOpen)}
         className={`rounded-md px-3 py-1.5 text-sm font-medium transition-all ${
           selectedTags.length > 0
-            ? 'bg-blue-100 text-blue-700 ring-1 ring-blue-600/20 dark:bg-blue-900/50 dark:text-blue-400 dark:ring-blue-500/30'
+            ? 'bg-teal-700 text-white shadow-sm dark:bg-teal-600'
             : 'bg-slate-200 text-slate-600 hover:bg-slate-300 hover:text-slate-900 dark:bg-slate-600 dark:text-slate-300 dark:hover:bg-slate-500 dark:hover:text-slate-100'
         }`}
       >
