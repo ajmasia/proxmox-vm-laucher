@@ -1,12 +1,12 @@
 import { useEffect } from 'react'
-import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import { createHashRouter, RouterProvider } from 'react-router-dom'
 import { Toaster } from 'sonner'
 import { TitleBar } from './components/TitleBar'
 import { routes } from './config/routes'
 import { useThemeStore } from './stores/themeStore'
 import { useUpdateStore } from './stores/updateStore'
 
-const router = createBrowserRouter(routes)
+const router = createHashRouter(routes)
 
 function App() {
   const { initTheme } = useThemeStore()
