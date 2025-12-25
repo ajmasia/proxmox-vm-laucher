@@ -2,6 +2,7 @@
 
 interface Window {
   electronAPI: {
+    showWindow: () => Promise<void>
     closeWindow: () => Promise<void>
     minimizeWindow: () => Promise<void>
     maximizeWindow: () => Promise<void>
