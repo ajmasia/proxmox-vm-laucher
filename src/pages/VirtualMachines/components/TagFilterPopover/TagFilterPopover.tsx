@@ -33,7 +33,7 @@ const TagFilterPopover = ({
     }
   }, [isOpen])
 
-  if (uniqueTags.length === 0 || uniqueTags.length > 5) return null
+  if (uniqueTags.length === 0) return null
 
   return (
     <div className="relative" ref={popoverRef}>
