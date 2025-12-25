@@ -54,7 +54,7 @@ const AddServer = () => {
           Add New Server
         </h1>
 
-        <form onSubmit={handleSubmit} className="flex flex-1 flex-col">
+        <form onSubmit={handleSubmit} className="flex flex-1 flex-col" noValidate>
           <div className="flex-1 space-y-4">
             {/* Server Name */}
             <div>
