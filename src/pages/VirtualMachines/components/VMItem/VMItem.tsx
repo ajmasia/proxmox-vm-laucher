@@ -2,6 +2,7 @@ import { memo, useMemo } from 'react'
 import type { ProxmoxVM } from '../../../../types/proxmox'
 import { PlayIcon, StopIcon, PauseIcon, ResumeIcon, MonitorIcon, PlugIcon } from '../../../../icons'
 import { formatBytes, getStatusColor, getStatusDot } from './utils'
+import Tooltip from '../../../../components/Tooltip/Tooltip'
 
 interface VMItemProps {
   vm: ProxmoxVM
@@ -41,7 +42,7 @@ const VMItem = memo(
 
     return (
       <div
-        className={`group overflow-hidden rounded-xl bg-white shadow-sm transition-all hover:shadow-md dark:bg-slate-800 ${
+        className={`group rounded-xl bg-white shadow-sm transition-all hover:shadow-md dark:bg-slate-800 ${
           vm.spice ? 'ring-2 ring-blue-400/40' : 'ring-1 ring-black/5 dark:ring-white/10'
         }`}
       >
@@ -124,70 +125,83 @@ const VMItem = memo(
           <div className="flex min-h-[40px] min-w-[180px] flex-shrink-0 items-center justify-end">
             <div className="flex items-center gap-1.5">
               {/* Start/Resume button */}
-              <button
-                onClick={() => onStartVM(vm)}
-                disabled={isOperationInProgress || vm.status === 'running'}
-                className={`inline-flex items-center justify-center rounded-lg p-2 transition-all duration-200 ${
-                  isOperationInProgress || vm.status === 'running'
-                    ? 'cursor-not-allowed bg-slate-100 text-slate-400 opacity-50 dark:bg-slate-700 dark:text-slate-500'
-                    : 'bg-slate-200 text-slate-700 hover:scale-105 hover:bg-slate-300 hover:text-slate-900 active:scale-95 dark:bg-slate-600 dark:text-slate-300 dark:hover:bg-slate-500 dark:hover:text-slate-100'
-                }`}
-                title={vm.status === 'paused' ? 'Resume VM' : 'Start VM'}
-              >
-                {vm.status === 'paused' ? (
-                  <ResumeIcon className="h-4 w-4" />
-                ) : (
-                  <PlayIcon className="h-4 w-4" />
-                )}
-              </button>
+              <Tooltip text={vm.status === 'paused' ? 'Resume VM' : 'Start VM'} position="top">
+                <button
+                  onClick={() => onStartVM(vm)}
+                  disabled={isOperationInProgress || vm.status === 'running'}
+                  className={`inline-flex items-center justify-center rounded-lg p-2 transition-all duration-200 ${
+                    isOperationInProgress || vm.status === 'running'
+                      ? 'cursor-not-allowed bg-slate-100 text-slate-400 opacity-50 dark:bg-slate-700 dark:text-slate-500'
+                      : 'bg-slate-200 text-slate-700 hover:scale-105 hover:bg-slate-300 hover:text-slate-900 active:scale-95 dark:bg-slate-600 dark:text-slate-300 dark:hover:bg-slate-500 dark:hover:text-slate-100'
+                  }`}
+                >
+                  {vm.status === 'paused' ? (
+                    <ResumeIcon className="h-4 w-4" />
+                  ) : (
+                    <PlayIcon className="h-4 w-4" />
+                  )}
+                </button>
+              </Tooltip>
 
               {/* Pause button */}
-              <button
-                onClick={() => onSuspendVM(vm)}
-                disabled={isOperationInProgress || vm.status !== 'running'}
-                className={`inline-flex items-center justify-center rounded-lg p-2 transition-all duration-200 ${
-                  isOperationInProgress || vm.status !== 'running'
-                    ? 'cursor-not-allowed bg-slate-100 text-slate-400 opacity-50 dark:bg-slate-700 dark:text-slate-500'
-                    : 'bg-slate-200 text-slate-700 hover:scale-105 hover:bg-slate-300 hover:text-slate-900 active:scale-95 dark:bg-slate-600 dark:text-slate-300 dark:hover:bg-slate-500 dark:hover:text-slate-100'
-                }`}
-                title={vm.status !== 'running' ? 'VM must be running' : 'Pause VM'}
+              <Tooltip
+                text={vm.status !== 'running' ? 'VM must be running' : 'Pause VM'}
+                position="top"
               >
-                <PauseIcon className="h-4 w-4" />
-              </button>
+                <button
+                  onClick={() => onSuspendVM(vm)}
+                  disabled={isOperationInProgress || vm.status !== 'running'}
+                  className={`inline-flex items-center justify-center rounded-lg p-2 transition-all duration-200 ${
+                    isOperationInProgress || vm.status !== 'running'
+                      ? 'cursor-not-allowed bg-slate-100 text-slate-400 opacity-50 dark:bg-slate-700 dark:text-slate-500'
+                      : 'bg-slate-200 text-slate-700 hover:scale-105 hover:bg-slate-300 hover:text-slate-900 active:scale-95 dark:bg-slate-600 dark:text-slate-300 dark:hover:bg-slate-500 dark:hover:text-slate-100'
+                  }`}
+                >
+                  <PauseIcon className="h-4 w-4" />
+                </button>
+              </Tooltip>
 
               {/* Stop button */}
-              <button
-                onClick={() => onStopVM(vm)}
-                disabled={isOperationInProgress || vm.status === 'stopped'}
-                className={`inline-flex items-center justify-center rounded-lg p-2 transition-all duration-200 ${
-                  isOperationInProgress || vm.status === 'stopped'
-                    ? 'cursor-not-allowed bg-slate-100 text-slate-400 opacity-50 dark:bg-slate-700 dark:text-slate-500'
-                    : 'bg-slate-200 text-slate-700 hover:scale-105 hover:bg-slate-300 hover:text-slate-900 active:scale-95 dark:bg-slate-600 dark:text-slate-300 dark:hover:bg-slate-500 dark:hover:text-slate-100'
-                }`}
-                title={vm.status === 'stopped' ? 'VM already stopped' : 'Stop VM'}
+              <Tooltip
+                text={vm.status === 'stopped' ? 'VM already stopped' : 'Stop VM'}
+                position="top"
               >
-                <StopIcon className="h-4 w-4" />
-              </button>
+                <button
+                  onClick={() => onStopVM(vm)}
+                  disabled={isOperationInProgress || vm.status === 'stopped'}
+                  className={`inline-flex items-center justify-center rounded-lg p-2 transition-all duration-200 ${
+                    isOperationInProgress || vm.status === 'stopped'
+                      ? 'cursor-not-allowed bg-slate-100 text-slate-400 opacity-50 dark:bg-slate-700 dark:text-slate-500'
+                      : 'bg-slate-200 text-slate-700 hover:scale-105 hover:bg-slate-300 hover:text-slate-900 active:scale-95 dark:bg-slate-600 dark:text-slate-300 dark:hover:bg-slate-500 dark:hover:text-slate-100'
+                  }`}
+                >
+                  <StopIcon className="h-4 w-4" />
+                </button>
+              </Tooltip>
 
               {/* Connect button */}
-              <button
-                onClick={() => onConnectVM(vm)}
-                disabled={isOperationInProgress || vm.status !== 'running' || !vm.spice}
-                className={`inline-flex items-center justify-center rounded-lg p-2 transition-all duration-200 ${
-                  isOperationInProgress || vm.status !== 'running' || !vm.spice
-                    ? 'cursor-not-allowed bg-slate-100 text-slate-400 opacity-50 dark:bg-slate-700 dark:text-slate-500'
-                    : 'bg-slate-200 text-slate-700 hover:scale-105 hover:bg-slate-300 hover:text-slate-900 active:scale-95 dark:bg-slate-600 dark:text-slate-300 dark:hover:bg-slate-500 dark:hover:text-slate-100'
-                }`}
-                title={
+              <Tooltip
+                text={
                   vm.status !== 'running'
                     ? 'VM must be running'
                     : !vm.spice
                       ? 'SPICE not enabled'
                       : 'Connect via SPICE'
                 }
+                position="top"
               >
-                <PlugIcon className="h-4 w-4" />
-              </button>
+                <button
+                  onClick={() => onConnectVM(vm)}
+                  disabled={isOperationInProgress || vm.status !== 'running' || !vm.spice}
+                  className={`inline-flex items-center justify-center rounded-lg p-2 transition-all duration-200 ${
+                    isOperationInProgress || vm.status !== 'running' || !vm.spice
+                      ? 'cursor-not-allowed bg-slate-100 text-slate-400 opacity-50 dark:bg-slate-700 dark:text-slate-500'
+                      : 'bg-slate-200 text-slate-700 hover:scale-105 hover:bg-slate-300 hover:text-slate-900 active:scale-95 dark:bg-slate-600 dark:text-slate-300 dark:hover:bg-slate-500 dark:hover:text-slate-100'
+                  }`}
+                >
+                  <PlugIcon className="h-4 w-4" />
+                </button>
+              </Tooltip>
             </div>
           </div>
         </div>

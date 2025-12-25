@@ -1,5 +1,6 @@
 import { memo } from 'react'
 import TagFilterPopover from '../TagFilterPopover/TagFilterPopover'
+import Tooltip from '../../../../components/Tooltip/Tooltip'
 
 interface VMFilterProps {
   statusFilter: string
@@ -115,25 +116,26 @@ const VMFilter = memo(function VMFilter({
 
       {/* Clear Filters */}
       {hasActiveFilters && (
-        <button
-          onClick={onClearFilters}
-          className="ml-auto inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-600 transition-all hover:border-slate-400 hover:text-slate-900 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-300 dark:hover:border-slate-500 dark:hover:text-slate-100"
-          title="Clear filters"
-        >
-          <svg
-            className="h-4 w-4"
-            viewBox="0 0 48 48"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth={4}
-            strokeLinejoin="round"
+        <Tooltip text="Clear filters" position="top">
+          <button
+            onClick={onClearFilters}
+            className="ml-auto inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-600 transition-all hover:border-slate-400 hover:text-slate-900 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-300 dark:hover:border-slate-500 dark:hover:text-slate-100"
           >
-            <path strokeLinecap="round" d="M20 5.914h8v8h15v8H5v-8h15z" clipRule="evenodd" />
-            <path d="M8 40h32V22H8z" />
-            <path strokeLinecap="round" d="M16 39.898v-5.984m8 5.984v-6m8 6v-5.984M12 40h24" />
-          </svg>
-          Clear
-        </button>
+            <svg
+              className="h-4 w-4"
+              viewBox="0 0 48 48"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={4}
+              strokeLinejoin="round"
+            >
+              <path strokeLinecap="round" d="M20 5.914h8v8h15v8H5v-8h15z" clipRule="evenodd" />
+              <path d="M8 40h32V22H8z" />
+              <path strokeLinecap="round" d="M16 39.898v-5.984m8 5.984v-6m8 6v-5.984M12 40h24" />
+            </svg>
+            Clear
+          </button>
+        </Tooltip>
       )}
     </div>
   )
