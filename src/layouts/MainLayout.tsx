@@ -1,16 +1,13 @@
 import { Outlet } from 'react-router-dom'
-import { useLayout } from '../contexts/LayoutContext'
 import { LayoutProvider } from '../contexts/LayoutProvider'
 import AppHeader from './components/Header/AppHeader'
 import AppFooter from './components/Footer/AppFooter'
 
 const MainLayoutContent = () => {
-  const { onRefresh, isLoading } = useLayout()
-
   return (
     <div className="flex h-full flex-col bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
       {/* Header */}
-      <AppHeader onRefresh={onRefresh || (() => {})} isLoading={isLoading} />
+      <AppHeader />
 
       {/* Main Content */}
       <div className="flex-1 overflow-hidden">
