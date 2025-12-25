@@ -3,7 +3,10 @@
   "version": "0.6.0",
   "type": "module",
   "description": "Desktop application to manage and connect to Proxmox VMs using SPICE",
-  "author": "Noah",
+  "author": {
+    "name": "Antonio José Masiá",
+    "email": "ajmasia.dev@ysnp.link"
+  },
   "license": "GPL-3.0",
   "main": "dist-electron/main.js",
   "scripts": {
@@ -66,8 +69,14 @@
         "deb",
         "rpm"
       ],
+      "executableName": "pve-launcher",
       "category": "Utility",
-      "icon": "build/icons"
+      "icon": "build/icons",
+      "desktop": {
+        "Name": "PVE Launcher",
+        "Comment": "Desktop application to manage and connect to Proxmox VMs using SPICE",
+        "Categories": "Utility;Network;"
+      }
     },
     "mac": {
       "target": [
