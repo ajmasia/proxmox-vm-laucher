@@ -10,21 +10,21 @@ export const getStatusColor = (status: string) => {
   const base = 'transition-colors duration-300'
   switch (status) {
     case 'running':
-      return `${base} bg-emerald-500/10 text-emerald-700 border-emerald-500/20 dark:bg-emerald-500/20 dark:text-emerald-400 dark:border-emerald-500/30`
+      return `${base} bg-ctp-green/10 text-ctp-green border-ctp-green/20`
     case 'stopped':
-      return `${base} bg-slate-500/10 text-slate-700 border-slate-500/20 dark:bg-slate-500/20 dark:text-slate-400 dark:border-slate-500/30`
+      return `${base} bg-ctp-overlay0/10 text-ctp-overlay1 border-ctp-overlay0/20`
     case 'paused':
-      return `${base} bg-amber-500/10 text-amber-700 border-amber-500/20 dark:bg-amber-500/20 dark:text-amber-400 dark:border-amber-500/30`
+      return `${base} bg-ctp-yellow/10 text-ctp-yellow border-ctp-yellow/20`
     // Transitional states
     case 'starting':
     case 'resuming':
-      return `${base} bg-emerald-500/10 text-emerald-700 border-emerald-500/20 dark:bg-emerald-500/20 dark:text-emerald-400 dark:border-emerald-500/30`
+      return `${base} bg-ctp-green/10 text-ctp-green border-ctp-green/20`
     case 'stopping':
-      return `${base} bg-slate-500/10 text-slate-700 border-slate-500/20 dark:bg-slate-500/20 dark:text-slate-400 dark:border-slate-500/30`
+      return `${base} bg-ctp-overlay0/10 text-ctp-overlay1 border-ctp-overlay0/20`
     case 'pausing':
-      return `${base} bg-amber-500/10 text-amber-700 border-amber-500/20 dark:bg-amber-500/20 dark:text-amber-400 dark:border-amber-500/30`
+      return `${base} bg-ctp-yellow/10 text-ctp-yellow border-ctp-yellow/20`
     default:
-      return `${base} bg-slate-500/10 text-slate-700 border-slate-500/20 dark:bg-slate-500/20 dark:text-slate-400 dark:border-slate-500/30`
+      return `${base} bg-ctp-overlay0/10 text-ctp-overlay1 border-ctp-overlay0/20`
   }
 }
 
@@ -32,21 +32,21 @@ export const getStatusDot = (status: string) => {
   const base = 'transition-colors duration-300'
   switch (status) {
     case 'running':
-      return `${base} bg-emerald-500 animate-pulse`
+      return `${base} bg-ctp-green animate-pulse`
     case 'stopped':
-      return `${base} bg-slate-400`
+      return `${base} bg-ctp-overlay0`
     case 'paused':
-      return `${base} bg-amber-500`
+      return `${base} bg-ctp-yellow`
     // Transitional states - use faster pulse animation
     case 'starting':
     case 'resuming':
-      return `${base} bg-emerald-500 animate-[pulse_0.75s_ease-in-out_infinite]`
+      return `${base} bg-ctp-green animate-[pulse_0.75s_ease-in-out_infinite]`
     case 'stopping':
-      return `${base} bg-slate-400 animate-[pulse_0.75s_ease-in-out_infinite]`
+      return `${base} bg-ctp-overlay0 animate-[pulse_0.75s_ease-in-out_infinite]`
     case 'pausing':
-      return `${base} bg-amber-500 animate-[pulse_0.75s_ease-in-out_infinite]`
+      return `${base} bg-ctp-yellow animate-[pulse_0.75s_ease-in-out_infinite]`
     default:
-      return `${base} bg-slate-400`
+      return `${base} bg-ctp-overlay0`
   }
 }
 
