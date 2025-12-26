@@ -92,7 +92,11 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     }
     set({ session, error: null })
     const serverInfo = sessionData.clusterName || sessionData.server.host
-    toast.success(`Connected to ${serverInfo}`)
+    // Small delay to ensure Toaster is mounted before showing notification
+    setTimeout(() => {
+      console.log('serverInfo', serverInfo)
+      toast.success(<span>Connected to <strong>{serverInfo}</strong></span>)
+    }, 100)
   },
 
   // Logout action
