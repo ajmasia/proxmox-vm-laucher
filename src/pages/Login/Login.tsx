@@ -79,9 +79,7 @@ const Login = () => {
               <MonitorIcon className="h-10 w-10 text-ctp-base" />
             </div>
           </div>
-          <h1 className="text-2xl font-bold text-ctp-text">
-            Proxmox VM Launcher
-          </h1>
+          <h1 className="text-2xl font-bold text-ctp-text">Proxmox VM Launcher</h1>
           <p className="mt-2 text-sm text-ctp-subtext0">
             Select a server and enter your password to continue
           </p>

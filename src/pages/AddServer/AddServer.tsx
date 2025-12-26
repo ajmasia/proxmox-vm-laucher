@@ -50,18 +50,13 @@ const AddServer = () => {
 
       {/* Form container - takes full height */}
       <div className="flex flex-1 flex-col p-6 pt-12">
-        <h1 className="mb-6 text-xl font-bold text-ctp-text">
-          Add New Server
-        </h1>
+        <h1 className="mb-6 text-xl font-bold text-ctp-text">Add New Server</h1>
 
         <form onSubmit={handleSubmit} className="flex flex-1 flex-col" noValidate>
           <div className="flex-1 space-y-4">
             {/* Server Name */}
             <div>
-              <label
-                htmlFor="name"
-                className="mb-1.5 block text-sm font-medium text-ctp-subtext1"
-              >
+              <label htmlFor="name" className="mb-1.5 block text-sm font-medium text-ctp-subtext1">
                 Server Name
               </label>
               <input
@@ -79,10 +74,7 @@ const AddServer = () => {
 
             {/* Host */}
             <div>
-              <label
-                htmlFor="host"
-                className="mb-1.5 block text-sm font-medium text-ctp-subtext1"
-              >
+              <label htmlFor="host" className="mb-1.5 block text-sm font-medium text-ctp-subtext1">
                 Host
               </label>
               <input
@@ -99,10 +91,7 @@ const AddServer = () => {
 
             {/* Port */}
             <div>
-              <label
-                htmlFor="port"
-                className="mb-1.5 block text-sm font-medium text-ctp-subtext1"
-              >
+              <label htmlFor="port" className="mb-1.5 block text-sm font-medium text-ctp-subtext1">
                 Port
               </label>
               <input

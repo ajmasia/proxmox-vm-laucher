@@ -32,9 +32,7 @@ const ServerSelector = ({
 
   return (
     <div className="mb-6">
-      <label className="mb-2 block text-sm font-medium text-ctp-subtext1">
-        Server
-      </label>
+      <label className="mb-2 block text-sm font-medium text-ctp-subtext1">Server</label>
       <div className="space-y-2">
         {servers.slice(0, 2).map((server) => (
           <div

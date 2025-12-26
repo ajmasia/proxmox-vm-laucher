@@ -55,7 +55,7 @@ function App() {
   // For main window, also wait for session to be in the store
   if (!isReady || (windowType === 'main' && !session)) {
     return (
-      <div className="flex h-screen items-center justify-center rounded-xl bg-ctp-base border border-ctp-surface0">
+      <div className="flex h-screen items-center justify-center rounded-xl border border-ctp-surface0 bg-ctp-base">
         <div className="h-8 w-8 animate-spin rounded-full border-4 border-ctp-surface0 border-t-ctp-mauve" />
       </div>
     )
@@ -64,7 +64,7 @@ function App() {
   return (
     <div
       className={clsx(
-        'flex h-screen flex-col overflow-hidden bg-ctp-base border border-ctp-surface0',
+        'flex h-screen flex-col overflow-hidden border border-ctp-surface0 bg-ctp-base',
         isSmallWindow ? 'rounded-xl' : !isMaximized && 'rounded-xl'
       )}
     >
@@ -79,7 +79,8 @@ function App() {
         toastOptions={{
           unstyled: true,
           classNames: {
-            toast: 'flex items-center gap-3 w-full rounded-lg px-4 py-3 shadow-lg bg-ctp-surface0 ring-1 ring-ctp-surface1',
+            toast:
+              'flex items-center gap-3 w-full rounded-lg px-4 py-3 shadow-lg bg-ctp-surface0 ring-1 ring-ctp-surface1',
             success: 'text-ctp-green',
             error: 'text-ctp-red',
             info: 'text-ctp-blue',
