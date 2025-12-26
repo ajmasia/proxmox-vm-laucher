@@ -9,7 +9,7 @@ export default defineConfig({
     react(),
     electron([
       {
-        entry: 'electron/main.ts',
+        entry: 'src/main/main.ts',
         vite: {
           build: {
             outDir: 'dist',
@@ -20,7 +20,7 @@ export default defineConfig({
         }
       },
       {
-        entry: 'electron/preload.ts',
+        entry: 'src/preload/preload.ts',
         onstart(options) {
           options.reload()
         },
@@ -38,7 +38,7 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src')
+      '@': path.resolve(__dirname, './src/renderer')
     }
   }
 })
