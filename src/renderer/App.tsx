@@ -76,6 +76,7 @@ function App() {
         position="bottom-right"
         offset={80}
         style={{ right: 24 }}
+        closeButton
         toastOptions={{
           unstyled: true,
           classNames: {
@@ -87,6 +88,8 @@ function App() {
             warning: 'text-ctp-yellow',
             title: 'font-medium',
             description: 'text-sm text-ctp-subtext0',
+            closeButton:
+              '!static !transform-none order-last ml-auto flex-shrink-0 h-5 w-5 flex items-center justify-center rounded-full bg-ctp-surface1 dark:bg-ctp-mantle text-ctp-subtext0 hover:text-inherit transition-colors [&>svg]:h-3 [&>svg]:w-3 [&>svg]:stroke-[3]',
           },
         }}
       />
