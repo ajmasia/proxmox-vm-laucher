@@ -4,7 +4,7 @@ import AddServer from '../pages/AddServer/AddServer'
 import VirtualMachines from '../pages/VirtualMachines/VirtualMachines'
 import { ProtectedRoute } from './guards/ProtectedRoute'
 import MainLayout from '../layouts/MainLayout'
-import VirtualMachinesLayout from './VirtualMachinesLayout'
+import { VirtualMachinesLayout } from '../layouts/VirtualMachinesLayout/VirtualMachinesLayout'
 
 export const routes: RouteObject[] = [
   {

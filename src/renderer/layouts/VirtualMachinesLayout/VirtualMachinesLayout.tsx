@@ -1,5 +1,5 @@
 import { Outlet } from 'react-router-dom'
-import { useLayout } from '../contexts/LayoutContext'
+import { useLayout } from '../../contexts/LayoutContext'
 
 const VirtualMachinesLayout = () => {
   const { filterSlot } = useLayout()
@@ -17,4 +17,4 @@ const VirtualMachinesLayout = () => {
   )
 }
 
-export default VirtualMachinesLayout
+export { VirtualMachinesLayout }
