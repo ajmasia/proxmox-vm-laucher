@@ -60,4 +60,3 @@ export const VMHeader = ({ onRefresh, isLoading }: VMHeaderProps) => {
     </div>
   )
 }
-

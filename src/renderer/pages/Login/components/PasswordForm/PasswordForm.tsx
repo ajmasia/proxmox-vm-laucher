@@ -125,4 +125,3 @@ export const PasswordForm = ({ server, isLoading, error, onSubmit }: PasswordFor
     </form>
   )
 }
-

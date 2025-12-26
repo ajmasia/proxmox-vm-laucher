@@ -83,4 +83,3 @@ export const VMList = memo(function VMList({
     </div>
   )
 })
-

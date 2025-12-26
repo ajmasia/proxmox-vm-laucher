@@ -107,4 +107,3 @@ export const VirtualMachines = () => {
     </div>
   )
 }
-

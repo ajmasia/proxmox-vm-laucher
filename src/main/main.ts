@@ -80,8 +80,8 @@ function createLoginWindow(): void {
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
-      preload: path.join(__dirname, 'preload.js')
-    }
+      preload: path.join(__dirname, 'preload.js'),
+    },
   })
 
   // Load login route (root path)
@@ -110,8 +110,8 @@ function createAddServerWindow(): void {
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
-      preload: path.join(__dirname, 'preload.js')
-    }
+      preload: path.join(__dirname, 'preload.js'),
+    },
   })
 
   // Load add server route
@@ -141,8 +141,8 @@ function createMainWindow(): void {
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
-      preload: path.join(__dirname, 'preload.js')
-    }
+      preload: path.join(__dirname, 'preload.js'),
+    },
   })
 
   // Load main app route
@@ -306,7 +306,7 @@ async function proxmoxRequest<T = unknown>(
 
     const req = https.request(options, (res) => {
       let data = ''
-      res.on('data', (chunk) => data += chunk)
+      res.on('data', (chunk) => (data += chunk))
       res.on('end', () => {
         try {
           const json = JSON.parse(data) as ProxmoxApiResponse<T>
@@ -332,161 +332,205 @@ async function proxmoxRequest<T = unknown>(
 }
 
 // Authentication
-ipcMain.handle('proxmox:authenticate', async (_, config: { host: string, port: number, username: string, password: string }) => {
-  const response = await proxmoxRequest<AuthResponse>(
-    'POST',
-    config.host,
-    config.port,
-    '/api2/json/access/ticket',
-    undefined,
-    undefined,
-    { username: config.username, password: config.password }
-  )
+ipcMain.handle(
+  'proxmox:authenticate',
+  async (_, config: { host: string; port: number; username: string; password: string }) => {
+    const response = await proxmoxRequest<AuthResponse>(
+      'POST',
+      config.host,
+      config.port,
+      '/api2/json/access/ticket',
+      undefined,
+      undefined,
+      { username: config.username, password: config.password }
+    )
 
-  if (!response?.data?.ticket) {
-    throw new Error(`Authentication failed: ${response?.errors || response?.message || 'Invalid response from server'}`)
-  }
-
-  return {
-    ticket: response.data.ticket,
-    csrfToken: response.data.CSRFPreventionToken
-  }
-})
-
-// Get cluster name
-ipcMain.handle('proxmox:getClusterName', async (_, config: { host: string, port: number, ticket: string }) => {
-  const response = await proxmoxRequest<ClusterStatusItem[]>(
-    'GET',
-    config.host,
-    config.port,
-    '/api2/json/cluster/status',
-    config.ticket
-  )
-  const cluster = response.data?.find((item) => item.type === 'cluster')
-  return cluster?.name || config.host
-})
-
-// List VMs
-ipcMain.handle('proxmox:listVMs', async (_, config: { host: string, port: number, ticket: string }) => {
-  const response = await proxmoxRequest<VMResource[]>(
-    'GET',
-    config.host,
-    config.port,
-    '/api2/json/cluster/resources?type=vm',
-    config.ticket
-  )
-
-  // Filter QEMU VMs and enrich with config
-  const vms = response.data.filter((vm) => vm.type === 'qemu')
-
-  for (const vm of vms) {
-    // Normalize tags to empty string if undefined
-    vm.tags = vm.tags || ''
-
-    try {
-      const configResponse = await proxmoxRequest<VMConfig>(
-        'GET',
-        config.host,
-        config.port,
-        `/api2/json/nodes/${vm.node}/qemu/${vm.vmid}/config`,
-        config.ticket
+    if (!response?.data?.ticket) {
+      throw new Error(
+        `Authentication failed: ${response?.errors || response?.message || 'Invalid response from server'}`
       )
-      vm.spice = configResponse.data?.vga?.toLowerCase().includes('qxl') || false
-    } catch {
-      vm.spice = false
+    }
+
+    return {
+      ticket: response.data.ticket,
+      csrfToken: response.data.CSRFPreventionToken,
     }
   }
+)
 
-  return vms
-})
+// Get cluster name
+ipcMain.handle(
+  'proxmox:getClusterName',
+  async (_, config: { host: string; port: number; ticket: string }) => {
+    const response = await proxmoxRequest<ClusterStatusItem[]>(
+      'GET',
+      config.host,
+      config.port,
+      '/api2/json/cluster/status',
+      config.ticket
+    )
+    const cluster = response.data?.find((item) => item.type === 'cluster')
+    return cluster?.name || config.host
+  }
+)
+
+// List VMs
+ipcMain.handle(
+  'proxmox:listVMs',
+  async (_, config: { host: string; port: number; ticket: string }) => {
+    const response = await proxmoxRequest<VMResource[]>(
+      'GET',
+      config.host,
+      config.port,
+      '/api2/json/cluster/resources?type=vm',
+      config.ticket
+    )
+
+    // Filter QEMU VMs and enrich with config
+    const vms = response.data.filter((vm) => vm.type === 'qemu')
+
+    for (const vm of vms) {
+      // Normalize tags to empty string if undefined
+      vm.tags = vm.tags || ''
+
+      try {
+        const configResponse = await proxmoxRequest<VMConfig>(
+          'GET',
+          config.host,
+          config.port,
+          `/api2/json/nodes/${vm.node}/qemu/${vm.vmid}/config`,
+          config.ticket
+        )
+        vm.spice = configResponse.data?.vga?.toLowerCase().includes('qxl') || false
+      } catch {
+        vm.spice = false
+      }
+    }
+
+    return vms
+  }
+)
 
 // Start VM
-ipcMain.handle('proxmox:startVM', async (_, config: { host: string, port: number, ticket: string, csrf: string, node: string, vmid: number }) => {
-  const response = await proxmoxRequest(
-    'POST',
-    config.host,
-    config.port,
-    `/api2/json/nodes/${config.node}/qemu/${config.vmid}/status/start`,
-    config.ticket,
-    config.csrf
-  )
-  return response.data
-})
+ipcMain.handle(
+  'proxmox:startVM',
+  async (
+    _,
+    config: { host: string; port: number; ticket: string; csrf: string; node: string; vmid: number }
+  ) => {
+    const response = await proxmoxRequest(
+      'POST',
+      config.host,
+      config.port,
+      `/api2/json/nodes/${config.node}/qemu/${config.vmid}/status/start`,
+      config.ticket,
+      config.csrf
+    )
+    return response.data
+  }
+)
 
 // Stop VM
-ipcMain.handle('proxmox:stopVM', async (_, config: { host: string, port: number, ticket: string, csrf: string, node: string, vmid: number }) => {
-  const response = await proxmoxRequest(
-    'POST',
-    config.host,
-    config.port,
-    `/api2/json/nodes/${config.node}/qemu/${config.vmid}/status/stop`,
-    config.ticket,
-    config.csrf
-  )
-  return response.data
-})
+ipcMain.handle(
+  'proxmox:stopVM',
+  async (
+    _,
+    config: { host: string; port: number; ticket: string; csrf: string; node: string; vmid: number }
+  ) => {
+    const response = await proxmoxRequest(
+      'POST',
+      config.host,
+      config.port,
+      `/api2/json/nodes/${config.node}/qemu/${config.vmid}/status/stop`,
+      config.ticket,
+      config.csrf
+    )
+    return response.data
+  }
+)
 
 // Suspend VM
-ipcMain.handle('proxmox:suspendVM', async (_, config: { host: string, port: number, ticket: string, csrf: string, node: string, vmid: number }) => {
-  const response = await proxmoxRequest(
-    'POST',
-    config.host,
-    config.port,
-    `/api2/json/nodes/${config.node}/qemu/${config.vmid}/status/suspend`,
-    config.ticket,
-    config.csrf
-  )
-  return response.data
-})
+ipcMain.handle(
+  'proxmox:suspendVM',
+  async (
+    _,
+    config: { host: string; port: number; ticket: string; csrf: string; node: string; vmid: number }
+  ) => {
+    const response = await proxmoxRequest(
+      'POST',
+      config.host,
+      config.port,
+      `/api2/json/nodes/${config.node}/qemu/${config.vmid}/status/suspend`,
+      config.ticket,
+      config.csrf
+    )
+    return response.data
+  }
+)
 
 // Resume VM
-ipcMain.handle('proxmox:resumeVM', async (_, config: { host: string, port: number, ticket: string, csrf: string, node: string, vmid: number }) => {
-  const response = await proxmoxRequest(
-    'POST',
-    config.host,
-    config.port,
-    `/api2/json/nodes/${config.node}/qemu/${config.vmid}/status/resume`,
-    config.ticket,
-    config.csrf
-  )
-  return response.data
-})
+ipcMain.handle(
+  'proxmox:resumeVM',
+  async (
+    _,
+    config: { host: string; port: number; ticket: string; csrf: string; node: string; vmid: number }
+  ) => {
+    const response = await proxmoxRequest(
+      'POST',
+      config.host,
+      config.port,
+      `/api2/json/nodes/${config.node}/qemu/${config.vmid}/status/resume`,
+      config.ticket,
+      config.csrf
+    )
+    return response.data
+  }
+)
 
 // Get task status
-ipcMain.handle('proxmox:getTaskStatus', async (_, config: { host: string, port: number, ticket: string, node: string, upid: string }) => {
-  const response = await proxmoxRequest(
-    'GET',
-    config.host,
-    config.port,
-    `/api2/json/nodes/${config.node}/tasks/${encodeURIComponent(config.upid)}/status`,
-    config.ticket
-  )
-  return response.data
-})
+ipcMain.handle(
+  'proxmox:getTaskStatus',
+  async (_, config: { host: string; port: number; ticket: string; node: string; upid: string }) => {
+    const response = await proxmoxRequest(
+      'GET',
+      config.host,
+      config.port,
+      `/api2/json/nodes/${config.node}/tasks/${encodeURIComponent(config.upid)}/status`,
+      config.ticket
+    )
+    return response.data
+  }
+)
 
 // Connect via SPICE
-ipcMain.handle('proxmox:connectSPICE', async (_, config: { host: string, port: number, ticket: string, csrf: string, node: string, vmid: number }) => {
-  // Get SPICE config (returns raw text, not JSON)
-  const response = await proxmoxRequest<string>(
-    'POST',
-    config.host,
-    config.port,
-    `/api2/spiceconfig/nodes/${config.node}/qemu/${config.vmid}/spiceproxy`,
-    config.ticket,
-    config.csrf,
-    { proxy: config.host }
-  )
+ipcMain.handle(
+  'proxmox:connectSPICE',
+  async (
+    _,
+    config: { host: string; port: number; ticket: string; csrf: string; node: string; vmid: number }
+  ) => {
+    // Get SPICE config (returns raw text, not JSON)
+    const response = await proxmoxRequest<string>(
+      'POST',
+      config.host,
+      config.port,
+      `/api2/spiceconfig/nodes/${config.node}/qemu/${config.vmid}/spiceproxy`,
+      config.ticket,
+      config.csrf,
+      { proxy: config.host }
+    )
 
-  // Write to temp file
-  const tempPath = path.join(app.getPath('temp'), `spice-${config.vmid}.vv`)
-  fs.writeFileSync(tempPath, response.data)
+    // Write to temp file
+    const tempPath = path.join(app.getPath('temp'), `spice-${config.vmid}.vv`)
+    fs.writeFileSync(tempPath, response.data)
 
-  // Launch remote-viewer
-  const viewer = spawn('remote-viewer', [tempPath], { detached: true, stdio: 'ignore' })
-  viewer.unref()
+    // Launch remote-viewer
+    const viewer = spawn('remote-viewer', [tempPath], { detached: true, stdio: 'ignore' })
+    viewer.unref()
 
-  return true
-})
+    return true
+  }
+)
 
 // App info
 ipcMain.handle('app:getVersion', () => {

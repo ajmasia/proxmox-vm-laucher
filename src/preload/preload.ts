@@ -50,8 +50,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   openAddServerWindow: () => ipcRenderer.invoke('window:openAddServer'),
 
   // Session management
-  transferSession: (session: SessionData) =>
-    ipcRenderer.invoke('session:transfer', session),
+  transferSession: (session: SessionData) => ipcRenderer.invoke('session:transfer', session),
   requestSession: () => ipcRenderer.invoke('session:request'),
   logout: () => ipcRenderer.invoke('session:logout'),
   onSessionReceive: (callback: (session: SessionData) => void) => {
@@ -62,32 +61,67 @@ contextBridge.exposeInMainWorld('electronAPI', {
   },
 
   // Proxmox API
-  authenticate: (config: { host: string, port: number, username: string, password: string }) =>
+  authenticate: (config: { host: string; port: number; username: string; password: string }) =>
     ipcRenderer.invoke('proxmox:authenticate', config),
 
-  getClusterName: (config: { host: string, port: number, ticket: string }) =>
+  getClusterName: (config: { host: string; port: number; ticket: string }) =>
     ipcRenderer.invoke('proxmox:getClusterName', config),
 
-  listVMs: (config: { host: string, port: number, ticket: string }) =>
+  listVMs: (config: { host: string; port: number; ticket: string }) =>
     ipcRenderer.invoke('proxmox:listVMs', config),
 
-  startVM: (config: { host: string, port: number, ticket: string, csrf: string, node: string, vmid: number }) =>
-    ipcRenderer.invoke('proxmox:startVM', config),
+  startVM: (config: {
+    host: string
+    port: number
+    ticket: string
+    csrf: string
+    node: string
+    vmid: number
+  }) => ipcRenderer.invoke('proxmox:startVM', config),
 
-  stopVM: (config: { host: string, port: number, ticket: string, csrf: string, node: string, vmid: number }) =>
-    ipcRenderer.invoke('proxmox:stopVM', config),
+  stopVM: (config: {
+    host: string
+    port: number
+    ticket: string
+    csrf: string
+    node: string
+    vmid: number
+  }) => ipcRenderer.invoke('proxmox:stopVM', config),
 
-  suspendVM: (config: { host: string, port: number, ticket: string, csrf: string, node: string, vmid: number }) =>
-    ipcRenderer.invoke('proxmox:suspendVM', config),
+  suspendVM: (config: {
+    host: string
+    port: number
+    ticket: string
+    csrf: string
+    node: string
+    vmid: number
+  }) => ipcRenderer.invoke('proxmox:suspendVM', config),
 
-  resumeVM: (config: { host: string, port: number, ticket: string, csrf: string, node: string, vmid: number }) =>
-    ipcRenderer.invoke('proxmox:resumeVM', config),
+  resumeVM: (config: {
+    host: string
+    port: number
+    ticket: string
+    csrf: string
+    node: string
+    vmid: number
+  }) => ipcRenderer.invoke('proxmox:resumeVM', config),
 
-  getTaskStatus: (config: { host: string, port: number, ticket: string, node: string, upid: string }) =>
-    ipcRenderer.invoke('proxmox:getTaskStatus', config),
+  getTaskStatus: (config: {
+    host: string
+    port: number
+    ticket: string
+    node: string
+    upid: string
+  }) => ipcRenderer.invoke('proxmox:getTaskStatus', config),
 
-  connectSPICE: (config: { host: string, port: number, ticket: string, csrf: string, node: string, vmid: number }) =>
-    ipcRenderer.invoke('proxmox:connectSPICE', config),
+  connectSPICE: (config: {
+    host: string
+    port: number
+    ticket: string
+    csrf: string
+    node: string
+    vmid: number
+  }) => ipcRenderer.invoke('proxmox:connectSPICE', config),
 
   // App info
   getVersion: () => ipcRenderer.invoke('app:getVersion'),
@@ -122,15 +156,61 @@ declare global {
       removeSessionListener: () => void
 
       // Proxmox API
-      authenticate: (config: { host: string, port: number, username: string, password: string }) => Promise<{ ticket: string, csrfToken: string }>
-      getClusterName: (config: { host: string, port: number, ticket: string }) => Promise<string>
-      listVMs: (config: { host: string, port: number, ticket: string }) => Promise<VMResource[]>
-      startVM: (config: { host: string, port: number, ticket: string, csrf: string, node: string, vmid: number }) => Promise<string>
-      stopVM: (config: { host: string, port: number, ticket: string, csrf: string, node: string, vmid: number }) => Promise<string>
-      suspendVM: (config: { host: string, port: number, ticket: string, csrf: string, node: string, vmid: number }) => Promise<string>
-      resumeVM: (config: { host: string, port: number, ticket: string, csrf: string, node: string, vmid: number }) => Promise<string>
-      getTaskStatus: (config: { host: string, port: number, ticket: string, node: string, upid: string }) => Promise<TaskStatus>
-      connectSPICE: (config: { host: string, port: number, ticket: string, csrf: string, node: string, vmid: number }) => Promise<boolean>
+      authenticate: (config: {
+        host: string
+        port: number
+        username: string
+        password: string
+      }) => Promise<{ ticket: string; csrfToken: string }>
+      getClusterName: (config: { host: string; port: number; ticket: string }) => Promise<string>
+      listVMs: (config: { host: string; port: number; ticket: string }) => Promise<VMResource[]>
+      startVM: (config: {
+        host: string
+        port: number
+        ticket: string
+        csrf: string
+        node: string
+        vmid: number
+      }) => Promise<string>
+      stopVM: (config: {
+        host: string
+        port: number
+        ticket: string
+        csrf: string
+        node: string
+        vmid: number
+      }) => Promise<string>
+      suspendVM: (config: {
+        host: string
+        port: number
+        ticket: string
+        csrf: string
+        node: string
+        vmid: number
+      }) => Promise<string>
+      resumeVM: (config: {
+        host: string
+        port: number
+        ticket: string
+        csrf: string
+        node: string
+        vmid: number
+      }) => Promise<string>
+      getTaskStatus: (config: {
+        host: string
+        port: number
+        ticket: string
+        node: string
+        upid: string
+      }) => Promise<TaskStatus>
+      connectSPICE: (config: {
+        host: string
+        port: number
+        ticket: string
+        csrf: string
+        node: string
+        vmid: number
+      }) => Promise<boolean>
 
       // App info
       getVersion: () => Promise<string>

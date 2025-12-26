@@ -1,14 +1,7 @@
 import { useAuthStore } from '../../stores/useAuthStore'
 import { useVMStore } from '../../stores/useVMStore'
 import { useThemeStore } from '../../stores/useThemeStore'
-import {
-  SunIcon,
-  MoonIcon,
-  ComputerIcon,
-  LogoutIcon,
-  RefreshIcon,
-  CloseIcon,
-} from '../../icons'
+import { SunIcon, MoonIcon, ComputerIcon, LogoutIcon, RefreshIcon, CloseIcon } from '../../icons'
 import { TitleBarButton } from './components/TitleBarButton'
 
 interface TitleBarProps {
