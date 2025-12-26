@@ -2,9 +2,9 @@ import { RouteObject } from 'react-router-dom'
 import Login from '../pages/Login/Login'
 import AddServer from '../pages/AddServer/AddServer'
 import VirtualMachines from '../pages/VirtualMachines/VirtualMachines'
-import { ProtectedRoute } from '../routes/guards/ProtectedRoute'
+import { ProtectedRoute } from './guards/ProtectedRoute'
 import MainLayout from '../layouts/MainLayout'
-import VirtualMachinesLayout from '../routes/VirtualMachinesLayout'
+import VirtualMachinesLayout from './VirtualMachinesLayout'
 
 export const routes: RouteObject[] = [
   {
