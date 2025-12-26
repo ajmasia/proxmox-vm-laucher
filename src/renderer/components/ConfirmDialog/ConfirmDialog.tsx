@@ -1,3 +1,9 @@
+/**
+ * ConfirmDialog component - Currently unused but kept for future use.
+ * This component was part of the original implementation and may be
+ * needed for confirmation dialogs in upcoming features.
+ */
+
 interface ConfirmDialogProps {
   isOpen: boolean
   title: string
@@ -8,7 +14,7 @@ interface ConfirmDialogProps {
   onCancel: () => void
 }
 
-const ConfirmDialog = ({
+export const ConfirmDialog = ({
   isOpen,
   title,
   message,
@@ -20,24 +26,24 @@ const ConfirmDialog = ({
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="w-full max-w-lg rounded-lg bg-white shadow-2xl">
-        <div className="border-b border-slate-200 px-6 py-4">
-          <h3 className="text-lg font-semibold text-slate-900">{title}</h3>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-ctp-crust/80">
+      <div className="w-full max-w-lg rounded-xl bg-ctp-base shadow-2xl ring-1 ring-ctp-surface0">
+        <div className="border-b border-ctp-surface0 px-6 py-4">
+          <h3 className="text-lg font-semibold text-ctp-text">{title}</h3>
         </div>
         <div className="px-6 py-4">
-          <p className="text-sm text-slate-700">{message}</p>
+          <p className="text-sm text-ctp-subtext1">{message}</p>
         </div>
-        <div className="flex justify-end gap-3 border-t border-slate-200 px-6 py-4">
+        <div className="flex justify-end gap-3 border-t border-ctp-surface0 px-6 py-4">
           <button
             onClick={onCancel}
-            className="rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50"
+            className="rounded-lg border border-ctp-surface1 bg-ctp-surface0 px-4 py-2 text-sm font-medium text-ctp-text transition-colors hover:bg-ctp-surface1"
           >
             {cancelLabel}
           </button>
           <button
             onClick={onConfirm}
-            className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700"
+            className="rounded-lg bg-ctp-blue px-4 py-2 text-sm font-medium text-ctp-base transition-colors hover:bg-ctp-blue/80"
           >
             {confirmLabel}
           </button>
@@ -46,5 +52,3 @@ const ConfirmDialog = ({
     </div>
   )
 }
-
-export default ConfirmDialog
