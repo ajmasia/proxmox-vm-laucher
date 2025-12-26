@@ -55,8 +55,8 @@ function App() {
   // For main window, also wait for session to be in the store
   if (!isReady || (windowType === 'main' && !session)) {
     return (
-      <div className="flex h-screen items-center justify-center rounded-xl bg-ctp-base border border-ctp-surface1">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-ctp-surface1 border-t-ctp-mauve" />
+      <div className="flex h-screen items-center justify-center rounded-xl bg-ctp-base border border-ctp-surface0">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-ctp-surface0 border-t-ctp-mauve" />
       </div>
     )
   }
@@ -64,7 +64,7 @@ function App() {
   return (
     <div
       className={clsx(
-        'flex h-screen flex-col overflow-hidden bg-ctp-base border border-ctp-surface1',
+        'flex h-screen flex-col overflow-hidden bg-ctp-base border border-ctp-surface0',
         isSmallWindow ? 'rounded-xl' : !isMaximized && 'rounded-xl'
       )}
     >
