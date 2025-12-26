@@ -1,8 +1,14 @@
+/**
+ * UpdateBadge component - Currently unused but kept for future use.
+ * This component was part of the original implementation and may be
+ * needed for showing update notifications in upcoming versions.
+ */
+
 import { useUpdateStore } from '../../stores/updateStore'
 import { DownloadIcon } from '../../icons'
 import { Tooltip } from '../Tooltip/Tooltip'
 
-const UpdateBadge = () => {
+export const UpdateBadge = () => {
   const { updateAvailable, latestRelease, openReleasesPage, isChecking } = useUpdateStore()
 
   if (!updateAvailable || !latestRelease) return null
@@ -24,5 +30,3 @@ const UpdateBadge = () => {
     </Tooltip>
   )
 }
-
-export default UpdateBadge
