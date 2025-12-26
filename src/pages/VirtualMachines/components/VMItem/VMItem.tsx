@@ -53,9 +53,7 @@ const VMItem = memo(
               <MonitorIcon className="h-5 w-5" />
             </div>
             <div className="min-w-0 flex-1">
-              <div className="truncate font-medium text-ctp-text">
-                {vm.name}
-              </div>
+              <div className="truncate font-medium text-ctp-text">{vm.name}</div>
               <div className="mt-1 flex flex-wrap items-center gap-1.5">
                 {/* Node Badge */}
                 <span className="inline-flex items-center rounded-md bg-ctp-surface0 px-2 py-0.5 text-xs font-medium text-ctp-subtext1 ring-1 ring-ctp-surface1">

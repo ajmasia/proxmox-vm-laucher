@@ -12,9 +12,7 @@ const AppHeader = () => {
         <div className="flex items-center gap-2">
           <h2 className="text-lg font-semibold text-ctp-text">Proxmox</h2>
           <span className="text-ctp-overlay0">•</span>
-          <h2 className="text-lg font-medium text-ctp-subtext0">
-            Virtual Machines
-          </h2>
+          <h2 className="text-lg font-medium text-ctp-subtext0">Virtual Machines</h2>
         </div>
       </div>
     </div>

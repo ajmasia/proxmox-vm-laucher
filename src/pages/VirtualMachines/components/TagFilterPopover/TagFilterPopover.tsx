@@ -60,9 +60,7 @@ const TagFilterPopover = ({
           <div className="p-3">
             {/* Header */}
             <div className="mb-2 flex items-center justify-between">
-              <span className="text-sm font-semibold text-ctp-text">
-                Filter by Tags
-              </span>
+              <span className="text-sm font-semibold text-ctp-text">Filter by Tags</span>
               {selectedTags.length > 0 && (
                 <button
                   onClick={onClearTags}

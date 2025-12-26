@@ -15,7 +15,9 @@ const AppFooter = () => {
         {/* Left: Connection Status and User */}
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-1.5">
-            <div className={`h-2 w-2 rounded-full ${session ? 'bg-ctp-green' : 'bg-ctp-overlay0'}`} />
+            <div
+              className={`h-2 w-2 rounded-full ${session ? 'bg-ctp-green' : 'bg-ctp-overlay0'}`}
+            />
             <span>{session ? session.clusterName || session.server.host : 'Disconnected'}</span>
           </div>
           {session && (

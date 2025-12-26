@@ -95,7 +95,11 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     // Small delay to ensure Toaster is mounted before showing notification
     setTimeout(() => {
       console.log('serverInfo', serverInfo)
-      toast.success(<span>Connected to <strong>{serverInfo}</strong></span>)
+      toast.success(
+        <span>
+          Connected to <strong>{serverInfo}</strong>
+        </span>
+      )
     }, 100)
   },
 

@@ -24,10 +24,7 @@ const PasswordForm = ({ server, isLoading, error, onSubmit }: PasswordFormProps)
     <form onSubmit={handleSubmit} className="space-y-4" noValidate>
       {/* Password Input */}
       <div>
-        <label
-          htmlFor="password"
-          className="mb-2 block text-sm font-medium text-ctp-subtext1"
-        >
+        <label htmlFor="password" className="mb-2 block text-sm font-medium text-ctp-subtext1">
           Password for {server.name}
         </label>
         <div className="relative">
