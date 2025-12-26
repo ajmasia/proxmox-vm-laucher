@@ -1,9 +1,9 @@
 {
   "name": "pve-launcher",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "Desktop application to manage and connect to Proxmox VMs using SPICE",
   "author": {
-    "name": "Antonio José Masiá",
+    "name": "Antonio Masiá",
     "email": "ajmasia.dev@ysnp.link"
   },
   "license": "GPL-3.0",
