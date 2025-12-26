@@ -1,4 +1,4 @@
-import { MonitorIcon } from '../../../icons'
+import { MonitorIcon } from '../../../../icons'
 
 const AppHeader = () => {
   return (
@@ -19,4 +19,4 @@ const AppHeader = () => {
   )
 }
 
-export default AppHeader
+export { AppHeader }

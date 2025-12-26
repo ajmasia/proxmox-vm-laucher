@@ -3,7 +3,7 @@ import Login from '../pages/Login/Login'
 import AddServer from '../pages/AddServer/AddServer'
 import VirtualMachines from '../pages/VirtualMachines/VirtualMachines'
 import { ProtectedRoute } from './guards/ProtectedRoute'
-import MainLayout from '../layouts/MainLayout'
+import { MainLayout } from '../layouts/MainLayout/MainLayout'
 import { VirtualMachinesLayout } from '../layouts/VirtualMachinesLayout/VirtualMachinesLayout'
 
 export const routes: RouteObject[] = [

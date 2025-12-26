@@ -1,7 +1,7 @@
 import { Outlet } from 'react-router-dom'
-import { LayoutProvider } from '../contexts/LayoutProvider'
-import AppHeader from './components/Header/AppHeader'
-import AppFooter from './components/Footer/AppFooter'
+import { LayoutProvider } from '../../contexts/LayoutProvider'
+import { AppHeader } from './components/Header/AppHeader'
+import { AppFooter } from './components/Footer/AppFooter'
 
 const MainLayoutContent = () => {
   return (
@@ -28,4 +28,4 @@ const MainLayout = () => {
   )
 }
 
-export default MainLayout
+export { MainLayout }

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useAuthStore } from '../../../stores/authStore'
+import { useAuthStore } from '../../../../stores/authStore'
 
 const AppFooter = () => {
   const { session } = useAuthStore()
@@ -52,4 +52,4 @@ const AppFooter = () => {
   )
 }
 
-export default AppFooter
+export { AppFooter }
