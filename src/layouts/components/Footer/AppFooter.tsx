@@ -10,17 +10,17 @@ const AppFooter = () => {
   }, [])
 
   return (
-    <div className="bg-white py-4 shadow-sm dark:bg-slate-800">
-      <div className="flex items-center justify-between px-6 text-xs text-slate-600 dark:text-slate-400">
+    <div className="bg-ctp-mantle py-4 shadow-sm">
+      <div className="flex items-center justify-between px-6 text-xs text-ctp-subtext0">
         {/* Left: Connection Status and User */}
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-1.5">
-            <div className={`h-2 w-2 rounded-full ${session ? 'bg-green-500' : 'bg-slate-400'}`} />
+            <div className={`h-2 w-2 rounded-full ${session ? 'bg-ctp-green' : 'bg-ctp-overlay0'}`} />
             <span>{session ? session.clusterName || session.server.host : 'Disconnected'}</span>
           </div>
           {session && (
             <>
-              <span className="text-slate-300 dark:text-slate-600">•</span>
+              <span className="text-ctp-surface2">•</span>
               <span>{session.username}</span>
             </>
           )}
@@ -29,10 +29,10 @@ const AppFooter = () => {
         {/* Right: Beta + Version */}
         {appVersion && (
           <div className="flex items-center gap-1.5">
-            <span className="rounded-md bg-slate-100 px-1.5 py-0.5 text-xs font-medium text-slate-500 dark:bg-slate-700 dark:text-slate-400">
+            <span className="rounded-md bg-ctp-surface0 px-1.5 py-0.5 text-xs font-medium text-ctp-subtext0">
               Beta
             </span>
-            <span className="inline-flex items-center gap-1 rounded-md bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600 ring-1 ring-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:ring-slate-600">
+            <span className="inline-flex items-center gap-1 rounded-md bg-ctp-surface0 px-2 py-0.5 text-xs font-medium text-ctp-subtext1 ring-1 ring-ctp-surface1">
               <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path
                   strokeLinecap="round"
