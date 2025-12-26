@@ -216,7 +216,7 @@ export const useVMStore = create<VMStore>((set, get) => ({
             newSet.delete(vm.vmid)
             return { startingVMs: newSet }
           })
-          toast.success(`VM "${vm.name}" started`)
+          toast.success(<>VM <strong>{vm.name}</strong> started</>)
         },
         (error) => {
           toast.error(`Failed to start VM: ${error}`)
@@ -272,7 +272,7 @@ export const useVMStore = create<VMStore>((set, get) => ({
             newSet.delete(vm.vmid)
             return { stoppingVMs: newSet }
           })
-          toast.success(`VM "${vm.name}" stopped`)
+          toast.success(<>VM <strong>{vm.name}</strong> stopped</>)
         },
         (error) => {
           toast.error(`Failed to stop VM: ${error}`)
@@ -335,7 +335,7 @@ export const useVMStore = create<VMStore>((set, get) => ({
             newSet.delete(vm.vmid)
             return { [actionSet]: newSet }
           })
-          toast.success(`VM "${vm.name}" ${pastTense}`)
+          toast.success(<>VM <strong>{vm.name}</strong> {pastTense}</>)
         },
         (error) => {
           toast.error(`Failed to ${actionName} VM: ${error}`)
@@ -374,7 +374,7 @@ export const useVMStore = create<VMStore>((set, get) => ({
         node: vm.node,
         vmid: vm.vmid,
       })
-      toast.success(`Connected to "${vm.name}"`)
+      toast.success(<>Connected to <strong>{vm.name}</strong></>)
     } catch (err) {
       toast.error(`Failed to connect to VM: ${err}`)
     }
