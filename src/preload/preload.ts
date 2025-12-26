@@ -15,6 +15,22 @@ interface SessionData {
   clusterName?: string
 }
 
+// VM type for API responses
+interface VMResource {
+  vmid: number
+  name: string
+  status: 'running' | 'stopped' | 'paused'
+  node: string
+  tags?: string
+  spice?: boolean
+}
+
+// Task status type
+interface TaskStatus {
+  status: 'running' | 'stopped'
+  exitstatus?: string
+}
+
 // Expose protected methods to the renderer process
 contextBridge.exposeInMainWorld('electronAPI', {
   // Window controls
@@ -108,12 +124,12 @@ declare global {
       // Proxmox API
       authenticate: (config: { host: string, port: number, username: string, password: string }) => Promise<{ ticket: string, csrfToken: string }>
       getClusterName: (config: { host: string, port: number, ticket: string }) => Promise<string>
-      listVMs: (config: { host: string, port: number, ticket: string }) => Promise<any[]>
+      listVMs: (config: { host: string, port: number, ticket: string }) => Promise<VMResource[]>
       startVM: (config: { host: string, port: number, ticket: string, csrf: string, node: string, vmid: number }) => Promise<string>
       stopVM: (config: { host: string, port: number, ticket: string, csrf: string, node: string, vmid: number }) => Promise<string>
       suspendVM: (config: { host: string, port: number, ticket: string, csrf: string, node: string, vmid: number }) => Promise<string>
       resumeVM: (config: { host: string, port: number, ticket: string, csrf: string, node: string, vmid: number }) => Promise<string>
-      getTaskStatus: (config: { host: string, port: number, ticket: string, node: string, upid: string }) => Promise<any>
+      getTaskStatus: (config: { host: string, port: number, ticket: string, node: string, upid: string }) => Promise<TaskStatus>
       connectSPICE: (config: { host: string, port: number, ticket: string, csrf: string, node: string, vmid: number }) => Promise<boolean>
 
       // App info

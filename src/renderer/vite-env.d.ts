@@ -15,6 +15,22 @@ interface SessionData {
   clusterName?: string
 }
 
+// VM type for API responses
+interface VMResource {
+  vmid: number
+  name: string
+  status: 'running' | 'stopped' | 'paused'
+  node: string
+  tags?: string
+  spice?: boolean
+}
+
+// Task status type
+interface TaskStatus {
+  status: 'running' | 'stopped'
+  exitstatus?: string
+}
+
 interface Window {
   electronAPI: {
     // Window controls
@@ -46,7 +62,7 @@ interface Window {
       password: string
     }) => Promise<{ ticket: string; csrfToken: string }>
     getClusterName: (config: { host: string; port: number; ticket: string }) => Promise<string>
-    listVMs: (config: { host: string; port: number; ticket: string }) => Promise<any[]>
+    listVMs: (config: { host: string; port: number; ticket: string }) => Promise<VMResource[]>
     startVM: (config: {
       host: string
       port: number
@@ -85,7 +101,7 @@ interface Window {
       ticket: string
       node: string
       upid: string
-    }) => Promise<any>
+    }) => Promise<TaskStatus>
     connectSPICE: (config: {
       host: string
       port: number

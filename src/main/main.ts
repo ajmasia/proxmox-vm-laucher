@@ -4,6 +4,37 @@ import * as fs from 'fs'
 import * as path from 'path'
 import * as https from 'https'
 
+// Proxmox API types
+interface ProxmoxApiResponse<T = unknown> {
+  data: T
+  errors?: string
+  message?: string
+}
+
+interface ClusterStatusItem {
+  type: 'cluster' | 'node'
+  name: string
+}
+
+interface VMResource {
+  type: 'qemu' | 'lxc'
+  vmid: number
+  name: string
+  status: 'running' | 'stopped' | 'paused'
+  node: string
+  tags?: string
+  spice?: boolean
+}
+
+interface VMConfig {
+  vga?: string
+}
+
+interface AuthResponse {
+  ticket: string
+  CSRFPreventionToken: string
+}
+
 // Create HTTPS agent that ignores certificate errors
 const insecureAgent = new https.Agent({
   rejectUnauthorized: false,
@@ -237,7 +268,7 @@ ipcMain.handle('session:request', () => {
 })
 
 // Proxmox API helper using Node.js https module
-async function proxmoxRequest(
+async function proxmoxRequest<T = unknown>(
   method: 'GET' | 'POST',
   host: string,
   port: number,
@@ -245,7 +276,7 @@ async function proxmoxRequest(
   ticket?: string,
   csrf?: string,
   body?: Record<string, string>
-): Promise<any> {
+): Promise<ProxmoxApiResponse<T>> {
   return new Promise((resolve, reject) => {
     const headers: Record<string, string> = {
       'Content-Type': 'application/x-www-form-urlencoded',
@@ -278,14 +309,15 @@ async function proxmoxRequest(
       res.on('data', (chunk) => data += chunk)
       res.on('end', () => {
         try {
-          const json = JSON.parse(data)
+          const json = JSON.parse(data) as ProxmoxApiResponse<T>
           if (res.statusCode && res.statusCode >= 400) {
             reject(new Error(json.message || `HTTP ${res.statusCode}`))
           } else {
             resolve(json)
           }
         } catch {
-          resolve(data)
+          // Raw response (e.g., SPICE config)
+          resolve({ data: data as T })
         }
       })
     })
@@ -301,7 +333,7 @@ async function proxmoxRequest(
 
 // Authentication
 ipcMain.handle('proxmox:authenticate', async (_, config: { host: string, port: number, username: string, password: string }) => {
-  const response = await proxmoxRequest(
+  const response = await proxmoxRequest<AuthResponse>(
     'POST',
     config.host,
     config.port,
@@ -323,20 +355,20 @@ ipcMain.handle('proxmox:authenticate', async (_, config: { host: string, port: n
 
 // Get cluster name
 ipcMain.handle('proxmox:getClusterName', async (_, config: { host: string, port: number, ticket: string }) => {
-  const response = await proxmoxRequest(
+  const response = await proxmoxRequest<ClusterStatusItem[]>(
     'GET',
     config.host,
     config.port,
     '/api2/json/cluster/status',
     config.ticket
   )
-  const cluster = response.data?.find((item: any) => item.type === 'cluster')
+  const cluster = response.data?.find((item) => item.type === 'cluster')
   return cluster?.name || config.host
 })
 
 // List VMs
 ipcMain.handle('proxmox:listVMs', async (_, config: { host: string, port: number, ticket: string }) => {
-  const response = await proxmoxRequest(
+  const response = await proxmoxRequest<VMResource[]>(
     'GET',
     config.host,
     config.port,
@@ -345,14 +377,14 @@ ipcMain.handle('proxmox:listVMs', async (_, config: { host: string, port: number
   )
 
   // Filter QEMU VMs and enrich with config
-  const vms = response.data.filter((vm: any) => vm.type === 'qemu')
+  const vms = response.data.filter((vm) => vm.type === 'qemu')
 
   for (const vm of vms) {
     // Normalize tags to empty string if undefined
     vm.tags = vm.tags || ''
 
     try {
-      const configResponse = await proxmoxRequest(
+      const configResponse = await proxmoxRequest<VMConfig>(
         'GET',
         config.host,
         config.port,
@@ -434,8 +466,8 @@ ipcMain.handle('proxmox:getTaskStatus', async (_, config: { host: string, port: 
 
 // Connect via SPICE
 ipcMain.handle('proxmox:connectSPICE', async (_, config: { host: string, port: number, ticket: string, csrf: string, node: string, vmid: number }) => {
-  // Get SPICE config
-  const response = await proxmoxRequest(
+  // Get SPICE config (returns raw text, not JSON)
+  const response = await proxmoxRequest<string>(
     'POST',
     config.host,
     config.port,
@@ -447,7 +479,7 @@ ipcMain.handle('proxmox:connectSPICE', async (_, config: { host: string, port: n
 
   // Write to temp file
   const tempPath = path.join(app.getPath('temp'), `spice-${config.vmid}.vv`)
-  fs.writeFileSync(tempPath, response as string)
+  fs.writeFileSync(tempPath, response.data)
 
   // Launch remote-viewer
   const viewer = spawn('remote-viewer', [tempPath], { detached: true, stdio: 'ignore' })
