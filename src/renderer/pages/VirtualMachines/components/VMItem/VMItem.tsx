@@ -2,7 +2,7 @@ import { memo, useMemo } from 'react'
 import type { ProxmoxVM } from '../../../../types/proxmox'
 import { PlayIcon, StopIcon, PauseIcon, ResumeIcon, MonitorIcon, PlugIcon } from '../../../../icons'
 import { formatBytes, getStatusColor, getStatusDot } from './utils'
-import Tooltip from '../../../../components/Tooltip/Tooltip'
+import { Tooltip } from '../../../../components/Tooltip/Tooltip'
 
 interface VMItemProps {
   vm: ProxmoxVM

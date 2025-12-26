@@ -1,5 +1,5 @@
 import type { ProxmoxServerConfig } from '../../../../types/proxmox'
-import Tooltip from '../../../../components/Tooltip/Tooltip'
+import { Tooltip } from '../../../../components/Tooltip/Tooltip'
 
 interface ServerSelectorProps {
   servers: ProxmoxServerConfig[]

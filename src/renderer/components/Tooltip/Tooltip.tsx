@@ -8,7 +8,7 @@ interface TooltipProps {
   delay?: number
 }
 
-const Tooltip = ({ children, text, position = 'bottom', delay = 1000 }: TooltipProps) => {
+export const Tooltip = ({ children, text, position = 'bottom', delay = 1000 }: TooltipProps) => {
   const [isVisible, setIsVisible] = useState(false)
   const [coords, setCoords] = useState({ top: 0, left: 0 })
   const triggerRef = useRef<HTMLDivElement>(null)
@@ -73,5 +73,3 @@ const Tooltip = ({ children, text, position = 'bottom', delay = 1000 }: TooltipP
     </>
   )
 }
-
-export default Tooltip

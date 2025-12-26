@@ -1,6 +1,6 @@
 import { memo } from 'react'
 import TagFilterPopover from '../TagFilterPopover/TagFilterPopover'
-import Tooltip from '../../../../components/Tooltip/Tooltip'
+import { Tooltip } from '../../../../components/Tooltip/Tooltip'
 
 interface VMFilterProps {
   statusFilter: string

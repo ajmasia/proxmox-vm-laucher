@@ -1,6 +1,6 @@
 import { useUpdateStore } from '../../stores/updateStore'
 import { DownloadIcon } from '../../icons'
-import Tooltip from '../Tooltip/Tooltip'
+import { Tooltip } from '../Tooltip/Tooltip'
 
 const UpdateBadge = () => {
   const { updateAvailable, latestRelease, openReleasesPage, isChecking } = useUpdateStore()

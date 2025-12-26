@@ -2,7 +2,7 @@ import { useAuthStore } from '../../stores/authStore'
 import { useVMStore } from '../../stores/vmStore'
 import { useThemeStore } from '../../stores/themeStore'
 import { SunIcon, MoonIcon, ComputerIcon } from '../../icons'
-import Tooltip from '../Tooltip/Tooltip'
+import { Tooltip } from '../Tooltip/Tooltip'
 
 interface TitleBarProps {
   title?: string

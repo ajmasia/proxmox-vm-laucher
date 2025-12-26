@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import type { ProxmoxServerConfig } from '../../../../types/proxmox'
-import Tooltip from '../../../../components/Tooltip/Tooltip'
+import { Tooltip } from '../../../../components/Tooltip/Tooltip'
 
 interface PasswordFormProps {
   server: ProxmoxServerConfig
