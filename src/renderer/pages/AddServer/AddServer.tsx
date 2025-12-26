@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useServerStore } from '../../stores/useServerStore'
+import { ServerForm } from './components/ServerForm/ServerForm'
 
-const AddServer = () => {
+export const AddServer = () => {
   const { addServer, loadServers } = useServerStore()
 
   // Load existing servers before adding new ones
@@ -53,78 +54,7 @@ const AddServer = () => {
         <h1 className="mb-6 text-xl font-bold text-ctp-text">Add New Server</h1>
 
         <form onSubmit={handleSubmit} className="flex flex-1 flex-col" noValidate>
-          <div className="flex-1 space-y-4">
-            {/* Server Name */}
-            <div>
-              <label htmlFor="name" className="mb-1.5 block text-sm font-medium text-ctp-subtext1">
-                Server Name
-              </label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                required
-                autoFocus
-                className="block w-full rounded-lg border border-ctp-surface1 bg-ctp-mantle px-3 py-2.5 text-sm text-ctp-text shadow-sm transition-colors placeholder:text-ctp-overlay1 hover:border-ctp-surface2 focus:border-ctp-mauve focus:outline-none focus:ring-2 focus:ring-ctp-mauve focus:ring-offset-0"
-                placeholder="Production Server"
-              />
-            </div>
-
-            {/* Host */}
-            <div>
-              <label htmlFor="host" className="mb-1.5 block text-sm font-medium text-ctp-subtext1">
-                Host
-              </label>
-              <input
-                type="text"
-                id="host"
-                name="host"
-                value={formData.host}
-                onChange={handleChange}
-                required
-                className="block w-full rounded-lg border border-ctp-surface1 bg-ctp-mantle px-3 py-2.5 text-sm text-ctp-text shadow-sm transition-colors placeholder:text-ctp-overlay1 hover:border-ctp-surface2 focus:border-ctp-mauve focus:outline-none focus:ring-2 focus:ring-ctp-mauve focus:ring-offset-0"
-                placeholder="192.168.1.100"
-              />
-            </div>
-
-            {/* Port */}
-            <div>
-              <label htmlFor="port" className="mb-1.5 block text-sm font-medium text-ctp-subtext1">
-                Port
-              </label>
-              <input
-                type="number"
-                id="port"
-                name="port"
-                value={formData.port}
-                onChange={handleChange}
-                required
-                className="block w-full rounded-lg border border-ctp-surface1 bg-ctp-mantle px-3 py-2.5 text-sm text-ctp-text shadow-sm transition-colors placeholder:text-ctp-overlay1 hover:border-ctp-surface2 focus:border-ctp-mauve focus:outline-none focus:ring-2 focus:ring-ctp-mauve focus:ring-offset-0"
-              />
-            </div>
-
-            {/* Username */}
-            <div>
-              <label
-                htmlFor="username"
-                className="mb-1.5 block text-sm font-medium text-ctp-subtext1"
-              >
-                Username
-              </label>
-              <input
-                type="text"
-                id="username"
-                name="username"
-                value={formData.username}
-                onChange={handleChange}
-                required
-                className="block w-full rounded-lg border border-ctp-surface1 bg-ctp-mantle px-3 py-2.5 text-sm text-ctp-text shadow-sm transition-colors placeholder:text-ctp-overlay1 hover:border-ctp-surface2 focus:border-ctp-mauve focus:outline-none focus:ring-2 focus:ring-ctp-mauve focus:ring-offset-0"
-                placeholder="root@pam"
-              />
-            </div>
-          </div>
+          <ServerForm formData={formData} onChange={handleChange} />
 
           {/* Footer - always at bottom */}
           <div className="mt-6 space-y-4">
@@ -153,5 +83,3 @@ const AddServer = () => {
     </div>
   )
 }
-
-export default AddServer
