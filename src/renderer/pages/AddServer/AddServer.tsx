@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useServerStore } from '../../stores/serverStore'
+import { useServerStore } from '../../stores/useServerStore'
 
 const AddServer = () => {
   const { addServer, loadServers } = useServerStore()

@@ -1,4 +1,4 @@
-import { useConfigStore } from '../../../stores/configStore'
+import { useConfigStore } from '../../../stores/useConfigStore'
 
 export const useServerConfig = () => {
   const { hasConfig, configLoaded, success, error, checkConfig, saveConfig, setHasConfig } =

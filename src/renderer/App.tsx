@@ -4,9 +4,9 @@ import { Toaster } from 'sonner'
 import clsx from 'clsx'
 import { TitleBar } from './components/TitleBar/TitleBar'
 import { routes } from './routes'
-import { useThemeStore } from './stores/themeStore'
-import { useUpdateStore } from './stores/updateStore'
-import { useAuthStore } from './stores/authStore'
+import { useThemeStore } from './stores/useThemeStore'
+import { useUpdateStore } from './stores/useUpdateStore'
+import { useAuthStore } from './stores/useAuthStore'
 
 const router = createHashRouter(routes)
 

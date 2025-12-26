@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useServerStore } from '../../../../stores/serverStore'
+import { useServerStore } from '../../../../stores/useServerStore'
 import type { ProxmoxServerConfig } from '../../../../types/proxmox'
 
 interface AddServerFormProps {

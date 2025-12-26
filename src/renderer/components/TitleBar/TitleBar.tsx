@@ -1,6 +1,6 @@
-import { useAuthStore } from '../../stores/authStore'
-import { useVMStore } from '../../stores/vmStore'
-import { useThemeStore } from '../../stores/themeStore'
+import { useAuthStore } from '../../stores/useAuthStore'
+import { useVMStore } from '../../stores/useVMStore'
+import { useThemeStore } from '../../stores/useThemeStore'
 import {
   SunIcon,
   MoonIcon,

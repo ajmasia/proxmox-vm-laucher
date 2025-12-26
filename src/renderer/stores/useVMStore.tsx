@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { toast } from 'sonner'
 import type { ProxmoxVM } from '../types/proxmox'
-import { useAuthStore } from './authStore'
+import { useAuthStore } from './useAuthStore'
 
 interface TaskStatus {
   status: string

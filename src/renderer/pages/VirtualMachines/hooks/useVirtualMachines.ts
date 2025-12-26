@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { useVMStore } from '../../../stores/vmStore'
+import { useVMStore } from '../../../stores/useVMStore'
 
 export const useVirtualMachines = () => {
   // Subscribe to vms Record

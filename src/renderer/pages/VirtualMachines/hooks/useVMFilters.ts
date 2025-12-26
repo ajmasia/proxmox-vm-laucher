@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { useShallow } from 'zustand/react/shallow'
-import { useFilterStore, getUniqueTags, getFilteredVMs } from '../../../stores/filterStore'
+import { useFilterStore, getUniqueTags, getFilteredVMs } from '../../../stores/useFilterStore'
 import type { ProxmoxVM } from '../../../types/proxmox'
 
 export const useVMFilters = (vms: ProxmoxVM[]) => {

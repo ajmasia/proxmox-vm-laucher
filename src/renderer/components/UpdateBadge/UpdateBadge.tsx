@@ -4,7 +4,7 @@
  * needed for showing update notifications in upcoming versions.
  */
 
-import { useUpdateStore } from '../../stores/updateStore'
+import { useUpdateStore } from '../../stores/useUpdateStore'
 import { DownloadIcon } from '../../icons'
 import { Tooltip } from '../Tooltip/Tooltip'
 

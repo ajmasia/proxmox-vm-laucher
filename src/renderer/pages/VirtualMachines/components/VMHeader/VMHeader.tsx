@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { RefreshIcon } from '../../../../icons'
-import { useAuthStore } from '../../../../stores/authStore'
+import { useAuthStore } from '../../../../stores/useAuthStore'
 
 interface VMHeaderProps {
   onRefresh: () => void
