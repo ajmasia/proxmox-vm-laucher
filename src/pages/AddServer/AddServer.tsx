@@ -41,7 +41,7 @@ const AddServer = () => {
   }
 
   return (
-    <div className="relative flex h-screen flex-col bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
+    <div className="relative flex h-screen flex-col bg-ctp-base">
       {/* Draggable region for moving window */}
       <div
         className="absolute inset-x-0 top-0 h-10"
@@ -50,7 +50,7 @@ const AddServer = () => {
 
       {/* Form container - takes full height */}
       <div className="flex flex-1 flex-col p-6 pt-12">
-        <h1 className="mb-6 text-xl font-bold text-slate-900 dark:text-slate-100">
+        <h1 className="mb-6 text-xl font-bold text-ctp-text">
           Add New Server
         </h1>
 
@@ -60,7 +60,7 @@ const AddServer = () => {
             <div>
               <label
                 htmlFor="name"
-                className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300"
+                className="mb-1.5 block text-sm font-medium text-ctp-subtext1"
               >
                 Server Name
               </label>
@@ -72,7 +72,7 @@ const AddServer = () => {
                 onChange={handleChange}
                 required
                 autoFocus
-                className="block w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm transition-colors placeholder:text-slate-400 hover:border-slate-400 focus:border-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-700 focus:ring-offset-0 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 dark:placeholder:text-slate-500 dark:hover:border-slate-500 dark:focus:border-slate-500 dark:focus:ring-slate-500"
+                className="block w-full rounded-lg border border-ctp-surface1 bg-ctp-mantle px-3 py-2.5 text-sm text-ctp-text shadow-sm transition-colors placeholder:text-ctp-overlay1 hover:border-ctp-surface2 focus:border-ctp-mauve focus:outline-none focus:ring-2 focus:ring-ctp-mauve focus:ring-offset-0"
                 placeholder="Production Server"
               />
             </div>
@@ -81,7 +81,7 @@ const AddServer = () => {
             <div>
               <label
                 htmlFor="host"
-                className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300"
+                className="mb-1.5 block text-sm font-medium text-ctp-subtext1"
               >
                 Host
               </label>
@@ -92,7 +92,7 @@ const AddServer = () => {
                 value={formData.host}
                 onChange={handleChange}
                 required
-                className="block w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm transition-colors placeholder:text-slate-400 hover:border-slate-400 focus:border-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-700 focus:ring-offset-0 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 dark:placeholder:text-slate-500 dark:hover:border-slate-500 dark:focus:border-slate-500 dark:focus:ring-slate-500"
+                className="block w-full rounded-lg border border-ctp-surface1 bg-ctp-mantle px-3 py-2.5 text-sm text-ctp-text shadow-sm transition-colors placeholder:text-ctp-overlay1 hover:border-ctp-surface2 focus:border-ctp-mauve focus:outline-none focus:ring-2 focus:ring-ctp-mauve focus:ring-offset-0"
                 placeholder="192.168.1.100"
               />
             </div>
@@ -101,7 +101,7 @@ const AddServer = () => {
             <div>
               <label
                 htmlFor="port"
-                className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300"
+                className="mb-1.5 block text-sm font-medium text-ctp-subtext1"
               >
                 Port
               </label>
@@ -112,7 +112,7 @@ const AddServer = () => {
                 value={formData.port}
                 onChange={handleChange}
                 required
-                className="block w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm transition-colors placeholder:text-slate-400 hover:border-slate-400 focus:border-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-700 focus:ring-offset-0 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 dark:placeholder:text-slate-500 dark:hover:border-slate-500 dark:focus:border-slate-500 dark:focus:ring-slate-500"
+                className="block w-full rounded-lg border border-ctp-surface1 bg-ctp-mantle px-3 py-2.5 text-sm text-ctp-text shadow-sm transition-colors placeholder:text-ctp-overlay1 hover:border-ctp-surface2 focus:border-ctp-mauve focus:outline-none focus:ring-2 focus:ring-ctp-mauve focus:ring-offset-0"
               />
             </div>
 
@@ -120,7 +120,7 @@ const AddServer = () => {
             <div>
               <label
                 htmlFor="username"
-                className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300"
+                className="mb-1.5 block text-sm font-medium text-ctp-subtext1"
               >
                 Username
               </label>
@@ -131,7 +131,7 @@ const AddServer = () => {
                 value={formData.username}
                 onChange={handleChange}
                 required
-                className="block w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm transition-colors placeholder:text-slate-400 hover:border-slate-400 focus:border-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-700 focus:ring-offset-0 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 dark:placeholder:text-slate-500 dark:hover:border-slate-500 dark:focus:border-slate-500 dark:focus:ring-slate-500"
+                className="block w-full rounded-lg border border-ctp-surface1 bg-ctp-mantle px-3 py-2.5 text-sm text-ctp-text shadow-sm transition-colors placeholder:text-ctp-overlay1 hover:border-ctp-surface2 focus:border-ctp-mauve focus:outline-none focus:ring-2 focus:ring-ctp-mauve focus:ring-offset-0"
                 placeholder="root@pam"
               />
             </div>
@@ -143,19 +143,19 @@ const AddServer = () => {
               <button
                 type="button"
                 onClick={handleCancel}
-                className="flex-1 rounded-lg border-2 border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600 dark:focus:ring-offset-slate-800"
+                className="flex-1 rounded-lg border-2 border-ctp-surface1 bg-ctp-mantle px-4 py-2.5 text-sm font-medium text-ctp-subtext1 transition-colors hover:bg-ctp-surface0 focus:outline-none focus:ring-2 focus:ring-ctp-mauve focus:ring-offset-2 focus:ring-offset-ctp-base"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="flex-1 rounded-lg bg-slate-700 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800"
+                className="flex-1 rounded-lg bg-ctp-mauve px-4 py-2.5 text-sm font-medium text-ctp-base transition-colors hover:bg-ctp-mauve/80 focus:outline-none focus:ring-2 focus:ring-ctp-mauve focus:ring-offset-2 focus:ring-offset-ctp-base"
               >
                 Add Server
               </button>
             </div>
 
-            <p className="text-center text-xs text-slate-500 dark:text-slate-400">
+            <p className="text-center text-xs text-ctp-subtext0">
               Passwords are never stored. You'll need to enter it each time.
             </p>
           </div>
