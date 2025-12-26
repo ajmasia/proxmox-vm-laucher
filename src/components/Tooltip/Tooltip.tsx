@@ -64,7 +64,7 @@ const Tooltip = ({ children, text, position = 'bottom', delay = 1000 }: TooltipP
               left: coords.left,
             }}
           >
-            <div className="whitespace-nowrap rounded-lg bg-slate-800 px-3 py-1.5 text-xs font-medium text-slate-200 shadow-lg dark:bg-slate-900">
+            <div className="whitespace-nowrap rounded-lg bg-ctp-surface0 px-3 py-1.5 text-xs font-medium text-ctp-text shadow-lg">
               {text}
             </div>
           </div>,
