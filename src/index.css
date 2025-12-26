@@ -2,7 +2,21 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Catppuccin Latte (Light) */
 :root {
+  --ctp-base: 239 241 245;
+  --ctp-mantle: 230 233 239;
+  --ctp-crust: 220 224 232;
+  --ctp-surface0: 204 208 218;
+  --ctp-surface1: 188 192 204;
+  --ctp-surface2: 172 176 190;
+  --ctp-overlay0: 156 160 176;
+  --ctp-overlay1: 140 143 161;
+  --ctp-overlay2: 124 127 147;
+  --ctp-subtext0: 108 111 133;
+  --ctp-subtext1: 92 95 119;
+  --ctp-text: 76 79 105;
+
   font-family:
     'Inter',
     -apple-system,
@@ -12,6 +26,22 @@
     sans-serif;
   line-height: 1.5;
   font-weight: 400;
+}
+
+/* Catppuccin Mocha (Dark) */
+.dark {
+  --ctp-base: 30 30 46;
+  --ctp-mantle: 24 24 37;
+  --ctp-crust: 17 17 27;
+  --ctp-surface0: 49 50 68;
+  --ctp-surface1: 69 71 90;
+  --ctp-surface2: 88 91 112;
+  --ctp-overlay0: 108 112 134;
+  --ctp-overlay1: 127 132 156;
+  --ctp-overlay2: 147 153 178;
+  --ctp-subtext0: 166 173 200;
+  --ctp-subtext1: 186 194 222;
+  --ctp-text: 205 214 244;
 }
 
 html,
@@ -37,20 +67,12 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #64748b;
+  background: rgb(var(--ctp-overlay0));
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
-}
-
-.dark ::-webkit-scrollbar-thumb {
-  background: #475569;
-}
-
-.dark ::-webkit-scrollbar-thumb:hover {
-  background: #64748b;
+  background: rgb(var(--ctp-overlay1));
 }
 
 /* Shimmer loading effect */
@@ -66,15 +88,10 @@ body {
 .shimmer {
   background: linear-gradient(
     90deg,
-    rgb(226 232 240) 0%,
-    rgb(241 245 249) 50%,
-    rgb(226 232 240) 100%
+    rgb(var(--ctp-surface0)) 0%,
+    rgb(var(--ctp-surface1)) 50%,
+    rgb(var(--ctp-surface0)) 100%
   );
   background-size: 200% 100%;
   animation: shimmer 1.5s ease-in-out infinite;
-}
-
-.dark .shimmer {
-  background: linear-gradient(90deg, rgb(51 65 85) 0%, rgb(71 85 105) 50%, rgb(51 65 85) 100%);
-  background-size: 200% 100%;
 }
