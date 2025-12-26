@@ -8,7 +8,7 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Catppuccin base colors (use CSS variables for theme switching)
+        // Catppuccin colors (all use CSS variables for theme switching)
         ctp: {
           base: 'rgb(var(--ctp-base) / <alpha-value>)',
           mantle: 'rgb(var(--ctp-mantle) / <alpha-value>)',
@@ -22,21 +22,21 @@ export default {
           subtext0: 'rgb(var(--ctp-subtext0) / <alpha-value>)',
           subtext1: 'rgb(var(--ctp-subtext1) / <alpha-value>)',
           text: 'rgb(var(--ctp-text) / <alpha-value>)',
-          // Accent colors (same for both themes - Mocha palette)
-          rosewater: '#f5e0dc',
-          flamingo: '#f2cdcd',
-          pink: '#f5c2e7',
-          mauve: '#cba6f7',
-          red: '#f38ba8',
-          maroon: '#eba0ac',
-          peach: '#fab387',
-          yellow: '#f9e2af',
-          green: '#a6e3a1',
-          teal: '#94e2d5',
-          sky: '#89dceb',
-          sapphire: '#74c7ec',
-          blue: '#89b4fa',
-          lavender: '#b4befe',
+          // Accent colors (Latte in light, Mocha in dark)
+          green: 'rgb(var(--ctp-green) / <alpha-value>)',
+          yellow: 'rgb(var(--ctp-yellow) / <alpha-value>)',
+          blue: 'rgb(var(--ctp-blue) / <alpha-value>)',
+          lavender: 'rgb(var(--ctp-lavender) / <alpha-value>)',
+          mauve: 'rgb(var(--ctp-mauve) / <alpha-value>)',
+          red: 'rgb(var(--ctp-red) / <alpha-value>)',
+          peach: 'rgb(var(--ctp-peach) / <alpha-value>)',
+          teal: 'rgb(var(--ctp-teal) / <alpha-value>)',
+          pink: 'rgb(var(--ctp-pink) / <alpha-value>)',
+          sky: 'rgb(var(--ctp-sky) / <alpha-value>)',
+          sapphire: 'rgb(var(--ctp-sapphire) / <alpha-value>)',
+          maroon: 'rgb(var(--ctp-maroon) / <alpha-value>)',
+          rosewater: 'rgb(var(--ctp-rosewater) / <alpha-value>)',
+          flamingo: 'rgb(var(--ctp-flamingo) / <alpha-value>)',
         },
       },
       animation: {
