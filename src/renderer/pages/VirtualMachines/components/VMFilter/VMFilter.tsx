@@ -1,5 +1,5 @@
 import { memo } from 'react'
-import TagFilterPopover from '../TagFilterPopover/TagFilterPopover'
+import { TagFilterPopover } from '../TagFilterPopover/TagFilterPopover'
 import { Tooltip } from '../../../../components/Tooltip/Tooltip'
 
 interface VMFilterProps {
@@ -14,7 +14,7 @@ interface VMFilterProps {
   onClearFilters: () => void
 }
 
-const VMFilter = memo(function VMFilter({
+export const VMFilter = memo(function VMFilter({
   statusFilter,
   selectedTags,
   spiceOnly,
@@ -141,4 +141,3 @@ const VMFilter = memo(function VMFilter({
   )
 })
 
-export default VMFilter

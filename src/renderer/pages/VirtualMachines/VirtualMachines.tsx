@@ -1,11 +1,11 @@
 import { useEffect, useRef } from 'react'
-import VMList from './components/VMList/VMList'
-import VMFilter from './components/VMFilter/VMFilter'
+import { VMList } from './components/VMList/VMList'
+import { VMFilter } from './components/VMFilter/VMFilter'
 import { useVirtualMachines } from './hooks/useVirtualMachines'
 import { useVMFilters } from './hooks/useVMFilters'
 import { useLayout } from '../../contexts/LayoutContext'
 
-const VirtualMachines = () => {
+export const VirtualMachines = () => {
   const { setRefreshHandler, setIsLoading, setFilterSlot } = useLayout()
   const isInitialized = useRef(false)
 
@@ -108,4 +108,3 @@ const VirtualMachines = () => {
   )
 }
 
-export default VirtualMachines

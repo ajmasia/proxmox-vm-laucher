@@ -7,7 +7,7 @@ interface TagFilterPopoverProps {
   onClearTags: () => void
 }
 
-const TagFilterPopover = ({
+export const TagFilterPopover = ({
   selectedTags,
   uniqueTags,
   onToggleTag,
@@ -114,4 +114,3 @@ const TagFilterPopover = ({
   )
 }
 
-export default TagFilterPopover

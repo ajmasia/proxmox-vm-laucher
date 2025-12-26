@@ -3,10 +3,10 @@ import { MonitorIcon } from '../../icons'
 import { useAuthStore } from '../../stores/useAuthStore'
 import { useServerStore } from '../../stores/useServerStore'
 import type { ProxmoxServerConfig } from '../../types/proxmox'
-import ServerSelector from './components/ServerSelector/ServerSelector'
-import PasswordForm from './components/PasswordForm/PasswordForm'
+import { ServerSelector } from './components/ServerSelector/ServerSelector'
+import { PasswordForm } from './components/PasswordForm/PasswordForm'
 
-const Login = () => {
+export const Login = () => {
   const { login, isAuthenticating, error: authError, clearError } = useAuthStore()
   const { servers, loadServers, getLastUsedServer, setLastUsedServer, deleteServer } =
     useServerStore()
@@ -114,4 +114,3 @@ const Login = () => {
   )
 }
 
-export default Login

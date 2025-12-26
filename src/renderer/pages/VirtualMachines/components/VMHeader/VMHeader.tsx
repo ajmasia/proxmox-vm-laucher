@@ -7,7 +7,7 @@ interface VMHeaderProps {
   isLoading: boolean
 }
 
-const VMHeader = ({ onRefresh, isLoading }: VMHeaderProps) => {
+export const VMHeader = ({ onRefresh, isLoading }: VMHeaderProps) => {
   const navigate = useNavigate()
   const { session, logout } = useAuthStore()
 
@@ -61,4 +61,3 @@ const VMHeader = ({ onRefresh, isLoading }: VMHeaderProps) => {
   )
 }
 
-export default VMHeader

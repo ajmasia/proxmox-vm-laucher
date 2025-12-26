@@ -9,7 +9,7 @@ interface ServerSelectorProps {
   onDeleteServer: (serverId: string) => void
 }
 
-const ServerSelector = ({
+export const ServerSelector = ({
   servers,
   selectedServer,
   onSelectServer,
@@ -102,4 +102,3 @@ const ServerSelector = ({
   )
 }
 
-export default ServerSelector

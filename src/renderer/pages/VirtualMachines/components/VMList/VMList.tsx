@@ -1,6 +1,6 @@
 import { memo } from 'react'
 import type { ProxmoxVM } from '../../../../types/proxmox'
-import VMItem from '../VMItem/VMItem'
+import { VMItem } from '../VMItem/VMItem'
 
 interface VMListProps {
   vms: ProxmoxVM[]
@@ -39,7 +39,7 @@ const EmptyState = memo(function EmptyState() {
   )
 })
 
-const VMList = memo(function VMList({
+export const VMList = memo(function VMList({
   vms,
   onStartVM,
   onStopVM,
@@ -84,4 +84,3 @@ const VMList = memo(function VMList({
   )
 })
 
-export default VMList

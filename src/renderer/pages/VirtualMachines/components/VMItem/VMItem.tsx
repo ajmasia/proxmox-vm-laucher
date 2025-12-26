@@ -16,7 +16,7 @@ interface VMItemProps {
   isResuming: boolean
 }
 
-const VMItem = memo(
+export const VMItem = memo(
   function VMItem({
     vm,
     onStartVM,
@@ -227,4 +227,3 @@ const VMItem = memo(
   }
 )
 
-export default VMItem
