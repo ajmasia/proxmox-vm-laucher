@@ -1,4 +1,4 @@
-import { ReactNode, useState, useRef, useCallback } from 'react'
+import { Fragment, ReactNode, useState, useRef, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 
 interface TooltipProps {
@@ -45,7 +45,7 @@ export const Tooltip = ({ children, text, position = 'bottom', delay = 1000 }: T
   }, [])
 
   return (
-    <>
+    <Fragment>
       <div
         ref={triggerRef}
         className="inline-flex"
@@ -70,6 +70,6 @@ export const Tooltip = ({ children, text, position = 'bottom', delay = 1000 }: T
           </div>,
           document.body
         )}
-    </>
+    </Fragment>
   )
 }
