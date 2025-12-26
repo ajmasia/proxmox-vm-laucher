@@ -5,7 +5,7 @@ import AppFooter from './components/Footer/AppFooter'
 
 const MainLayoutContent = () => {
   return (
-    <div className="flex h-full flex-col bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
+    <div className="flex h-full flex-col bg-ctp-base">
       {/* Header */}
       <AppHeader />
 

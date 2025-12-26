@@ -55,8 +55,8 @@ function App() {
   // For main window, also wait for session to be in the store
   if (!isReady || (windowType === 'main' && !session)) {
     return (
-      <div className="flex h-screen items-center justify-center rounded-xl bg-white dark:bg-slate-900">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-200 border-t-slate-600 dark:border-slate-700 dark:border-t-slate-400" />
+      <div className="flex h-screen items-center justify-center rounded-xl bg-ctp-base border border-ctp-surface0">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-ctp-surface0 border-t-ctp-mauve" />
       </div>
     )
   }
@@ -64,7 +64,7 @@ function App() {
   return (
     <div
       className={clsx(
-        'flex h-screen flex-col overflow-hidden bg-white dark:bg-slate-900',
+        'flex h-screen flex-col overflow-hidden bg-ctp-base border border-ctp-surface0',
         isSmallWindow ? 'rounded-xl' : !isMaximized && 'rounded-xl'
       )}
     >
@@ -79,13 +79,13 @@ function App() {
         toastOptions={{
           unstyled: true,
           classNames: {
-            toast: 'flex items-center gap-3 w-full rounded-lg px-4 py-3 shadow-lg',
-            success: 'bg-emerald-50 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300',
-            error: 'bg-red-50 text-red-800 dark:bg-red-900/30 dark:text-red-300',
-            info: 'bg-sky-50 text-sky-800 dark:bg-sky-900/30 dark:text-sky-300',
-            warning: 'bg-amber-50 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300',
+            toast: 'flex items-center gap-3 w-full rounded-lg px-4 py-3 shadow-lg bg-ctp-surface0 ring-1 ring-ctp-surface1',
+            success: 'text-ctp-green',
+            error: 'text-ctp-red',
+            info: 'text-ctp-blue',
+            warning: 'text-ctp-yellow',
             title: 'font-medium',
-            description: 'text-sm opacity-80',
+            description: 'text-sm text-ctp-subtext0',
           },
         }}
       />

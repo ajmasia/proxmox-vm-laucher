@@ -42,8 +42,8 @@ const TagFilterPopover = ({
         onClick={() => setIsOpen(!isOpen)}
         className={`rounded-md px-3 py-1.5 text-sm font-medium transition-all ${
           selectedTags.length > 0
-            ? 'bg-teal-700 text-white shadow-sm dark:bg-teal-600'
-            : 'bg-slate-200 text-slate-600 hover:bg-slate-300 hover:text-slate-900 dark:bg-slate-600 dark:text-slate-300 dark:hover:bg-slate-500 dark:hover:text-slate-100'
+            ? 'bg-ctp-teal text-ctp-base shadow-sm'
+            : 'bg-ctp-surface0 text-ctp-subtext1 hover:bg-ctp-surface1 hover:text-ctp-text'
         }`}
       >
         Tags
@@ -56,17 +56,17 @@ const TagFilterPopover = ({
 
       {/* Popover */}
       {isOpen && (
-        <div className="absolute left-0 top-full z-50 mt-2 w-64 rounded-lg bg-white shadow-lg ring-1 ring-black/5 dark:bg-slate-700 dark:ring-white/10">
+        <div className="absolute left-0 top-full z-50 mt-2 w-64 rounded-lg bg-ctp-mantle shadow-lg ring-1 ring-ctp-surface1">
           <div className="p-3">
             {/* Header */}
             <div className="mb-2 flex items-center justify-between">
-              <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+              <span className="text-sm font-semibold text-ctp-text">
                 Filter by Tags
               </span>
               {selectedTags.length > 0 && (
                 <button
                   onClick={onClearTags}
-                  className="text-xs font-medium text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200"
+                  className="text-xs font-medium text-ctp-subtext0 hover:text-ctp-text"
                 >
                   Clear
                 </button>
@@ -80,17 +80,17 @@ const TagFilterPopover = ({
                 return (
                   <label
                     key={tag}
-                    className="flex cursor-pointer items-center gap-3 rounded-md px-2 py-1.5 transition-colors hover:bg-slate-50 dark:hover:bg-slate-600"
+                    className="flex cursor-pointer items-center gap-3 rounded-md px-2 py-1.5 transition-colors hover:bg-ctp-surface0"
                   >
                     <div className="relative flex items-center justify-center">
                       <input
                         type="checkbox"
                         checked={isSelected}
                         onChange={() => onToggleTag(tag)}
-                        className="peer h-4 w-4 cursor-pointer appearance-none rounded border-2 border-slate-300 bg-white transition-all checked:border-slate-700 checked:bg-slate-700 hover:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 dark:border-slate-500 dark:bg-slate-600 dark:checked:border-slate-500 dark:checked:bg-slate-500 dark:hover:border-slate-400 dark:focus:ring-offset-slate-700"
+                        className="peer h-4 w-4 cursor-pointer appearance-none rounded border-2 border-ctp-surface2 bg-ctp-base transition-all checked:border-ctp-mauve checked:bg-ctp-mauve hover:border-ctp-overlay0 focus:outline-none focus:ring-2 focus:ring-ctp-mauve focus:ring-offset-2 focus:ring-offset-ctp-mantle"
                       />
                       <svg
-                        className="pointer-events-none absolute h-3 w-3 text-white opacity-0 transition-opacity peer-checked:opacity-100"
+                        className="pointer-events-none absolute h-3 w-3 text-ctp-base opacity-0 transition-opacity peer-checked:opacity-100"
                         viewBox="0 0 12 10"
                         fill="none"
                         xmlns="http://www.w3.org/2000/svg"
@@ -104,7 +104,7 @@ const TagFilterPopover = ({
                         />
                       </svg>
                     </div>
-                    <span className="flex-1 text-sm text-slate-700 dark:text-slate-300">{tag}</span>
+                    <span className="flex-1 text-sm text-ctp-subtext1">{tag}</span>
                   </label>
                 )
               })}

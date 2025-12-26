@@ -42,34 +42,34 @@ const VMItem = memo(
 
     return (
       <div
-        className={`group rounded-xl bg-white shadow-sm transition-all hover:shadow-md dark:bg-slate-800 ${
-          vm.spice ? 'ring-2 ring-blue-400/40' : 'ring-1 ring-black/5 dark:ring-white/10'
+        className={`group rounded-xl bg-ctp-mantle shadow-sm transition-all hover:shadow-md ${
+          vm.spice ? 'ring-2 ring-ctp-blue/40' : 'ring-1 ring-ctp-surface1'
         }`}
       >
         <div className="flex items-center gap-2 p-4">
           {/* VM Icon and Name */}
           <div className="flex min-w-0 flex-1 items-center gap-3">
-            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-400">
+            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-ctp-surface0 text-ctp-subtext0">
               <MonitorIcon className="h-5 w-5" />
             </div>
             <div className="min-w-0 flex-1">
-              <div className="truncate font-medium text-slate-900 dark:text-slate-100">
+              <div className="truncate font-medium text-ctp-text">
                 {vm.name}
               </div>
               <div className="mt-1 flex flex-wrap items-center gap-1.5">
                 {/* Node Badge */}
-                <span className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700 ring-1 ring-slate-600/10 dark:bg-slate-700 dark:text-slate-300 dark:ring-slate-500/20">
+                <span className="inline-flex items-center rounded-md bg-ctp-surface0 px-2 py-0.5 text-xs font-medium text-ctp-subtext1 ring-1 ring-ctp-surface1">
                   {vm.node.toUpperCase()}
                 </span>
 
                 {/* VM ID Badge */}
-                <span className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700 ring-1 ring-slate-600/10 dark:bg-slate-700 dark:text-slate-300 dark:ring-slate-500/20">
+                <span className="inline-flex items-center rounded-md bg-ctp-surface0 px-2 py-0.5 text-xs font-medium text-ctp-subtext1 ring-1 ring-ctp-surface1">
                   {vm.vmid}
                 </span>
 
                 {/* SPICE Badge */}
                 {vm.spice && (
-                  <span className="inline-flex items-center gap-1 rounded-md bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700 ring-1 ring-blue-600/20 dark:bg-blue-900/50 dark:text-blue-400 dark:ring-blue-500/30">
+                  <span className="inline-flex items-center gap-1 rounded-md bg-ctp-blue/20 px-2 py-0.5 text-xs font-medium text-ctp-blue ring-1 ring-ctp-blue/30">
                     <PlugIcon className="h-3 w-3" />
                     SPICE
                   </span>
@@ -77,7 +77,7 @@ const VMItem = memo(
 
                 {/* IP Address Badge */}
                 {vm.ipAddress && (
-                  <span className="inline-flex items-center rounded-md bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700 ring-1 ring-emerald-600/20 dark:bg-emerald-900/50 dark:text-emerald-400 dark:ring-emerald-500/30">
+                  <span className="inline-flex items-center rounded-md bg-ctp-green/20 px-2 py-0.5 text-xs font-medium text-ctp-green ring-1 ring-ctp-green/30">
                     {vm.ipAddress}
                   </span>
                 )}
@@ -85,14 +85,14 @@ const VMItem = memo(
                 {/* Tags */}
                 {vm.tags && vm.tags.trim() && (
                   <>
-                    <span className="text-slate-300 dark:text-slate-600">•</span>
+                    <span className="text-ctp-surface2">•</span>
                     {vm.tags
                       .split(';')
                       .filter((tag) => tag.trim())
                       .map((tag, idx) => (
                         <span
                           key={idx}
-                          className="inline-flex items-center rounded-md bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700 ring-1 ring-blue-600/10 dark:bg-blue-900/30 dark:text-blue-400 dark:ring-blue-500/20"
+                          className="inline-flex items-center rounded-md bg-ctp-lavender/20 px-2 py-0.5 text-xs font-medium text-ctp-lavender ring-1 ring-ctp-lavender/30"
                         >
                           {tag.trim()}
                         </span>
@@ -115,8 +115,8 @@ const VMItem = memo(
 
           {/* Resources */}
           <div className="min-w-[110px] flex-shrink-0 text-right">
-            <div className="text-sm text-slate-900 dark:text-slate-100">{vm.cpus || 0} vCPU</div>
-            <div className="text-xs text-slate-500 dark:text-slate-400">
+            <div className="text-sm text-ctp-text">{vm.cpus || 0} vCPU</div>
+            <div className="text-xs text-ctp-subtext0">
               {formatBytes(vm.mem || 0)} / {formatBytes(vm.maxmem || 0)}
             </div>
           </div>
@@ -131,8 +131,8 @@ const VMItem = memo(
                   disabled={isOperationInProgress || vm.status === 'running'}
                   className={`inline-flex items-center justify-center rounded-lg p-2 transition-all duration-200 ${
                     isOperationInProgress || vm.status === 'running'
-                      ? 'cursor-not-allowed bg-slate-100 text-slate-400 opacity-50 dark:bg-slate-700 dark:text-slate-500'
-                      : 'bg-slate-200 text-slate-700 hover:scale-105 hover:bg-slate-300 hover:text-slate-900 active:scale-95 dark:bg-slate-600 dark:text-slate-300 dark:hover:bg-slate-500 dark:hover:text-slate-100'
+                      ? 'cursor-not-allowed bg-ctp-surface0 text-ctp-overlay0 opacity-50'
+                      : 'bg-ctp-surface0 text-ctp-subtext1 hover:scale-105 hover:bg-ctp-surface1 hover:text-ctp-text active:scale-95'
                   }`}
                 >
                   {vm.status === 'paused' ? (
@@ -153,8 +153,8 @@ const VMItem = memo(
                   disabled={isOperationInProgress || vm.status !== 'running'}
                   className={`inline-flex items-center justify-center rounded-lg p-2 transition-all duration-200 ${
                     isOperationInProgress || vm.status !== 'running'
-                      ? 'cursor-not-allowed bg-slate-100 text-slate-400 opacity-50 dark:bg-slate-700 dark:text-slate-500'
-                      : 'bg-slate-200 text-slate-700 hover:scale-105 hover:bg-slate-300 hover:text-slate-900 active:scale-95 dark:bg-slate-600 dark:text-slate-300 dark:hover:bg-slate-500 dark:hover:text-slate-100'
+                      ? 'cursor-not-allowed bg-ctp-surface0 text-ctp-overlay0 opacity-50'
+                      : 'bg-ctp-surface0 text-ctp-subtext1 hover:scale-105 hover:bg-ctp-surface1 hover:text-ctp-text active:scale-95'
                   }`}
                 >
                   <PauseIcon className="h-4 w-4" />
@@ -171,8 +171,8 @@ const VMItem = memo(
                   disabled={isOperationInProgress || vm.status === 'stopped'}
                   className={`inline-flex items-center justify-center rounded-lg p-2 transition-all duration-200 ${
                     isOperationInProgress || vm.status === 'stopped'
-                      ? 'cursor-not-allowed bg-slate-100 text-slate-400 opacity-50 dark:bg-slate-700 dark:text-slate-500'
-                      : 'bg-slate-200 text-slate-700 hover:scale-105 hover:bg-slate-300 hover:text-slate-900 active:scale-95 dark:bg-slate-600 dark:text-slate-300 dark:hover:bg-slate-500 dark:hover:text-slate-100'
+                      ? 'cursor-not-allowed bg-ctp-surface0 text-ctp-overlay0 opacity-50'
+                      : 'bg-ctp-surface0 text-ctp-subtext1 hover:scale-105 hover:bg-ctp-surface1 hover:text-ctp-text active:scale-95'
                   }`}
                 >
                   <StopIcon className="h-4 w-4" />
@@ -195,8 +195,8 @@ const VMItem = memo(
                   disabled={isOperationInProgress || vm.status !== 'running' || !vm.spice}
                   className={`inline-flex items-center justify-center rounded-lg p-2 transition-all duration-200 ${
                     isOperationInProgress || vm.status !== 'running' || !vm.spice
-                      ? 'cursor-not-allowed bg-slate-100 text-slate-400 opacity-50 dark:bg-slate-700 dark:text-slate-500'
-                      : 'bg-slate-200 text-slate-700 hover:scale-105 hover:bg-slate-300 hover:text-slate-900 active:scale-95 dark:bg-slate-600 dark:text-slate-300 dark:hover:bg-slate-500 dark:hover:text-slate-100'
+                      ? 'cursor-not-allowed bg-ctp-surface0 text-ctp-overlay0 opacity-50'
+                      : 'bg-ctp-surface0 text-ctp-subtext1 hover:scale-105 hover:bg-ctp-surface1 hover:text-ctp-text active:scale-95'
                   }`}
                 >
                   <PlugIcon className="h-4 w-4" />
