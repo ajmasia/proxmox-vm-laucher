@@ -32,7 +32,7 @@ const VMFilter = memo(function VMFilter({
     <div className="flex min-h-[40px] flex-wrap items-center gap-4 px-6 py-4">
       {/* Status Filter */}
       <div className="flex flex-wrap items-center gap-2">
-        <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Status:</label>
+        <label className="text-sm font-medium text-ctp-subtext1">Status:</label>
         <div className="flex flex-wrap gap-1.5">
           {statusOptions.map((status) => (
             <button
@@ -40,8 +40,8 @@ const VMFilter = memo(function VMFilter({
               onClick={() => onStatusFilterChange(status)}
               className={`rounded-md px-3 py-1.5 text-sm font-medium transition-all ${
                 statusFilter === status
-                  ? 'bg-teal-700 text-white shadow-sm dark:bg-teal-600'
-                  : 'bg-slate-200 text-slate-600 hover:bg-slate-300 hover:text-slate-900 dark:bg-slate-600 dark:text-slate-300 dark:hover:bg-slate-500 dark:hover:text-slate-100'
+                  ? 'bg-ctp-teal text-ctp-base shadow-sm'
+                  : 'bg-ctp-surface0 text-ctp-subtext1 hover:bg-ctp-surface1 hover:text-ctp-text'
               }`}
             >
               {status.charAt(0).toUpperCase() + status.slice(1)}
@@ -53,7 +53,7 @@ const VMFilter = memo(function VMFilter({
       {/* Tag Filter */}
       {uniqueTags.length > 0 && uniqueTags.length <= 6 && (
         <div className="flex flex-wrap items-center gap-2">
-          <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Tags:</label>
+          <label className="text-sm font-medium text-ctp-subtext1">Tags:</label>
           <div className="flex flex-wrap gap-1.5">
             {uniqueTags.map((tag) => (
               <button
@@ -61,8 +61,8 @@ const VMFilter = memo(function VMFilter({
                 onClick={() => onToggleTag(tag)}
                 className={`rounded-md px-3 py-1.5 text-sm font-medium transition-all ${
                   selectedTags.includes(tag)
-                    ? 'bg-teal-700 text-white shadow-sm dark:bg-teal-600'
-                    : 'bg-slate-200 text-slate-600 hover:bg-slate-300 hover:text-slate-900 dark:bg-slate-600 dark:text-slate-300 dark:hover:bg-slate-500 dark:hover:text-slate-100'
+                    ? 'bg-ctp-teal text-ctp-base shadow-sm'
+                    : 'bg-ctp-surface0 text-ctp-subtext1 hover:bg-ctp-surface1 hover:text-ctp-text'
                 }`}
               >
                 {tag}
@@ -75,7 +75,7 @@ const VMFilter = memo(function VMFilter({
       {/* Tag Filter Popover (for more than 6 tags) */}
       {uniqueTags.length > 6 && (
         <div className="flex items-center gap-2">
-          <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Tags:</label>
+          <label className="text-sm font-medium text-ctp-subtext1">Tags:</label>
           <TagFilterPopover
             selectedTags={selectedTags}
             uniqueTags={uniqueTags}
@@ -93,10 +93,10 @@ const VMFilter = memo(function VMFilter({
               type="checkbox"
               checked={spiceOnly}
               onChange={(e) => onSpiceOnlyChange(e.target.checked)}
-              className="peer h-4 w-4 cursor-pointer appearance-none rounded border-2 border-slate-300 bg-white transition-all checked:border-slate-700 checked:bg-slate-700 hover:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 dark:border-slate-500 dark:bg-slate-700 dark:checked:border-slate-500 dark:checked:bg-slate-500 dark:hover:border-slate-400 dark:focus:ring-offset-slate-800"
+              className="peer h-4 w-4 cursor-pointer appearance-none rounded border-2 border-ctp-surface2 bg-ctp-mantle transition-all checked:border-ctp-mauve checked:bg-ctp-mauve hover:border-ctp-overlay0 focus:outline-none focus:ring-2 focus:ring-ctp-mauve focus:ring-offset-2 focus:ring-offset-ctp-base"
             />
             <svg
-              className="pointer-events-none absolute h-3 w-3 text-white opacity-0 transition-opacity peer-checked:opacity-100"
+              className="pointer-events-none absolute h-3 w-3 text-ctp-base opacity-0 transition-opacity peer-checked:opacity-100"
               viewBox="0 0 12 10"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
@@ -110,7 +110,7 @@ const VMFilter = memo(function VMFilter({
               />
             </svg>
           </div>
-          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">SPICE only</span>
+          <span className="text-sm font-medium text-ctp-subtext1">SPICE only</span>
         </label>
       </div>
 
@@ -119,7 +119,7 @@ const VMFilter = memo(function VMFilter({
         <Tooltip text="Clear filters" position="top">
           <button
             onClick={onClearFilters}
-            className="ml-auto inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-600 transition-all hover:border-slate-400 hover:text-slate-900 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-300 dark:hover:border-slate-500 dark:hover:text-slate-100"
+            className="ml-auto inline-flex items-center gap-2 rounded-lg border border-ctp-surface1 bg-ctp-mantle px-3 py-1.5 text-sm font-medium text-ctp-subtext1 transition-all hover:border-ctp-surface2 hover:text-ctp-text"
           >
             <svg
               className="h-4 w-4"
