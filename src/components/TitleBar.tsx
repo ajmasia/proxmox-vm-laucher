@@ -23,8 +23,8 @@ function TitleBarButton({
   const baseClasses = 'flex h-7 w-7 items-center justify-center rounded-lg transition-all'
   const variantClasses =
     variant === 'close'
-      ? 'bg-slate-600/50 text-slate-400 hover:text-white dark:bg-slate-700/50'
-      : 'text-white hover:bg-slate-500/40 dark:hover:bg-slate-600/50'
+      ? 'bg-ctp-surface1/50 text-ctp-subtext0 hover:text-ctp-text'
+      : 'text-ctp-text hover:bg-ctp-surface1/50'
 
   return (
     <Tooltip text={tooltip}>
@@ -76,7 +76,7 @@ export function TitleBar({ title = 'PVE Launcher' }: TitleBarProps) {
 
   return (
     <div
-      className="flex select-none items-center justify-between bg-slate-700 px-3 py-3 dark:bg-slate-800"
+      className="flex select-none items-center justify-between bg-ctp-mantle px-3 py-3"
       style={{ WebkitAppRegion: 'drag' } as React.CSSProperties}
     >
       {/* Left side - logout and refresh */}
@@ -118,7 +118,7 @@ export function TitleBar({ title = 'PVE Launcher' }: TitleBarProps) {
 
       {/* Center - title */}
       <div className="pointer-events-none absolute inset-x-0 flex items-center justify-center py-3">
-        <span className="text-sm font-medium text-slate-300">{title}</span>
+        <span className="text-sm font-medium text-ctp-subtext0">{title}</span>
       </div>
 
       {/* Right side - theme toggle and close */}

@@ -63,7 +63,7 @@ const Login = () => {
   }
 
   return (
-    <div className="relative flex h-screen flex-col bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
+    <div className="relative flex h-screen flex-col bg-ctp-base">
       {/* Draggable region for moving window */}
       <div
         className="absolute inset-x-0 top-0 h-10"
@@ -75,14 +75,14 @@ const Login = () => {
         {/* Header */}
         <div className="mb-8 text-center">
           <div className="mb-4 flex justify-center">
-            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-700 shadow-lg">
-              <MonitorIcon className="h-10 w-10 text-white" />
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-ctp-mauve shadow-lg">
+              <MonitorIcon className="h-10 w-10 text-ctp-base" />
             </div>
           </div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+          <h1 className="text-2xl font-bold text-ctp-text">
             Proxmox VM Launcher
           </h1>
-          <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
+          <p className="mt-2 text-sm text-ctp-subtext0">
             Select a server and enter your password to continue
           </p>
         </div>
@@ -108,7 +108,7 @@ const Login = () => {
         </div>
 
         {/* Footer */}
-        <p className="mt-8 text-center text-xs text-slate-500 dark:text-slate-400">
+        <p className="mt-8 text-center text-xs text-ctp-subtext0">
           Your credentials are never stored. Sessions are kept in memory only.
         </p>
       </div>
